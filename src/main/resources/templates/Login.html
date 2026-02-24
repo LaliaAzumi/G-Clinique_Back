@@ -1,13 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Connexion</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Clinique - Connexion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Login</h1>
-    <!-- juste un bouton pour passer à la page suivante -->
-    <form action="/home" method="get">
-        <button type="submit">Suivant</button>
-    </form>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-hospital text-primary" style="font-size: 3rem;"></i>
+                            <h3 class="fw-bold mt-2">ERP Clinique</h3>
+                            <p class="text-muted">Connectez-vous pour acceder au systeme</p>
+                        </div>
+
+                        <!-- Message d'erreur -->
+                        <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> Nom d'utilisateur ou mot de passe incorrect.
+                        </div>
+
+                        <!-- Message de deconnexion -->
+                        <div th:if="${param.logout}" class="alert alert-info" role="alert">
+                            <i class="bi bi-box-arrow-right"></i> Vous avez ete deconnecte avec succes.
+                        </div>
+
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-3">
+                                <label for="username" class="form-label fw-semibold">
+                                    <i class="bi bi-person"></i> Nom d'utilisateur
+                                </label>
+                                <input type="text" class="form-control form-control-lg"
+                                       id="username" name="username"
+                                       placeholder="Entrez votre identifiant" required autofocus>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password" class="form-label fw-semibold">
+                                    <i class="bi bi-lock"></i> Mot de passe
+                                </label>
+                                <input type="password" class="form-control form-control-lg"
+                                       id="password" name="password"
+                                       placeholder="Entrez votre mot de passe" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                            </button>
+                        </form>
+
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <p class="text-muted small mb-1"><strong>Comptes de demonstration :</strong></p>
+                            <p class="text-muted small mb-0">
+                                Admin : <code>admin / admin</code><br>
+                                Utilisateur : <code>user / user</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

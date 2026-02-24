@@ -25,8 +25,8 @@ public class Medecin {
 
     private String adresse;
 
-    @OneToMany(mappedBy = "medecin", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RendezVous> rendezVous = new ArrayList<>();
+    /*@OneToMany(mappedBy = "medecin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RendezVous> rendezVous = new ArrayList<>();*/
 
     // Constructeurs
     public Medecin() {}
@@ -79,14 +79,14 @@ public class Medecin {
         this.adresse = adresse;
     }
 
-    public List<RendezVous> getRendezVous() {
+  /*  public List<RendezVous> getRendezVous() {
         return rendezVous;
     }
 
     public void setRendezVous(List<RendezVous> rendezVous) {
         this.rendezVous = rendezVous;
     }
-
+*/
     @Override
     public String toString() {
         return "Dr. " + nom + " (" + specialite + ")";
