@@ -1,0 +1,94 @@
+package com.erp.clinique.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "medecins")
+public class Medecin {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank(message = "Le nom est obligatoire")
+    @Column(nullable = false)
+    private String nom;
+
+    @NotBlank(message = "La specialite est obligatoire")
+    @Column(nullable = false)
+    private String specialite;
+
+    private String telephone;
+
+    private String adresse;
+
+    @OneToMany(mappedBy = "medecin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RendezVous> rendezVous = new ArrayList<>();
+
+    // Constructeurs
+    public Medecin() {}
+
+    public Medecin(String nom, String specialite, String telephone, String adresse) {
+        this.nom = nom;
+        this.specialite = specialite;
+        this.telephone = telephone;
+        this.adresse = adresse;
+    }
+
+    // Getters et Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getSpecialite() {
+        return specialite;
+    }
+
+    public void setSpecialite(String specialite) {
+        this.specialite = specialite;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public String getAdresse() {
+        return adresse;
+    }
+
+    public void setAdresse(String adresse) {
+        this.adresse = adresse;
+    }
+
+    public List<RendezVous> getRendezVous() {
+        return rendezVous;
+    }
+
+    public void setRendezVous(List<RendezVous> rendezVous) {
+        this.rendezVous = rendezVous;
+    }
+
+    @Override
+    public String toString() {
+        return "Dr. " + nom + " (" + specialite + ")";
+    }
+}
