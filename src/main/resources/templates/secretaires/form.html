@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Clinique - Formulaire secrétaires</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-badge"></i>
+                        <span th:text="${secretaire.id == null} ? 'Nouveau secrétaire' : 'Modifier secrétaire'"></span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/users/secretaires/save}" th:object="${secretaire}" method="post">
+                        <input type="hidden" th:field="*{id}"/>
+
+                        <div class="mb-3">
+                            <label for="prenom" class="form-label fw-semibold">username *</label>
+                            <input type="text" class="form-control" id="prenom"
+                                   th:field="*{username}" placeholder="username du secrétaire" required>
+                            <div th:if="${#fields.hasErrors('username')}"
+                                 class="text-danger small" th:errors="*{username}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Email *</label>
+                            <input type="email" class="form-control" id="email"
+                                   th:field="*{email}" placeholder="Email du secrétaire" required>
+                            <div th:if="${#fields.hasErrors('email')}"
+                                 class="text-danger small" th:errors="*{email}"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/users/secretaires}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const textInput = document.getElementById('dateNaissanceText');
+const dateInput = document.getElementById('dateNaissanceDate');
+const form = document.querySelector('form');
+
+if(textInput.value) {
+    const parts = textInput.value.split('/');
+    dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
+textInput.addEventListener('focus', () => {
+    textInput.classList.add('d-none');
+    dateInput.classList.remove('d-none');
+    dateInput.focus();
+});
+
+dateInput.addEventListener('blur', () => {
+    if(dateInput.value) {
+        const [year, month, day] = dateInput.value.split('-');
+        textInput.value = `${day}/${month}/${year}`;
+    }
+    dateInput.classList.add('d-none');
+    textInput.classList.remove('d-none');
+});
+
+form.addEventListener('submit', () => {
+    if(textInput.value) {
+        const parts = textInput.value.split('/');
+        dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+	      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,7 +60,7 @@
     <div class="row g-4">
 
         <!-- Medecins -->
-        <div class="col-md-6 col-lg-3">
+        <div th:if="${roles[0]} == 'ROLE_ADMIN'" class="col-md-6 col-lg-3">
             <a th:href="@{/medecins}" class="text-decoration-none">
                 <div class="card card-module shadow-sm text-center p-4">
                     <div class="icon-circle bg-primary bg-opacity-10 text-primary">
@@ -70,22 +71,38 @@
                 </div>
             </a>
         </div>
+		
+		<!-- Secrétaire : visible pour ADMIN seulement -->
+		<div th:if="${roles[0]} == 'ROLE_ADMIN'" class="col-md-6 col-lg-3">
+		    <a th:href="@{/users/secretaires}" class="text-decoration-none">
+		        <div class="card card-module shadow-sm text-center p-4">
+		            <div class="icon-circle bg-primary bg-opacity-10 text-primary">
+		                <i class="bi bi-person-circle"></i> <!-- icône “personne” -->
+		            </div>
+		            <h5 class="fw-bold text-dark">Secrétaires</h5>
+		            <p class="text-muted small">Gestion des comptes secrétaires</p>
+		        </div>
+		    </a>
+		</div>
+		
+		<!--<p>Utilisateur : <span th:text="${username}"></span></p>
+		<p>Rôles : <span th:text="${roles}"></span></p>-->
 
         <!-- Patients -->
-        <div class="col-md-6 col-lg-3">
-            <a th:href="@{/patients}" class="text-decoration-none">
-                <div class="card card-module shadow-sm text-center p-4">
-                    <div class="icon-circle bg-success bg-opacity-10 text-success">
-                        <i class="bi bi-people"></i>
-                    </div>
-                    <h5 class="fw-bold text-dark">Patients</h5>
-                    <p class="text-muted small">Gestion des dossiers patients</p>
-                </div>
-            </a>
-        </div>
+		<div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
+		    <a th:href="@{/patients}" class="text-decoration-none">
+		        <div class="card card-module shadow-sm text-center p-4">
+		            <div class="icon-circle bg-success bg-opacity-10 text-success">
+		                <i class="bi bi-people"></i>
+		            </div>
+		            <h5 class="fw-bold text-dark">Patients</h5>
+		            <p class="text-muted small">Gestion des dossiers patients</p>
+		        </div>
+		    </a>
+		</div>
 
         <!-- Rendez-vous -->
-        <div class="col-md-6 col-lg-3">
+        <div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
             <a th:href="@{/rendezvous}" class="text-decoration-none">
                 <div class="card card-module shadow-sm text-center p-4">
                     <div class="icon-circle bg-warning bg-opacity-10 text-warning">
@@ -98,7 +115,7 @@
         </div>
 
         <!-- Consultations -->
-        <div class="col-md-6 col-lg-3">
+        <div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
             <a th:href="@{/consultations}" class="text-decoration-none">
                 <div class="card card-module shadow-sm text-center p-4">
                     <div class="icon-circle bg-danger bg-opacity-10 text-danger">
@@ -109,8 +126,62 @@
                 </div>
             </a>
         </div>
+		
 
     </div>
+	<!-- Modal Premier Login -->
+	<div th:if="${firstLogin}" class="modal fade" id="firstLoginModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+	  <div class="modal-dialog modal-dialog-centered">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Changement de mot de passe</h5>
+	      </div>
+	      <div class="modal-body">
+	        <form th:action="@{/users/change-password}" th:object="${user}" method="post" id="firstLoginForm">
+				<input type="hidden" th:field="*{id}" />
+	          <div class="mb-3">
+	            <label for="newPassword" class="form-label">Nouveau mot de passe *</label>
+	            <input type="password" class="form-control" id="newPassword" th:field="*{mdp}" required>
+	          </div>
+	          <div class="mb-3">
+	            <label for="confirmPassword" class="form-label">Retaper le mot de passe *</label>
+	            <input type="password" class="form-control" id="confirmPassword" required>
+	            <div class="text-danger small mt-1" id="passwordError" style="display:none;">Les mots de passe ne correspondent pas.</div>
+	          </div>
+	        </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" id="submitFirstLogin">Enregistrer</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+	    var firstLoginModalEl = document.getElementById('firstLoginModal');
+	    if (firstLoginModalEl) {
+	        var modal = new bootstrap.Modal(firstLoginModalEl);
+	        modal.show();
+
+	        // Bouton soumission
+	        document.getElementById('submitFirstLogin').addEventListener('click', function() {
+	            var newPwd = document.getElementById('newPassword').value;
+	            var confirmPwd = document.getElementById('confirmPassword').value;
+	            var errorDiv = document.getElementById('passwordError');
+
+	            if (newPwd !== confirmPwd) {
+	                errorDiv.style.display = 'block';
+	                return;
+	            }
+
+	            // Si ok, submit le formulaire
+	            errorDiv.style.display = 'none';
+	            document.getElementById('firstLoginForm').submit();
+	        });
+	    }
+	});
+	</script>
 </section>
 
 <!-- Footer -->
