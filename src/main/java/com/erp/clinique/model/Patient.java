@@ -27,13 +27,22 @@ public class Patient {
 	private LocalDate dateNaissance;
 	
 	@NotNull(message = "Téléphone obligatoire")
-	@Pattern(regexp = "\\d{10}", message = "Numéro 10 chiffres")
-	private Long telephone;
+	@Pattern(regexp = "\\d{10}", message = "Numéro doit avoir exactement 10 chiffres")
+	private String telephone;
 	
 	@NotNull(message = "Adresse obligatoire")
 	@NotBlank(message = "Adresse non vide")
 	private String adresse;
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id= id;
+	}
+	public void setNom(Long id) {
+		this.id = id;
+	}
 	public String getNom() {
 		return nom;
 	}
@@ -52,10 +61,10 @@ public class Patient {
 	public void setDateNaissance(LocalDate dateNaissance) {
 		this.dateNaissance = dateNaissance;
 	}
-	public Long getTelephone() {
+	public String getTelephone() {
 		return telephone;
 	}
-	public void setTelephone(Long telephone) {
+	public void setTelephone(String telephone) {
 		this.telephone = telephone;
 	}
 	public String getAdresse() {
@@ -65,6 +74,20 @@ public class Patient {
 		this.adresse = adresse;
 	}
 	
+	public Patient() {}
+
+    public Patient(String nom, String prenom, LocalDate dateNaissance, String telephone,String adresse) {
+        this.nom = nom;
+        this.prenom = prenom; 
+        this.dateNaissance = dateNaissance; 
+        this.telephone = telephone;
+        this.adresse = adresse;
+    }
+	
+    @Override
+    public String toString() {
+        return "Patient . " + nom + " " + prenom + " "+ dateNaissance + "" +telephone +" "+ adresse;
+    }
 	
 	
 

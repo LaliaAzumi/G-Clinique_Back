@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.erp.clinique.exception.EntityNotFoundException;
 import com.erp.clinique.model.Patient;
 import com.erp.clinique.repository.PatientRepository;
 
@@ -24,36 +23,32 @@ public class PatientService {
         return patientRepository.findAll();
     }
   
-    public Patient getPatientById(Long id) {
-		 Optional<Patient> existingPatient = patientRepository.findById(id);
+    
+    // Trouver un patient par ID
+    public Optional<Patient> getPatientById(Long id) {
+        return patientRepository.findById(id);
+    }
 
-		    if (existingPatient.isPresent()) {
-		        
-		        return existingPatient.get();
-		    } else {
-		        throw new EntityNotFoundException("Patient non trouvé avec id " + id);
-		    }
-   }
-
-    public Patient updatePatient(Long id, Patient patient) {
-		 Optional<Patient> existingPatient = patientRepository.findById(id);
-
-		    if (existingPatient.isPresent()) {
-		        Patient patientToUpdate = existingPatient.get();
-		        patientToUpdate.setNom(patient.getNom());
-		        patientToUpdate.setPrenom(patient.getPrenom());
-		        patientToUpdate.setDateNaissance(patient.getDateNaissance());
-		        patientToUpdate.setTelephone(patient.getTelephone());
-		        patientToUpdate.setAdresse(patient.getAdresse());
-		        return patientRepository.save(patientToUpdate);
-		    } else {
-		        throw new EntityNotFoundException("Patient non trouvé avec id " + id);
-		    }
+    public void updatePatient(Patient patient) {
+        Optional<Patient> existingPatientOpt = patientRepository.findById(patient.getId());
+        if (existingPatientOpt.isPresent()) {
+            Patient existingPatient = existingPatientOpt.get();
+            existingPatient.setNom(patient.getNom());
+            existingPatient.setPrenom(patient.getPrenom());
+            existingPatient.setDateNaissance(patient.getDateNaissance());
+            existingPatient.setTelephone(patient.getTelephone());
+            existingPatient.setAdresse(patient.getAdresse());
+            patientRepository.save(existingPatient); // JPA fera un UPDATE
+        } else {
+            throw new RuntimeException("Patient introuvable avec l'id : " + patient.getId());
+        }
     }
 	
-    public void deletePatient(Long id) {
+    public void deletePatientById(Long id) {
         patientRepository.deleteById(id);
     }
+
+	
 	
 	
 

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Clinique - Formulaire Patients</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-badge"></i>
+                        <span th:if="${patient.id == null}">Nouveau patient</span>
+                        <span th:if="${patient.id != null}">Modifier patient</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+					<form th:action="${patient.id == null} ? @{/patients/save} : @{/patients/saveEdit/{id}(id=${patient.id})}" 
+					      th:object="${patient}" method="post">
+						
+                        <!-- ID cache pour modification-->
+                        <input type="hidden" th:field="*{id}"/>
+
+                        <div class="mb-3">
+                            <label for="nom" class="form-label fw-semibold">Nom *</label>
+                            <input type="text" class="form-control" id="nom"
+                                   th:field="*{nom}" placeholder="Nom du patient" required>
+                            <div th:if="${#fields.hasErrors('nom')}"
+                                 class="text-danger small" th:errors="*{nom}"></div>
+                        </div>
+						<div class="mb-3">
+						      <label for="prenom" class="form-label fw-semibold">Prénom *</label>
+						       <input type="text" class="form-control" id="prenom"
+						                  th:field="*{prenom}" placeholder="prenom du patient" required>
+						       <div th:if="${#fields.hasErrors('prenom')}"
+						             class="text-danger small" th:errors="*{prenom}"></div>
+						 </div>
+						 <div class="mb-3">
+						     <label for="dateNaissance" class="form-label fw-semibold">Date de naissance *</label>
+
+							 <!-- Affichage lisible par défaut -->
+							 <input type="text" class="form-control" 
+							        id="dateNaissanceText" 
+							        placeholder="jj/mm/aaaa"
+							        th:value="${patient != null && patient.dateNaissance != null} ? ${#temporals.format(patient.dateNaissance, 'dd/MM/yyyy')} : ''" />
+
+							 <!-- Input type date caché -->
+							 <input type="date" class="form-control d-none" 
+							        id="dateNaissanceDate"
+							        th:field="*{dateNaissance}" />
+
+									<!-- <p>Ce paragraphe est commenté</p> -->
+									<script>
+									const textInput = document.getElementById('dateNaissanceText');
+									const dateInput = document.getElementById('dateNaissanceDate');
+									const form = document.querySelector('form');
+
+									// Si la page charge avec une date déjà présente, synchroniser le champ date caché
+									if(textInput.value) {
+									    const parts = textInput.value.split('/');
+									    dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+									}
+
+									// Au focus sur le champ texte
+									textInput.addEventListener('focus', () => {
+									    textInput.classList.add('d-none');
+									    dateInput.classList.remove('d-none');
+									    dateInput.focus();
+									});
+
+									// Au blur du champ date
+									dateInput.addEventListener('blur', () => {
+									    if(dateInput.value) {
+									        const [year, month, day] = dateInput.value.split('-');
+									        textInput.value = `${day}/${month}/${year}`;
+									    }
+									    dateInput.classList.add('d-none');
+									    textInput.classList.remove('d-none');
+									});
+
+									// Avant submit, forcer la valeur du champ date
+									form.addEventListener('submit', () => {
+									    if(textInput.value) {
+									        const parts = textInput.value.split('/');
+									        dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+									    }
+									});
+									</script>
+							 
+						
+                        <div class="mb-3">
+                            <label for="telephone" class="form-label fw-semibold">Telephone</label>
+                            <input type="text" class="form-control" id="telephone"
+                                   th:field="*{telephone}" placeholder="Numero de telephone">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="adresse" class="form-label fw-semibold">Adresse</label>
+                            <input type="text" class="form-control" id="adresse"
+                                   th:field="*{adresse}" placeholder="Adresse du patient">
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/patients}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
