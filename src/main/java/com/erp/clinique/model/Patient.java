@@ -2,6 +2,7 @@ package com.erp.clinique.model;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,6 +35,11 @@ public class Patient {
 	@NotBlank(message = "Adresse non vide")
 	private String adresse;
 	
+	@Column(nullable = false, unique = true)
+	@NotNull(message = "email obligatoire")
+	@NotBlank(message = "email non vide")
+	private String email;
+	
 	public Long getId() {
 		return id;
 	}
@@ -61,6 +67,12 @@ public class Patient {
 	public void setDateNaissance(LocalDate dateNaissance) {
 		this.dateNaissance = dateNaissance;
 	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
 	public String getTelephone() {
 		return telephone;
 	}
@@ -76,12 +88,13 @@ public class Patient {
 	
 	public Patient() {}
 
-    public Patient(String nom, String prenom, LocalDate dateNaissance, String telephone,String adresse) {
+    public Patient(String nom, String prenom, LocalDate dateNaissance, String telephone, String email, String adresse) {
         this.nom = nom;
         this.prenom = prenom; 
         this.dateNaissance = dateNaissance; 
         this.telephone = telephone;
         this.adresse = adresse;
+        this.email = email;
     }
 	
     @Override

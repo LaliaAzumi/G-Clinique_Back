@@ -48,8 +48,12 @@ public class PatientService {
         patientRepository.deleteById(id);
     }
 
-	
-	
+    public boolean existsByEmail(String email) {
+        return patientRepository.existsByEmail(email);
+    }
+    public Patient getByEmail(String email) {
+        return patientRepository.findByEmail(email);
+    }
 	
 
 }

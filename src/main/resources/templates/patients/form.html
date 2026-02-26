@@ -33,14 +33,14 @@
                         <div class="mb-3">
                             <label for="nom" class="form-label fw-semibold">Nom *</label>
                             <input type="text" class="form-control" id="nom"
-                                   th:field="*{nom}" placeholder="Nom du patient" required>
+                                   th:field="*{nom}" placeholder="Nom du patient" required value="kevin">
                             <div th:if="${#fields.hasErrors('nom')}"
                                  class="text-danger small" th:errors="*{nom}"></div>
                         </div>
 						<div class="mb-3">
 						      <label for="prenom" class="form-label fw-semibold">Prénom *</label>
 						       <input type="text" class="form-control" id="prenom"
-						                  th:field="*{prenom}" placeholder="prenom du patient" required>
+						                  th:field="*{prenom}" placeholder="prenom du patient" required value="kevin">
 						       <div th:if="${#fields.hasErrors('prenom')}"
 						             class="text-danger small" th:errors="*{prenom}"></div>
 						 </div>
@@ -53,21 +53,29 @@
 							        placeholder="jj/mm/aaaa"
 							        th:value="${patient != null && patient.dateNaissance != null} ? ${#temporals.format(patient.dateNaissance, 'dd/MM/yyyy')} : ''" />
 
-							 <!-- Input type date caché -->
+							 <!-- Input type date caché 
 							 <input type="date" class="form-control d-none" 
 							        id="dateNaissanceDate"
-							        th:field="*{dateNaissance}" />
+							        th:field="*{dateNaissance}" />-->
+									<input type="date" class="form-control d-none" 
+									       id="dateNaissanceDate"
+									       th:field="*{dateNaissance}" 
+									       th:value="${patient.dateNaissance != null} ? ${#temporals.format(patient.dateNaissance, 'yyyy-MM-dd')} : ''" />
 
-									<!-- <p>Ce paragraphe est commenté</p> -->
+									
 									<script>
+									function pad(n) {
+									    return n.toString().padStart(2, '0');
+									}
+
 									const textInput = document.getElementById('dateNaissanceText');
 									const dateInput = document.getElementById('dateNaissanceDate');
 									const form = document.querySelector('form');
 
-									// Si la page charge avec une date déjà présente, synchroniser le champ date caché
+									// Synchronisation initiale si date existante
 									if(textInput.value) {
 									    const parts = textInput.value.split('/');
-									    dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+									    dateInput.value = `${parts[2]}-${pad(parts[1])}-${pad(parts[0])}`;
 									}
 
 									// Au focus sur le champ texte
@@ -81,17 +89,17 @@
 									dateInput.addEventListener('blur', () => {
 									    if(dateInput.value) {
 									        const [year, month, day] = dateInput.value.split('-');
-									        textInput.value = `${day}/${month}/${year}`;
+									        textInput.value = `${pad(day)}/${pad(month)}/${year}`;
 									    }
 									    dateInput.classList.add('d-none');
 									    textInput.classList.remove('d-none');
 									});
 
-									// Avant submit, forcer la valeur du champ date
+									// Avant submit
 									form.addEventListener('submit', () => {
 									    if(textInput.value) {
 									        const parts = textInput.value.split('/');
-									        dateInput.value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+									        dateInput.value = `${parts[2]}-${pad(parts[1])}-${pad(parts[0])}`;
 									    }
 									});
 									</script>
@@ -102,6 +110,11 @@
                             <input type="text" class="form-control" id="telephone"
                                    th:field="*{telephone}" placeholder="Numero de telephone">
                         </div>
+						<div class="mb-3">
+						      <label for="email" class="form-label fw-semibold">Email</label>
+						      <input type="email" class="form-control" id="telephone"
+						                  th:field="*{email}" placeholder="Email">
+						</div>
 
                         <div class="mb-3">
                             <label for="adresse" class="form-label fw-semibold">Adresse</label>

@@ -1,16 +1,27 @@
 package com.erp.clinique.controller;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.erp.clinique.model.RendezVous;
 import com.erp.clinique.service.MedecinService;
 import com.erp.clinique.service.PatientService;
 import com.erp.clinique.service.RendezVousService;
+
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/rendezvous")
@@ -21,6 +32,7 @@ public class RendezVousController {
 
     @Autowired
     private MedecinService medecinService;
+    
 
     @Autowired
     private PatientService patientService;
@@ -37,7 +49,7 @@ public class RendezVousController {
     public String showCreateForm(Model model) {
         model.addAttribute("rendezVous", new RendezVous());
         model.addAttribute("medecins", medecinService.findAll());
-      //  model.addAttribute("patients", patientService.findAll());
+        model.addAttribute("patients", patientService.getAllPatients());
         return "rendezvous/form";
     }
 
@@ -49,9 +61,10 @@ public class RendezVousController {
                        RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("medecins", medecinService.findAll());
-      //      model.addAttribute("patients", patientService.findAll());
+            model.addAttribute("patients", patientService.getAllPatients());
             return "rendezvous/form";
         }
+        
         rendezVousService.save(rendezVous);
         redirectAttributes.addFlashAttribute("success", "Rendez-vous enregistre avec succes !");
         return "redirect:/rendezvous";
@@ -65,7 +78,7 @@ public class RendezVousController {
                 .map(rendezVous -> {
                     model.addAttribute("rendezVous", rendezVous);
                     model.addAttribute("medecins", medecinService.findAll());
-                 //   model.addAttribute("patients", patientService.findAll());
+                    model.addAttribute("patients", patientService.getAllPatients());
                     return "rendezvous/form";
                 })
                 .orElseGet(() -> {
@@ -86,4 +99,18 @@ public class RendezVousController {
         }
         return "redirect:/rendezvous";
     }
+    @PostMapping("/updateStatus")
+    public String updateRendezVous(@RequestParam Long id,
+                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime heure,
+                                   @RequestParam String statut) {
+        RendezVous rv = rendezVousService.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
+        rv.setDate(date);
+        rv.setHeure(heure);
+        rv.setStatut(statut);                
+        rendezVousService.save(rv);
+        return "redirect:/callendar/callendars";
+    }
+   
 }

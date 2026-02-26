@@ -1,10 +1,12 @@
 package com.erp.clinique.repository;
 
-import com.erp.clinique.model.RendezVous;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.erp.clinique.model.RendezVous;
 
 @Repository
 public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
@@ -14,4 +16,6 @@ public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
     List<RendezVous> findByPatientId(Long patientId);
 
     List<RendezVous> findByStatut(String statut);
+    
+    List<RendezVous> findByMedecinIdAndDateBetween(Long medecinId, LocalDate start, LocalDate end);
 }

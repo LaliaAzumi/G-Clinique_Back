@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.erp.clinique.model.Patient;
+import com.erp.clinique.model.RendezVous;
+import com.erp.clinique.service.MedecinService;
 import com.erp.clinique.service.PatientService;
 
 import jakarta.validation.Valid;
@@ -24,6 +26,9 @@ public class PatientController {
 
     @Autowired
     private PatientService patientService;
+    
+    @Autowired
+    private MedecinService medecinService;
 
  // Lister tous les medecins
     @GetMapping
@@ -42,7 +47,8 @@ public class PatientController {
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("patient") Patient patient,
                        BindingResult result,
-                       RedirectAttributes redirectAttributes) {
+                       RedirectAttributes redirectAttributes,
+                       Model model) {
         if (result.hasErrors()) {
             return "patients/form";
         }
@@ -54,9 +60,27 @@ public class PatientController {
             patientService.updatePatient(patient);
             redirectAttributes.addFlashAttribute("success", "Patient modifié avec succès !");
         } else {
-            // Nouveau patient
-            patientService.addPatient(patient);
-            redirectAttributes.addFlashAttribute("success", "Patient enregistré avec succès !");
+        	
+        	if (patientService.existsByEmail(patient.getEmail())) {
+        	    redirectAttributes.addFlashAttribute("error", "Patient déjà existant !");
+        	 // Patient déjà existant → retour formulaire rendez-vous
+                model.addAttribute("rendezVous", new RendezVous());
+                model.addAttribute("medecins", medecinService.findAll());
+                model.addAttribute("patients", patientService.getAllPatients());
+
+                // Sélectionner le patient existant par défaut
+                Patient existingPatient = patientService.getByEmail(patient.getEmail());
+                model.addAttribute("selectedPatient", existingPatient);
+
+                // Message d'erreur
+                model.addAttribute("error", "Patient déjà existant !");
+                return "rendezvous/form";
+        	    
+        	} else {
+        	    patientService.addPatient(patient);
+        	    redirectAttributes.addFlashAttribute("success", "Patient enregistré avec succès !");
+        	    return "redirect:/patients";
+        	}
         }
 
         return "redirect:/patients";

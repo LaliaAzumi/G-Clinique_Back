@@ -1,8 +1,20 @@
 package com.erp.clinique.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import java.time.LocalTime;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "rendez_vous")
@@ -17,6 +29,9 @@ public class RendezVous {
     private String motif;
 
     private LocalDate date;
+    
+    @Column(nullable = false)
+    private LocalTime heure; // 08:00, 14:30, etc.
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
@@ -35,12 +50,13 @@ public class RendezVous {
     // Constructeurs
     public RendezVous() {}
 
-    public RendezVous(String motif, LocalDate date, Patient patient, Medecin medecin, String statut) {
+    public RendezVous(String motif, LocalDate date,LocalTime heure, Patient patient, Medecin medecin, String statut ) {
         this.motif = motif;
         this.date = date;
         this.patient = patient;
         this.medecin = medecin;
         this.statut = statut;
+        this.heure = heure;
     }
 
     // Getters et Setters
@@ -90,6 +106,14 @@ public class RendezVous {
 
     public void setStatut(String statut) {
         this.statut = statut;
+    }
+    
+    public LocalTime getHeure() {
+        return heure;
+    }
+
+    public void setHeure(LocalTime heure) {
+        this.heure = heure;
     }
 
     public Consultation getConsultation() {

@@ -33,6 +33,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Date</th>
+						<th>Heure</th>
                         <th>Motif</th>
                         <th>Patient</th>
                         <th>Medecin</th>
@@ -44,6 +45,7 @@
                     <tr th:each="rdv : ${rendezVousList}">
                         <td th:text="${rdv.id}"></td>
                         <td th:text="${rdv.date}"></td>
+						<td th:text="${rdv.heure}"></td>
                         <td th:text="${rdv.motif}"></td>
                         <td th:text="${rdv.patient.nom + ' ' + rdv.patient.prenom}"></td>
                         <td th:text="${rdv.medecin.nom}"></td>

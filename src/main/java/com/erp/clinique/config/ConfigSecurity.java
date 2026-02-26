@@ -51,7 +51,7 @@ public class ConfigSecurity {
     CommandLineRunner initAdmin(UserService userService) {
         return args -> {
             if (userService.findByUsername("admin").isEmpty()) {
-                Users admin = new Users("admin", "nekenarakotomalala760@gmail.com", "admin123", "ADMIN");
+                Users admin = new Users("admin", "admin@gmail.com", "admin123", "ADMIN");
                 userService.saveUser(admin);
                 
                 

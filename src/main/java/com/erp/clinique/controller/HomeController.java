@@ -49,6 +49,7 @@ public class HomeController {
         model.addAttribute("firstLogin", user.isFirstLogin());
         model.addAttribute("user", user); // ← important pour th:field
         
+        
         return "home"; // correspond à home.html dans templates
     }
 }

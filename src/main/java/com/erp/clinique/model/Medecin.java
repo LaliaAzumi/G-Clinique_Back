@@ -1,9 +1,12 @@
 package com.erp.clinique.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "medecins")
@@ -24,6 +27,8 @@ public class Medecin {
     private String telephone;
 
     private String adresse;
+    
+    
 
     /*@OneToMany(mappedBy = "medecin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RendezVous> rendezVous = new ArrayList<>();*/
