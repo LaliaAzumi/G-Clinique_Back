@@ -39,6 +39,8 @@
 						         <label for="heure" class="form-label fw-semibold">Heure *</label>
 						          <input type="time" class="form-control" id="heure"
 						                th:field="*{heure}" required  min="08:00" max="18:00" step="3600">
+										<div th:if="${#fields.hasErrors('heure')}" 
+										         class="text-danger small" th:errors="*{heure}"></div>
 						</div>
 
                         <div class="mb-3">
@@ -51,34 +53,59 @@
 
                         <div class="row">
 							<div class="col-md-6 mb-3">
-							    <label for="patient" class="form-label fw-semibold">Patient *</label>
-							    <select class="form-select" id="patient" th:field="*{patient}" required >
-							        <option th:each="p : ${patients}"
-							                th:value="${p.id}"
-							                th:text="${p.prenom + ' ' + p.nom}"
-							                >
-							        </option>
-							    </select>
+							    <label class="form-label fw-semibold">Patient *</label>
+
+							    <div class="input-group">
+							        <select class="form-select" id="patientSelect" th:field="*{patient}" required>
+							            <option th:each="p : ${patients}"
+							                    th:value="${p.id}"
+							                    th:text="${p.prenom + ' ' + p.nom}">
+							            </option>
+							        </select>
+
+							        <button class="btn btn-outline-secondary" type="button" onclick="toggleSearch('patient')">
+							            <i class="bi bi-search"></i>
+							        </button>
+							    </div>
+
+							    <!-- input caché -->
+							    <input type="text" id="patientSearch" class="form-control mt-2 d-none"
+							           placeholder="Rechercher un patient...">
+
+							    <!-- résultats -->
+							    <div id="patientResults" class="list-group mt-1 d-none"></div>
 							</div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="medecin" class="form-label fw-semibold">Medecin *</label>
-                                <select class="form-select" id="medecin" th:field="*{medecin.id}" required>
-                                    <option value="">-- Selectionner un medecin --</option>
-                                    <option th:each="m : ${medecins}"
-                                            th:value="${m.id}"
-                                            th:text="${m.nom + ' (' + m.specialite + ')'}"></option>
-                                </select>
-                            </div>
+							<div class="col-md-6 mb-3">
+							    <label class="form-label fw-semibold">Medecin *</label>
+
+							    <div class="input-group">
+							        <select class="form-select" id="medecinSelect" th:field="*{medecin.id}" required>
+							            <option th:each="m : ${medecins}"
+							                    th:value="${m.id}"
+							                    th:text="${m.nom + ' (' + m.specialite + ')'}">
+							            </option>
+							        </select>
+
+							        <button class="btn btn-outline-secondary" type="button" onclick="toggleSearch('medecin')">
+							            <i class="bi bi-search"></i>
+							        </button>
+							    </div>
+
+							    <input type="text" id="medecinSearch" class="form-control mt-2 d-none"
+							           placeholder="Rechercher un medecin...">
+
+							    <div id="medecinResults" class="list-group mt-1 d-none"></div>
+							</div>
                         </div>
 
-                        <div class="mb-3">
+                         <div class="mb-3">
                             <label for="statut" class="form-label fw-semibold">Statut</label>
                             <select class="form-select" id="statut" th:field="*{statut}">
-                                <option value="EN_ATTENTE">En Attente</option>
-                                <option value="CONFIRME">Confirme</option>
-                                <option value="ANNULE">Annule</option>
-                                <option value="TERMINE">Termine</option>
+                                <option value="EN_ATTENTE">En cours</option>
+                                <option value="REMPORTER">Remporter</option>
+                                <option value="ANNULE">Annuler</option>
+                                <!--<option value="TERMINE">Termine</option>--->
                             </select>
                         </div>
 
@@ -95,6 +122,54 @@
             </div>
         </div>
     </div>
+	<script>
+	function toggleSearch(type) {
+	    const select = document.getElementById(type + "Select");
+	    const input = document.getElementById(type + "Search");
+	    const results = document.getElementById(type + "Results");
+
+	    select.classList.toggle("d-none");
+	    input.classList.toggle("d-none");
+	    results.classList.add("d-none");
+	    input.value = "";
+	}
+
+	function setupSearch(type) {
+	    const select = document.getElementById(type + "Select");
+	    const input = document.getElementById(type + "Search");
+	    const results = document.getElementById(type + "Results");
+
+	    input.addEventListener("input", function () {
+	        const filter = input.value.toLowerCase();
+	        results.innerHTML = "";
+
+	        if (!filter) {
+	            results.classList.add("d-none");
+	            return;
+	        }
+
+	        Array.from(select.options).forEach(option => {
+	            if (option.text.toLowerCase().includes(filter)) {
+	                const item = document.createElement("a");
+	                item.className = "list-group-item list-group-item-action";
+	                item.textContent = option.text;
+
+	                item.onclick = function () {
+	                    select.value = option.value;
+	                    toggleSearch(type);
+	                };
+
+	                results.appendChild(item);
+	            }
+	        });
+
+	        results.classList.remove("d-none");
+	    });
+	}
+
+	setupSearch("patient");
+	setupSearch("medecin");
+	</script>
 </div>
 
 <!-- Footer -->0

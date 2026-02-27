@@ -21,4 +21,14 @@ public class EmailService {
                         "Merci de changer votre mot de passe lors de votre première connexion.");
         mailSender.send(message);
     }
+    
+ // Nouvelle méthode pour rendez-vous
+    public void sendRendezVousEmail(String to, String sujet, String corps) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(sujet);
+        message.setFrom("Clinique ERP <nekenarakotomalala760@gmail.com>");
+        message.setText(corps);
+        mailSender.send(message);
+    }
 }

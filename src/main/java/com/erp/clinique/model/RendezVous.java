@@ -46,6 +46,9 @@ public class RendezVous {
 
     @OneToOne(mappedBy = "rendezVous", cascade = CascadeType.ALL, orphanRemoval = true)
     private Consultation consultation;
+    
+    @Column(nullable = true)
+    private  String googleEventId; // ID de l'événement Google Calendar
 
     // Constructeurs
     public RendezVous() {}
@@ -122,5 +125,12 @@ public class RendezVous {
 
     public void setConsultation(Consultation consultation) {
         this.consultation = consultation;
+    }
+    public String getGoogleEventId() {
+        return googleEventId;
+    }
+
+    public void setGoogleEventId(String googleEventId) {
+        this.googleEventId = googleEventId;
     }
 }

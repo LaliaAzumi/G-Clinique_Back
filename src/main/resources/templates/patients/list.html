@@ -36,6 +36,7 @@
                         <th>Prenom</th>
 						<th>dateNaissance</th>
                         <th>Telephone</th>
+						<th>Email</th>
                         <th>Adresse</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -47,6 +48,7 @@
 					    <td th:text="${patient.prenom}"></td>
 					    <td th:text="${patient.dateNaissance}"></td>
 					    <td th:text="${patient.telephone}"></td>
+						<td th:text="${patient.email}"></td>
 					    <td th:text="${patient.adresse}"></td>
 					    <td class="text-center">
 					        <a th:href="@{/patients/edit/{id}(id=${patient.id})}" class="btn btn-sm btn-warning me-1" title="Modifier">

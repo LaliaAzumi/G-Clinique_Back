@@ -6,6 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.0.3</version>
+		
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.erp.clinique</groupId>
@@ -87,6 +88,9 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
+	
+		
+		
 	</dependencies>
 
 	<build>
@@ -97,5 +101,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	
 </project>

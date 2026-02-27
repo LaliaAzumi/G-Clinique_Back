@@ -2,6 +2,8 @@ package com.erp.clinique.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,10 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.erp.clinique.model.Medecin;
+import com.erp.clinique.model.MedecinUser;
 import com.erp.clinique.model.RendezVous;
+import com.erp.clinique.model.Users;
+import com.erp.clinique.repository.MedecinUserRepository;
+import com.erp.clinique.service.EmailService;
 import com.erp.clinique.service.MedecinService;
 import com.erp.clinique.service.PatientService;
 import com.erp.clinique.service.RendezVousService;
+import com.erp.clinique.service.UserService;
 
 import jakarta.validation.Valid;
 
@@ -36,6 +44,15 @@ public class RendezVousController {
 
     @Autowired
     private PatientService patientService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private EmailService emailService;
+    
+    @Autowired
+    private MedecinUserRepository medecinUserRepository;
 
     // Lister tous les rendez-vous
     @GetMapping
@@ -65,11 +82,73 @@ public class RendezVousController {
             return "rendezvous/form";
         }
         
+        boolean isNew = (rendezVous.getId() == null);
+     // 1. Récupérer les heures disponibles
+        List<LocalTime> heuresLibres = rendezVousService.getHeuresDisponibles(
+                rendezVous.getMedecin().getId(), rendezVous.getDate());
+
+        // 2. Vérifier si l'heure choisie est libre
+        if (!heuresLibres.contains(rendezVous.getHeure())) {
+        	String message;
+            if (heuresLibres.isEmpty()) {
+                message = "Pas de créneaux disponibles ce jour-là. Veuillez choisir une autre date.";
+            } else {
+                message = "Ce créneau n'est pas disponible. Heures libres : " + heuresLibres;
+            }
+            result.rejectValue("heure", "error.rendezVous", message
+                    );
+            model.addAttribute("medecins", medecinService.findAll());
+            model.addAttribute("patients", patientService.getAllPatients());
+            return "rendezvous/form";
+        }
+
+        //enregisterna apina condition 
         rendezVousService.save(rendezVous);
-        redirectAttributes.addFlashAttribute("success", "Rendez-vous enregistre avec succes !");
+
+        // Email patient
+        String patientEmail = rendezVous.getPatient().getEmail();
+        System.out.println("Email patient : " + patientEmail);
+
+        Medecin medecin = rendezVous.getMedecin();
+        System.out.println("Médecin associé au RDV : " + medecin.getNom() + " (ID=" + medecin.getId() + ")");
+
+        Optional<MedecinUser> muOpt = medecinUserRepository.findByMedecinId(medecin.getId());
+        if (muOpt.isPresent()) {
+            MedecinUser mu = muOpt.get();
+            System.out.println("MedecinUser trouvé : userId=" + mu.getUserId());
+
+            Optional<Users> userOpt = userService.findById(mu.getUserId());
+            if (userOpt.isPresent()) {
+                String medecinEmail = userOpt.get().getEmail();
+                System.out.println("Email médecin : " + medecinEmail);
+
+                String sujet = isNew ? "Nouveau rendez-vous" : "Rendez-vous modifié";
+                String corps = String.format(
+                    "Bonjour,\n\nLe rendez-vous pour  %s %s est %s.\nDate : %s\nHeure : %s\nStatut : %s",
+                    rendezVous.getPatient().getNom(),
+                    rendezVous.getPatient().getPrenom(),
+
+                    isNew ? "créé" : "mis à jour",
+                    rendezVous.getDate(),
+                    rendezVous.getHeure(),
+                    rendezVous.getStatut()
+                );
+
+                emailService.sendRendezVousEmail(patientEmail, sujet, corps);
+                emailService.sendRendezVousEmail(medecinEmail, sujet, corps);
+            } else {
+                System.out.println("Utilisateur associé au MedecinUser introuvable !");
+            }
+        } else {
+            System.out.println("Aucun MedecinUser trouvé pour ce médecin !");
+        }
+
+        redirectAttributes.addFlashAttribute("success", "Rendez-vous enregistré et notifications envoyées !");
         return "redirect:/rendezvous";
+      
     }
 
+    
     // Afficher le formulaire de modification
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model,
