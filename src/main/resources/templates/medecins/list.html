@@ -20,6 +20,17 @@
         <h2 class="fw-bold">
             <i class="bi bi-person-badge text-primary"></i> Liste des Medecins
         </h2>
+		<form th:action="@{/medecins}" method="get" class="mb-4 d-flex">
+
+		    <input type="text" name="keyword" th:value="${keyword}"
+		           class="form-control me-2"
+		           placeholder="Rechercher un médecin">
+
+		    <button class="btn btn-primary">
+		        <i class="bi bi-search"></i>
+		    </button>
+
+		</form>
         <a th:href="@{/medecins/new}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Nouveau Medecin
         </a>
@@ -69,6 +80,34 @@
                     </tr>
                 </tbody>
             </table>
+			<nav>
+			<ul class="pagination justify-content-center mt-4">
+
+			<li class="page-item" th:if="${currentPage > 0}">
+			<a class="page-link"
+			   th:href="@{/medecins(page=${currentPage-1},keyword=${keyword})}">
+			Préc
+			</a>
+			</li>
+
+			<li class="page-item"
+			    th:each="i : ${#numbers.sequence(0,totalPages-1)}"
+			    th:classappend="${currentPage==i?'active':''}">
+			<a class="page-link"
+			   th:href="@{/medecins(page=${i},keyword=${keyword})}"
+			   th:text="${i+1}">
+			</a>
+			</li>
+
+			<li class="page-item" th:if="${currentPage < totalPages-1}">
+			<a class="page-link"
+			   th:href="@{/medecins(page=${currentPage+1},keyword=${keyword})}">
+			Suiv
+			</a>
+			</li>
+
+			</ul>
+			</nav>
         </div>
     </div>
 </div>

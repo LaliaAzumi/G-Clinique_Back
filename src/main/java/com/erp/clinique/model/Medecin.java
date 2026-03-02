@@ -1,10 +1,15 @@
 package com.erp.clinique.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
@@ -30,8 +35,8 @@ public class Medecin {
     
     
 
-    /*@OneToMany(mappedBy = "medecin", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RendezVous> rendezVous = new ArrayList<>();*/
+    @OneToMany(mappedBy = "medecin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RendezVous> rendezVous = new ArrayList<>();
 
     // Constructeurs
     public Medecin() {}
@@ -84,14 +89,14 @@ public class Medecin {
         this.adresse = adresse;
     }
 
-  /*  public List<RendezVous> getRendezVous() {
+    public List<RendezVous> getRendezVous() {
         return rendezVous;
     }
 
     public void setRendezVous(List<RendezVous> rendezVous) {
         this.rendezVous = rendezVous;
     }
-*/
+
     @Override
     public String toString() {
         return "Dr. " + nom + " (" + specialite + ")";
