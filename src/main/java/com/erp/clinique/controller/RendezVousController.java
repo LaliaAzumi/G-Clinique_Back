@@ -82,6 +82,7 @@ public class RendezVousController {
             return "rendezvous/form";
         }
         
+        
         boolean isNew = (rendezVous.getId() == null);
      // 1. Récupérer les heures disponibles
         List<LocalTime> heuresLibres = rendezVousService.getHeuresDisponibles(
