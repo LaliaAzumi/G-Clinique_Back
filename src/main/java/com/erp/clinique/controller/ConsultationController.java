@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.erp.clinique.model.Consultation;
+import com.erp.clinique.model.RendezVous;
 import com.erp.clinique.repository.ConsultationRepository;
 import com.erp.clinique.service.ConsultationService;
 import com.erp.clinique.service.RendezVousService;
@@ -76,7 +77,12 @@ public class ConsultationController {
             model.addAttribute("rendezVousList", rendezVousService.findAll());
             return "consultations/form";
         }
+        Long rvId = consultation.getRendezVous().getId();
+        RendezVous rv = rendezVousService.findById(rvId).get();
+        consultation.setRendezVous(rv);
+
         consultationService.save(consultation);
+        
         redirectAttributes.addFlashAttribute("success", "Consultation enregistree avec succes !");
         return "redirect:/consultations";
     }
