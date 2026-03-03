@@ -1,15 +1,26 @@
 package com.erp.clinique.controller;
 
-import com.erp.clinique.model.Consultation;
-import com.erp.clinique.service.ConsultationService;
-import com.erp.clinique.service.RendezVousService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.erp.clinique.model.Consultation;
+import com.erp.clinique.repository.ConsultationRepository;
+import com.erp.clinique.service.ConsultationService;
+import com.erp.clinique.service.RendezVousService;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/consultations")
@@ -20,12 +31,31 @@ public class ConsultationController {
 
     @Autowired
     private RendezVousService rendezVousService;
+    @Autowired
+    private ConsultationRepository consultationRepository;
 
     // Lister toutes les consultations
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("consultations", consultationService.findAll());
-        return "consultations/list";
+    public String list(Model model,
+    		@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false) String keyword) {
+    	 Pageable pageable = PageRequest.of(page, size);
+
+         Page<Consultation> consultationPage;
+
+         if (keyword != null && !keyword.isEmpty()) {
+             consultationPage = consultationRepository.searchAll(keyword, pageable);
+         } else {
+             consultationPage = consultationRepository.findAll(pageable);
+         }
+
+         model.addAttribute("consultations", consultationPage.getContent());
+         model.addAttribute("currentPage", page);
+         model.addAttribute("totalPages", consultationPage.getTotalPages());
+         model.addAttribute("keyword", keyword);
+
+         return "consultations/list";
     }
 
     // Afficher le formulaire de creation

@@ -20,6 +20,17 @@
         <h2 class="fw-bold">
             <i class="bi bi-person-badge text-primary"></i> Liste des secretaires
         </h2>
+		<form th:action="@{/users/secretaires}" method="get" class="mb-4 d-flex">
+
+				    <input type="text" name="keyword" th:value="${keyword}"
+				           class="form-control me-2"
+				           placeholder="Rechercher un secretaire">
+
+				    <button class="btn btn-primary">
+				        <i class="bi bi-search"></i>
+				    </button>
+
+				</form>
         <a th:href="@{/users/secretaires/new}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Nouveau secretaires
         </a>
@@ -49,6 +60,34 @@
                     </tr>
                 </tbody>
             </table>
+			<nav>
+						<ul class="pagination justify-content-center mt-4">
+
+						<li class="page-item" th:if="${currentPage > 0}">
+						<a class="page-link"
+						   th:href="@{/users/secretaires(page=${currentPage-1},keyword=${keyword})}">
+						Préc
+						</a>
+						</li>
+
+						<li class="page-item"
+						    th:each="i : ${#numbers.sequence(0,totalPages-1)}"
+						    th:classappend="${currentPage==i?'active':''}">
+						<a class="page-link"
+						   th:href="@{/users/secretaires(page=${i},keyword=${keyword})}"
+						   th:text="${i+1}">
+						</a>
+						</li>
+
+						<li class="page-item" th:if="${currentPage < totalPages-1}">
+						<a class="page-link"
+						   th:href="@{/users/secretaires(page=${currentPage+1},keyword=${keyword})}">
+						Suiv
+						</a>
+						</li>
+
+						</ul>
+						</nav>
         </div>
     </div>
 </div>

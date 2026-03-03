@@ -3,7 +3,11 @@ package com.erp.clinique.repository;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.erp.clinique.model.RendezVous;
@@ -21,4 +25,20 @@ public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
     
  // ✅ Trouver tous les RDV d’un médecin à une date précise
     List<RendezVous> findByMedecinIdAndDate(Long medecinId, LocalDate date);
+    
+
+    @Query("""
+            SELECT r FROM RendezVous r
+    		WHERE 
+    		
+		        LOWER(r.motif) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		        OR LOWER(r.statut) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		        OR LOWER(r.medecin.nom) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		        OR LOWER(r.medecin.specialite) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		        OR LOWER(r.patient.nom) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		        OR LOWER(r.patient.prenom) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		         OR CAST(r.date AS string) LIKE CONCAT('%', :keyword, '%')
+        """)
+        Page<RendezVous> searchAll(@Param("keyword") String keyword, Pageable pageable);
+    
 }
