@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 <!DOCTYPE html>
+=======
+	<!DOCTYPE html>
+>>>>>>> Stashed changes
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -66,6 +70,7 @@
 		                <!-- Boucle des jours, lundi = 1 ... dimanche = 7 -->
 		                <td th:each="day : ${#numbers.sequence(1,7)}" class="calendar-cell">
 		                    <!-- Vérifie s'il y a un rendez-vous à cette date + heure -->
+<<<<<<< Updated upstream
 							<span th:each="rv : ${rendezVousList}" 
 							      th:if="${rv.date.dayOfWeek.value == day and rv.heure.hour == hour}"
 							      th:text="${rv.patient.nom + ' ' + rv.patient.prenom + ' (' + rv.motif + ')'}"
@@ -80,6 +85,23 @@
 								  th:data-bs-target="'#rendezVousModal-' + ${rv.id}"
 								  >
 							</span>
+=======
+							<a th:each="rv : ${rendezVousList}" 
+							   th:if="${rv.date.dayOfWeek.value == day and rv.heure.hour == hour}"
+							   th:href="@{/consultations/new(rendezVousId=${rv.id})}" 
+							   class="text-decoration-none">
+							    
+							    <span th:text="${rv.patient.nom + ' ' + rv.patient.prenom}"
+							          class="badge d-block py-2 mb-1 shadow-sm"
+							          th:classappend="
+							            ${rv.statut == 'EN_ATTENTE'} ? ' bg-warning text-dark' :
+							            (${rv.statut == 'CONFIRME'} ? ' bg-primary' :
+							            (${rv.statut == 'ANNULE'} ? ' bg-danger' :
+							            (${rv.statut == 'TERMINE'} ? ' bg-success' : ' bg-secondary')))">
+							    </span>
+							    <small class="text-muted d-block" style="font-size: 0.7rem;" th:text="${rv.motif}"></small>
+							</a>
+>>>>>>> Stashed changes
 		                </td>
 		            </tr>
 		        </tbody>
