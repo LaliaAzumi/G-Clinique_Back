@@ -7,16 +7,13 @@
     <title>ERP Clinique - Accueil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-	
-	<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/main.min.css' rel='stylesheet' />
-	<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/main.min.js'></script>
-	<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/locales-all.min.js'></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .hero-section {
             background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
             color: white;
-            padding: 80px 0;
+            padding: 10px 0;
+			margin-top: 0;
         }
         .card-module {
             transition: transform 0.2s, box-shadow 0.2s;
@@ -37,6 +34,9 @@
             font-size: 28px;
             margin: 0 auto 15px;
         }
+		.dash{
+			margin-top: 20px;
+		}
     </style>
 </head>
 <body>
@@ -44,7 +44,7 @@
 <!-- Navbar -->
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-<!-- Hero Section
+<!-- Hero Section-->
 <section class="hero-section text-center">
     <div class="container">
         <h1 class="display-4 fw-bold mb-3">
@@ -54,11 +54,11 @@
             Systeme de gestion integre pour clinique medicale
         </p>
         <p class="fs-5 opacity-75">
-            Gerez vos medecins, patients, rendez-vous et consultations en un seul endroit.
+            Gestion medecins, patients, rendez-vous et consultations en un seul endroit.
         </p>
     </div>
-</section> -->
-<section th:if="${roles[0]} == 'ROLE_ADMIN'" class="container mt-n5">
+</section>
+<section th:if="${roles[0]} == 'ROLE_ADMIN'" class=" dash container mt-n5">
     <div class="row g-4 mb-5">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-white p-3">
@@ -68,11 +68,12 @@
                     </div>
                     <div>
                         <h6 class="text-muted mb-0">Total Patients</h6>
-                        <h3 class="fw-bold mb-0">1,250</h3>
+                        <h3 class="fw-bold mb-0" th:text="${totalPatients}">0</h3>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-white p-3">
                 <div class="d-flex align-items-center">
@@ -80,25 +81,25 @@
                         <i class="bi bi-clipboard2-pulse"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted mb-0">Consultations</h6>
-                        <h3 class="fw-bold mb-0">342</h3>
+                        <h6 class="text-muted mb-0">Consultations Total</h6>
+                        <h3 class="fw-bold mb-0" th:text="${totalConsultations}">0</h3>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm bg-white p-3">
-                <div class="d-flex align-items-center">
-                    <div class="icon-circle bg-warning bg-opacity-10 text-warning mb-0 me-3">
-                        <i class="bi bi-currency-dollar"></i>
-                    </div>
-                    <div>
-                        <h6 class="text-muted mb-0">Revenus (mois)</h6>
-                        <h3 class="fw-bold mb-0">12,400 Ar</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
+		<div class="col-md-3">
+		    <div class="card border-0 shadow-sm bg-white p-3">
+		        <div class="d-flex align-items-center">
+		            <div class="icon-circle bg-warning bg-opacity-10 text-warning mb-0 me-3">
+		                <i class="bi bi-calendar-check"></i>
+		            </div>
+		            <div>
+		                <h6 class="text-muted mb-0">RDV en attente</h6>
+		                <h3 class="fw-bold mb-0" th:text="${totalRdvAttente}">0</h3>
+		            </div>
+		        </div>
+		    </div>
+		</div>
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-white p-3">
                 <div class="d-flex align-items-center">
@@ -106,22 +107,22 @@
                         <i class="bi bi-person-badge"></i>
                     </div>
                     <div>
-                        <h6 class="text-muted mb-0">Médecins</h6>
-                        <h3 class="fw-bold mb-0">18</h3>
+                        <h6 class="text-muted mb-0">Médecins Actifs</h6>
+                        <h3 class="fw-bold mb-0" th:text="${totalMedecins}">0</h3>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm p-4">
-                <h5 class="fw-bold mb-4">Activité des Consultations (7 derniers jours)</h5>
-                <canvas id="adminChart" height="100"></canvas>
-            </div>
-        </div>
-    </div>
+	<div class="row mb-5" th:if="${roles[0]} == 'ROLE_ADMIN'">
+	    <div class="col-12">
+	        <div class="card border-0 shadow-sm p-4">
+	            <h5 class="fw-bold mb-4">Volume des Consultations - Année en cours</h5>
+	            <canvas id="yearlyConsultationChart" height="80"></canvas>
+	        </div>
+	    </div>
+	</div>
 </section>
 <!-- Modules -->
 <section class="container my-5">
@@ -152,14 +153,10 @@
 		            <p class="text-muted small">Gestion des comptes secrétaires</p>
 		        </div>
 		    </a>
-			
 		</div>
-
-		<!-- Hero Section -->
 		
-		<!---->
-		<p>Utilisateur : <span th:text="${username}"></span></p>
-		<p>Rôles : <span th:text="${roles}"></span></p>
+		<!--<p>Utilisateur : <span th:text="${username}"></span></p>
+		<p>Rôles : <span th:text="${roles}"></span></p>-->
 
         <!-- Patients -->
 		<div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
@@ -173,19 +170,6 @@
 		        </div>
 		    </a>
 		</div>
-		
-		<!-- Medicament -->
-				<div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
-				    <a th:href="@{/medicaments}" class="text-decoration-none">
-				        <div class="card card-module shadow-sm text-center p-4">
-				            <div class="icon-circle bg-success bg-opacity-10 text-success">
-								<i class="bi bi-capsule-pill"></i>
-				            </div>
-				            <h5 class="fw-bold text-dark">Medicaments</h5>
-				            <p class="text-muted small">Gestion des Medicaments </p>
-				        </div>
-				    </a>
-				</div>
 
         <!-- Rendez-vous -->
         <div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
@@ -201,7 +185,6 @@
         </div>
 
         <!-- Consultations -->
-		
         <div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
             <a th:href="@{/consultations}" class="text-decoration-none">
                 <div class="card card-module shadow-sm text-center p-4">
@@ -212,20 +195,7 @@
                     <p class="text-muted small">Suivi des diagnostiques et consultations</p>
                 </div>
             </a>
-
         </div>
-		<!-- Agenda  -->
-		<div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
-		    <a th:href="@{/callendar}" class="text-decoration-none">
-		    	<div class="card card-module shadow-sm text-center p-4">
-			         <div class="icon-circle bg-danger bg-opacity-10 text-danger">
-			           	<i class="bi bi-calendar-event"></i>
-			          </div>
-			          <h5 class="fw-bold text-dark">Agenda des rdv</h5>
-			          <p class="text-muted small">Suivi des diagnostiques et consultations</p>
-		     	</div>
-		    </a>
-		</div>
 		
 
     </div>
@@ -286,29 +256,35 @@
 
 <!-- Footer -->
 <footer th:replace="~{fragments/layout :: footer}"></footer>
-<script th:if="${roles[0]} == 'ROLE_ADMIN'">
+<script th:inline="javascript" th:if="${roles[0]} == 'ROLE_ADMIN'">
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('adminChart').getContext('2d');
+    // Récupération des données injectées par Spring/Thymeleaf
+    const dynamicData = /*[[${monthlyConsultations}]]*/ [0,0,0,0,0,0,0,0,0,0,0,0];
+    
+    const ctx = document.getElementById('yearlyConsultationChart').getContext('2d');
     new Chart(ctx, {
-        type: 'line',
+        type: 'bar', // 'bar' est souvent plus lisible pour des données mensuelles
         data: {
-            labels: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'],
             datasets: [{
                 label: 'Nombre de consultations',
-                data: [12, 19, 15, 25, 22, 10, 5],
+                data: dynamicData,
+                backgroundColor: 'rgba(13, 110, 253, 0.6)',
                 borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                fill: true,
-                tension: 0.4
+                borderWidth: 1,
+                borderRadius: 5
             }]
         },
         options: {
             responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
             plugins: {
                 legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
             }
         }
     });

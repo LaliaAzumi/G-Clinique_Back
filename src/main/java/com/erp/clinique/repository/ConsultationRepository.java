@@ -1,5 +1,6 @@
 package com.erp.clinique.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -26,4 +27,6 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         """)
         Page<Consultation> searchAll(@Param("keyword") String keyword, Pageable pageable);
     
+    @Query("SELECT MONTH(c.date), COUNT(c) FROM Consultation c WHERE YEAR(c.date) = YEAR(CURRENT_DATE) GROUP BY MONTH(c.date)")
+    List<Object[]> countConsultationsByMonth();
 }
