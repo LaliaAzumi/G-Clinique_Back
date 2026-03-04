@@ -7,10 +7,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-	@Autowired
+
+    @Autowired
     private JavaMailSender mailSender;
 
-    public void sendPasswordEmail(String email, String username,String motDePasse) {
+    public void sendPasswordEmail(String email, String username, String motDePasse) {
+        // ✅ Sécurité : Vérifier si l'email est valide
+        if (email == null || email.trim().isEmpty()) {
+            System.err.println("Erreur : Impossible d'envoyer l'email de mot de passe, l'adresse est vide.");
+            return;
+        }
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Votre compte secrétaire - ERP Clinique");
@@ -22,13 +29,26 @@ public class EmailService {
         mailSender.send(message);
     }
     
- // Nouvelle méthode pour rendez-vous
+    // Nouvelle méthode pour rendez-vous
     public void sendRendezVousEmail(String to, String sujet, String corps) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(sujet);
-        message.setFrom("Clinique ERP <nekenarakotomalala760@gmail.com>");
-        message.setText(corps);
-        mailSender.send(message);
-    }
+        // ✅ Sécurité : Vérifier si l'email du destinataire est présent
+        // C'est ici que l'erreur "Illegal address in string ''" se produisait
+        if (to == null || to.trim().isEmpty()) {
+            System.err.println("Annulation de l'envoi : L'adresse email du patient est manquante.");
+            return; 
+        }
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setSubject(sujet);
+            message.setFrom("Clinique ERP <nekenarakotomalala760@gmail.com>");
+            message.setText(corps);
+            mailSender.send(message);
+        } catch (Exception e) {
+            // ✅ On capture l'erreur pour éviter de faire planter toute l'application (Erreur 500)
+            System.err.println("Erreur technique lors de l'envoi de l'email : " + e.getMessage());
+        }
+   }
+
 }
