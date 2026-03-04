@@ -1,0 +1,45 @@
+/* ==============================
+   ERP Clinique - Custom Styles
+   ============================== */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+.container {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* Navbar custom */
+.navbar-brand {
+    font-size: 1.3rem;
+}
+
+/* Table styles */
+.table th {
+    white-space: nowrap;
+}
+
+/* Card hover effect */
+.card-module:hover {
+    transform: translateY(-3px);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Form styles */
+.form-label {
+    color: #495057;
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+}

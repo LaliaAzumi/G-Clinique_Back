@@ -1,7 +1,8 @@
 package com.erp.clinique.controller;
 
 import java.util.List;
-
+import com.erp.clinique.service.*;
+import com.erp.clinique.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,15 +23,20 @@ public class HomeController {
     public String login() {
         return "login"; // correspond à login.html dans templates
     }
-
+    @Autowired
+    private PatientService patientService;
+    @Autowired
+    private ConsultationService consultationService;
+    @Autowired
+    private MedecinService medecinService;
+    @Autowired
+    private RendezVousService rendezVousService;
     @GetMapping("/home")
     public String home(Model model) {
     	// Récupère l'utilisateur connecté
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
-        // Nom d'utilisateur
         String username = auth.getName();
-        // Récupère l'objet Users depuis la DB
         Users user = userService.findByUsername(username)
                                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
@@ -41,15 +47,27 @@ public class HomeController {
                                  .stream()
                                  .map(GrantedAuthority::getAuthority)
                                  .toList();
+        int[] monthlyData = new int[12];
+        List<Object[]> results = consultationService.countConsultationsByMonth();
         
-        // Passe les infos à Thymeleaf
+        for (Object[] result : results) {
+            int month = (int) result[0]; // Le mois (1-12)
+            long count = (long) result[1]; // Le nombre
+            monthlyData[month - 1] = (int) count;
+        }
+        
+        model.addAttribute("monthlyConsultations", monthlyData);
+        
         model.addAttribute("username", username);
         model.addAttribute("roles", roles);
-        // Vérifie si c'est le premier login
         model.addAttribute("firstLogin", user.isFirstLogin());
-        model.addAttribute("user", user); // ← important pour th:field
+        model.addAttribute("user", user); 
+        model.addAttribute("totalPatients", patientService.getAllPatients().size());
+        model.addAttribute("totalConsultations", consultationService.findAll().size());
+        model.addAttribute("totalMedecins", medecinService.findAll().size());
+        model.addAttribute("totalRdvAttente", rendezVousService.findByStatut("EN_ATTENTE").size());
         
         
-        return "home"; // correspond à home.html dans templates
+        return "home"; 
     }
 }

@@ -40,4 +40,8 @@ public class ConsultationService {
     public Optional<Consultation> findByRendezVousId(Long rendezVousId) {
         return consultationRepository.findByRendezVousId(rendezVousId);
     }
+
+	public List<Object[]> countConsultationsByMonth() {
+		return consultationRepository.countConsultationsByMonth();
+	}
 }
