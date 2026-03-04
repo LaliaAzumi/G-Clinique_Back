@@ -176,9 +176,24 @@ public class UserController {
     }
 
     // Supprimer un user (optionnel)
-    @PostMapping("/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         userService.deleteById(id);
         return "redirect:/users/secretaires";
+    }
+    
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model,
+                               RedirectAttributes redirectAttributes) {
+
+        return userService.findById(id)   // <- ici, instance et pas classe
+                .map(user -> {
+                    model.addAttribute("secretaire", user);
+                    return "secretaires/form";
+                })
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("error", "Secretaire non trouvé !");
+                    return "redirect://users/secretaires";
+                });
     }
 }

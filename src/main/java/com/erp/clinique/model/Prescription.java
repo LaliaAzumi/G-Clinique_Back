@@ -29,6 +29,8 @@ public class Prescription {
     private Medicament medicament;
 
     public Prescription() {}
+    
+    
 
 	public String getPosologie() {
 		return posologie;

@@ -1,6 +1,10 @@
 package com.erp.clinique.repository;
 
+<<<<<<< Updated upstream
 import java.util.List;
+=======
+import java.time.LocalDate;
+>>>>>>> Stashed changes
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -21,12 +25,27 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
             SELECT c FROM Consultation c
             WHERE 
                 LOWER(c.diagnostique) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                OR LOWER(c.rendezVous.medecin.nom) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.rendezVous.patient.nom) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.rendezVous.patient.prenom) LIKE LOWER(CONCAT('%', :keyword, '%'))
                 OR CAST(c.date AS string) LIKE CONCAT('%', :keyword, '%')
 
         """)
         Page<Consultation> searchAll(@Param("keyword") String keyword, Pageable pageable);
     
+<<<<<<< Updated upstream
     @Query("SELECT MONTH(c.date), COUNT(c) FROM Consultation c WHERE YEAR(c.date) = YEAR(CURRENT_DATE) GROUP BY MONTH(c.date)")
     List<Object[]> countConsultationsByMonth();
+=======
+ // Toutes les consultations d’un médecin
+    Page<Consultation> findByRendezVousMedecinId(Long medecinId, Pageable pageable);
+
+    // Recherche par médecin + nom du patient
+    Page<Consultation> findByRendezVousMedecinIdAndRendezVousPatientNomContainingIgnoreCase(
+            Long medecinId, String nom, Pageable pageable);
+    
+    Page<Consultation> findByRendezVousMedecinIdAndDate(Long medecinId, LocalDate date, Pageable pageable);
+
+    Page<Consultation> findByRendezVousMedecinIdAndRendezVousPatientNomContainingIgnoreCaseAndDate(
+        Long medecinId, String keyword, LocalDate date, Pageable pageable);
+>>>>>>> Stashed changes
 }

@@ -38,7 +38,7 @@
 						<div class="mb-3">
 						         <label for="heure" class="form-label fw-semibold">Heure *</label>
 						          <input type="time" class="form-control" id="heure"
-						                th:field="*{heure}" required  min="08:00" max="18:00" step="3600">
+						                th:field="*{heure}" required  min="08:00" max="18:00" step="3600" pattern="^([0][8-9]|1[0-8]):00$">
 										<div th:if="${#fields.hasErrors('heure')}" 
 										         class="text-danger small" th:errors="*{heure}"></div>
 						</div>
@@ -99,13 +99,13 @@
 							</div>
                         </div>
 
-                         <div class="mb-3">
+                         <div class="mb-3" style="display: none;">
                             <label for="statut" class="form-label fw-semibold">Statut</label>
                             <select class="form-select" id="statut" th:field="*{statut}">
                                 <option value="EN_ATTENTE">En cours</option>
-                                <option value="REMPORTER">Remporter</option>
+                              <!--  <option value="REMPORTER">Remporter</option>
                                 <option value="ANNULE">Annuler</option>
-                                <!--<option value="TERMINE">Termine</option>--->
+                                <option value="TERMINE">Termine</option>--->
                             </select>
                         </div>
 
