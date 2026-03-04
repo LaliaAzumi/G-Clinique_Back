@@ -17,8 +17,8 @@ public class Prescription {
     private Long id;
 
     private String posologie;
-    private String frequence;
     private String duree;
+    private Integer quantite;
 
     @ManyToOne
     @JoinColumn(name = "ordonnance_id", nullable = false)
@@ -29,6 +29,13 @@ public class Prescription {
     private Medicament medicament;
 
     public Prescription() {}
+    public Prescription(String posologie, String duree, Integer quantite, Ordonnance ordonnance, Medicament medicament) {
+    	this.posologie= posologie;
+    	this.duree = duree;
+    	this.quantite = quantite;
+    	this.ordonnance = ordonnance;
+    	this.medicament = medicament;
+    }
     
     
 
@@ -40,13 +47,7 @@ public class Prescription {
 		this.posologie = posologie;
 	}
 
-	public String getFrequence() {
-		return frequence;
-	}
-
-	public void setFrequence(String frequence) {
-		this.frequence = frequence;
-	}
+	
 
 	public String getDuree() {
 		return duree;
@@ -54,6 +55,18 @@ public class Prescription {
 
 	public void setDuree(String duree) {
 		this.duree = duree;
+	}
+
+
+
+	public Integer getQuantite() {
+		return quantite;
+	}
+
+
+
+	public void setQuantite(Integer quantite) {
+		this.quantite = quantite;
 	}
 
     

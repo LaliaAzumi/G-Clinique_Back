@@ -45,6 +45,8 @@
                         <th>ID</th>
                         <th>Nom</th>
                         <th>description</th>
+						<th>prix unitaire</th>
+						<th>stocks</th>
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -52,9 +54,9 @@
                     <tr th:each="medicament : ${medicaments}">
                         <td th:text="${medicament.id}"></td>
                         <td th:text="${medicament.nom}"></td>
-                        <td>
-                            <span class="badge bg-info" th:text="${medicament.description}"></span>
-                        </td>
+                        <td th:text="${medicament.description}"></td>
+						<td th:text="${medicament.pu}"></td>
+						<td th:text="${medicament.qStock}"></td>
                         <td class="text-center">
                             <a th:href="@{/medicaments/edit/{id}(id=${medicament.id})}"
                                class="btn btn-sm btn-warning me-1" title="Modifier">

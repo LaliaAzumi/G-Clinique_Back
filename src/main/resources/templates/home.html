@@ -170,6 +170,18 @@
 		        </div>
 		    </a>
 		</div>
+		<!-- Medicament -->
+						<div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
+						    <a th:href="@{/medicaments}" class="text-decoration-none">
+						        <div class="card card-module shadow-sm text-center p-4">
+						            <div class="icon-circle bg-success bg-opacity-10 text-success">
+										<i class="bi bi-capsule-pill"></i>
+						            </div>
+						            <h5 class="fw-bold text-dark">Medicaments</h5>
+						            <p class="text-muted small">Gestion des Medicaments </p>
+						        </div>
+						    </a>
+						</div>
 
         <!-- Rendez-vous -->
         <div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
@@ -196,6 +208,19 @@
                 </div>
             </a>
         </div>
+		<!-- Agenda  -->
+				<div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
+				            <a th:href="@{/callendar}" class="text-decoration-none">
+				                <div class="card card-module shadow-sm text-center p-4">
+				                    <div class="icon-circle bg-danger bg-opacity-10 text-danger">
+				                        <i class="bi bi-calendar-event"></i>
+				                    </div>
+				                    <h5 class="fw-bold text-dark">Agenda des rdv</h5>
+				                   <p class="text-muted small">Suivi des diagnostiques et consultations</p>
+				      </div>
+				    </a>
+
+				</div>
 		
 
     </div>

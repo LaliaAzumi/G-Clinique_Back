@@ -45,6 +45,10 @@
 	<div class="d-flex justify-content-between mb-3">
 		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.minusDays(7)})}" class="btn btn-outline-primary">&lt; Semaine précédente</a>
 		<h4 th:text="'Semaine du ' + ${#temporals.format(startOfWeek,'dd/MM/yyyy')} + ' au ' + ${#temporals.format(endOfWeek,'dd/MM/yyyy')}"></h4>
+		
+		<a th:href="@{/callendar/callendars}" class="btn btn-outline-primary">
+		    Retour à cette semaine
+		</a>
 		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.plusDays(7)})}" class="btn btn-outline-primary">Semaine suivante &gt;</a>
 	    </div>
 
@@ -160,90 +164,100 @@
 			<!-- Modal Commencer -->
 			<!-- Modal Consultation -->
 			<div class="modal fade" id="modalCommencer" tabindex="-1" aria-hidden="true">
-			    <div class="modal-dialog">
-			        <div class="modal-content">
-			            <div class="modal-header bg-warning text-dark">
-			                <h5 class="modal-title">
-								<i class="bi bi-file-medical"></i> Consultation
-								<span th:text="${rv.patient.prenom + ' ' + rv.patient.nom}"></span>
-							</h5>
+			  <div class="modal-dialog modal-lg"> <!-- modal plus grand -->
+			    <div class="modal-content">
+			      <div class="modal-header bg-warning text-dark">
+			        <h5 class="modal-title">
+			          <i class="bi bi-file-medical"></i> Consultation
+			          <span th:text="${rv.patient.prenom + ' ' + rv.patient.nom}"></span>
+			        </h5>
+			        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			      </div>
+			      <div class="modal-body">
+			        <form th:action="@{/consultations/save}" method="post">
+			          <div class="row">
+			            <!-- Colonne gauche : Consultation -->
+			            <div class="col-md-6">
+			              <div class="card mb-3 shadow-sm">
+			                <div class="card-header bg-warning text-dark">Consultation</div>
+			                <div class="card-body">
+			                  <!-- Tous les champs consultation -->
+			                  <div class="mb-3">
+			                    <label for="dateConsultation" class="form-label">Date</label>
+			                    <input type="date" class="form-control" id="dateConsultation" name="date"
+			                           th:value="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')}" required readonly>
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="temperature" class="form-label">Température (°C)</label>
+			                    <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder="Ex: 37.5">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="tension" class="form-label">Tension (mmHg)</label>
+			                    <input type="text" class="form-control" id="tension" name="tension" placeholder="Ex: 120/80">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="pouls" class="form-label">Pouls (bpm)</label>
+			                    <input type="number" class="form-control" id="pouls" name="pouls" placeholder="Ex: 72">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="frequenceResp" class="form-label">Fréquence respiratoire (resp/min)</label>
+			                    <input type="number" class="form-control" id="frequenceResp" name="frequenceResp" placeholder="Ex: 16">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="saturation" class="form-label">Saturation SpO₂ (%)</label>
+			                    <input type="number" step="1" class="form-control" id="saturation" name="saturation" placeholder="Ex: 98">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="douleur" class="form-label">Douleur (0-10)</label>
+			                    <input type="number" class="form-control" id="douleur" name="douleur" min="0" max="10" placeholder="Ex: 3">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="poids" class="form-label">Poids (kg)</label>
+			                    <input type="number" step="0.1" class="form-control" id="poids" name="poids" placeholder="Ex: 70">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="observations" class="form-label">Autres observations</label>
+			                    <textarea class="form-control" id="observations" name="observations" rows="4" placeholder="Ajouter d'autres informations ici..."></textarea>
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="maladie" class="form-label">Maladie</label>
+			                    <input type="text" class="form-control" id="maladie" name="maladie" placeholder="Maladie du patient">
+			                  </div>
+			                </div>
+			              </div>
 			            </div>
-			            <div class="modal-body">
-			                <form th:action="@{/consultations/save}" method="post">
-			                    <!-- Date du jour par défaut -->
-			                    <div class="mb-3">
-			                        <label for="dateConsultation" class="form-label">Date</label>
-			                        <input type="date" class="form-control" id="dateConsultation" name="date"
-			                               th:value="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')}"
-			                               required readonly>
-			                    </div>
 
-			                    <!-- Température -->
-			                    <div class="mb-3">
-			                        <label for="temperature" class="form-label">Température (°C)</label>
-			                        <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder="Ex: 37.5">
-			                    </div>
-
-			                    <!-- Tension -->
-			                    <div class="mb-3">
-			                        <label for="tension" class="form-label">Tension (mmHg)</label>
-			                        <input type="text" class="form-control" id="tension" name="tension" placeholder="Ex: 120/80">
-			                    </div>
-
-			                    <!-- Pouls -->
-			                    <div class="mb-3">
-			                        <label for="pouls" class="form-label">Pouls (bpm)</label>
-			                        <input type="number" class="form-control" id="pouls" name="pouls" placeholder="Ex: 72">
-			                    </div>
-
-			                    <!-- Fréquence respiratoire -->
-			                    <div class="mb-3">
-			                        <label for="frequenceResp" class="form-label">Fréquence respiratoire (resp/min)</label>
-			                        <input type="number" class="form-control" id="frequenceResp" name="frequenceResp" placeholder="Ex: 16">
-			                    </div>
-
-			                    <!-- Saturation SpO2 -->
-			                    <div class="mb-3">
-			                        <label for="saturation" class="form-label">Saturation SpO₂ (%)</label>
-			                        <input type="number" step="1" class="form-control" id="saturation" name="saturation" placeholder="Ex: 98">
-			                    </div>
-
-			                    <!-- Douleur -->
-			                    <div class="mb-3">
-			                        <label for="douleur" class="form-label">Douleur (0-10)</label>
-			                        <input type="number" class="form-control" id="douleur" name="douleur" min="0" max="10" placeholder="Ex: 3">
-			                    </div>
-
-			                    <!-- Poids -->
-			                    <div class="mb-3">
-			                        <label for="poids" class="form-label">Poids (kg)</label>
-			                        <input type="number" step="0.1" class="form-control" id="poids" name="poids" placeholder="Ex: 70">
-			                    </div>
-
-			                    <!-- Champ libre / Observations -->
-			                    <div class="mb-3">
-			                        <label for="observations" class="form-label">Autres observations</label>
-			                        <textarea class="form-control" id="observations" name="observations" rows="4"
-			                                  placeholder="Ajouter d'autres informations ici..."></textarea>
-			                    </div>
-								
-								<!-- Champ caché qui va contenir tout le diagnostique -->
-								<input type="hidden" id="diagnostique" name="diagnostique">								<!-- ID du rendez-vous caché -->
-								<input name="rendezVous.id"
-								 th:value="${rv.id}">
-
-
-			                    <div class="d-flex justify-content-between">
-			                        <button type="button" class="btn btn-secondary" id="btnRetour">Retour</button>
-			                        <button type="submit" class="btn btn-success">Enregistrer</button>
-			                    </div>
-
-			                    
-			                </form>
+			            <!-- Colonne droite : Ordonnance -->
+			            <div class="col-md-4">
+			              <div class="card mb-3 shadow-sm">
+			                <div class="card-header bg-success text-white">Ordonnance</div>
+			                <div class="card-body">
+			                  <div class="mb-6">
+			                    <label for="medicament" class="form-label">Médicament</label>
+			                    <input type="text" class="form-control" id="medicament" name="medicament" placeholder="Nom du médicament">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="posologie" class="form-label">Posologie</label>
+			                    <input type="text" class="form-control" id="posologie" name="posologie" placeholder="Ex: 1 cp / jour">
+			                  </div>
+			                  <div class="mb-3">
+			                    <label for="duree" class="form-label">Durée</label>
+			                    <input type="text" class="form-control" id="duree" name="duree" placeholder="Ex: 5 jours">
+			                  </div>
+			                </div>
+			              </div>
 			            </div>
-			        </div>
+			          </div>
+
+			          <!-- Boutons -->
+			          <div class="d-flex justify-content-end mt-3">
+			            <button type="submit" class="btn btn-success">Enregistrer</button>
+			          </div>
+			        </form>
+			      </div>
 			    </div>
-			</div>	
+			  </div>
+			</div>
 		</div>
 </div>
 <script>

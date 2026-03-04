@@ -1,10 +1,7 @@
 package com.erp.clinique.repository;
 
-<<<<<<< Updated upstream
-import java.util.List;
-=======
 import java.time.LocalDate;
->>>>>>> Stashed changes
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -32,10 +29,10 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
         """)
         Page<Consultation> searchAll(@Param("keyword") String keyword, Pageable pageable);
     
-<<<<<<< Updated upstream
+
     @Query("SELECT MONTH(c.date), COUNT(c) FROM Consultation c WHERE YEAR(c.date) = YEAR(CURRENT_DATE) GROUP BY MONTH(c.date)")
     List<Object[]> countConsultationsByMonth();
-=======
+
  // Toutes les consultations d’un médecin
     Page<Consultation> findByRendezVousMedecinId(Long medecinId, Pageable pageable);
 
@@ -47,5 +44,5 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
 
     Page<Consultation> findByRendezVousMedecinIdAndRendezVousPatientNomContainingIgnoreCaseAndDate(
         Long medecinId, String keyword, LocalDate date, Pageable pageable);
->>>>>>> Stashed changes
+
 }

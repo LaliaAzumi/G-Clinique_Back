@@ -1,8 +1,17 @@
 package com.erp.clinique.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "consultations")
@@ -22,14 +31,17 @@ public class Consultation {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rendez_vous_id", nullable = false, unique = true)
     private RendezVous rendezVous;
+    
+    private String maladie;
 
     // Constructeurs
     public Consultation() {}
 
-    public Consultation(LocalDate date, String diagnostique, RendezVous rendezVous) {
+    public Consultation(LocalDate date, String diagnostique, RendezVous rendezVous, String maladie) {
         this.date = date;
         this.diagnostique = diagnostique;
         this.rendezVous = rendezVous;
+        this.maladie = maladie;
     }
 
     // Getters et Setters
@@ -64,4 +76,12 @@ public class Consultation {
     public void setRendezVous(RendezVous rendezVous) {
         this.rendezVous = rendezVous;
     }
+
+	public String getMaladie() {
+		return maladie;
+	}
+
+	public void setMaladie(String maladie) {
+		this.maladie = maladie;
+	}
 }

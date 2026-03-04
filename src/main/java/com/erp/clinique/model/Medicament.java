@@ -17,6 +17,8 @@ public class Medicament {
     private String nom;
 
     private String description;
+    private  double pu;
+    private Integer qStock;
 
    
     public Long getId() {
@@ -38,11 +40,25 @@ public class Medicament {
 		this.description= description;
 	}
 	
-	public Medicament(String nom, String description) {
+	public Medicament(String nom, String description, double pu, Integer qStock) {
 		this.nom = nom;
 		this.description = description;
+		this.pu = pu;
+		this.qStock = qStock;
 		
 	}
 	public Medicament() {}
+	public double getPu() {
+		return pu;
+	}
+	public void setPu(double pu) {
+		this.pu = pu;
+	}
+	public Integer getqStock() {
+		return qStock;
+	}
+	public void setqStock(Integer qStock) {
+		this.qStock = qStock;
+	}
     
 }

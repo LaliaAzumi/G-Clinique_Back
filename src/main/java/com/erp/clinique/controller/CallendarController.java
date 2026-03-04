@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.erp.clinique.model.MedecinUser;
+import com.erp.clinique.model.Medicament;
 import com.erp.clinique.model.RendezVous;
 import com.erp.clinique.model.Users;
 import com.erp.clinique.repository.MedecinUserRepository;
+import com.erp.clinique.repository.MedicamentRepository;
 import com.erp.clinique.service.RendezVousService;
 import com.erp.clinique.service.UserService;
 
@@ -31,6 +33,8 @@ public class CallendarController {
 
     @Autowired
     private MedecinUserRepository medecinUserRepo;
+    @Autowired
+    private MedicamentRepository medicamentRepository;
 	// Lister tous les rendez-vous
     
 	@GetMapping("/callendars")
@@ -61,6 +65,9 @@ public class CallendarController {
 
         // 4️⃣ Récupérer les rendez-vous du médecin pour la semaine
         List<RendezVous> rdvs = rendezVousService.findByMedecinIdAndDateBetween(medecinId, start, end);
+        
+        List<Medicament> medicaments = medicamentRepository.findAll();
+        model.addAttribute("medicaments", medicaments);
 
         // 5️⃣ Passer au modèle pour Thymeleaf
         model.addAttribute("startOfWeek", start);
