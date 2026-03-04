@@ -16,22 +16,56 @@
 <div th:replace="~{fragments/layout :: alerts}"></div>
 
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">
-            <i class="bi bi-calendar-check text-warning"></i> Liste des Rendez-vous
-        </h2>
-		<form th:action="@{/rendezvous}" method="get" class="mb-4 d-flex">
-			<input type="text" name="keyword" th:value="${keyword}"
-				   class="form-control me-2"
-				    placeholder="Rechercher un rendezvous">
-			<button class="btn btn-primary">
-				  <i class="bi bi-search"></i>
-			</button>
-		</form>
-        <a th:href="@{/rendezvous/new}" class="btn btn-warning">
-            <i class="bi bi-plus-circle"></i> Nouveau Rendez-vous
-        </a>
-    </div>
+	<div class="container mt-4">
+	    <div class="d-flex justify-content-between align-items-center mb-4">
+	        <h2 class="fw-bold mb-0">
+	            <i class="bi bi-calendar-check text-warning"></i> Liste des Rendez-vous
+	        </h2>
+	        <a th:href="@{/rendezvous/new}" class="btn btn-warning shadow-sm">
+	            <i class="bi bi-plus-circle"></i> Nouveau Rendez-vous
+	        </a>
+	    </div>
+
+	    <div class="card shadow-sm border-0 mb-4">
+	        <div class="card-body p-4">
+	            <form th:action="@{/rendezvous}" method="get" class="row g-3">
+	                <div class="col-md-4">
+	                    <label class="form-label fw-bold small text-muted">Recherche</label>
+	                    <div class="input-group">
+	                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+	                        <input type="text" name="keyword" th:value="${keyword}" 
+	                               class="form-control border-start-0 bg-light" 
+	                               placeholder="Patient, médecin ou motif...">
+	                    </div>
+	                </div>
+
+	                <div class="col-md-3">
+	                    <label class="form-label fw-bold small text-muted">Date</label>
+	                    <input type="date" name="date" th:value="${date}" class="form-control bg-light">
+	                </div>
+
+	                <div class="col-md-3">
+	                    <label class="form-label fw-bold small text-muted">Statut</label>
+	                    <select name="statut" class="form-select bg-light">
+	                        <option value="">Tous les statuts</option>
+	                        <option value="EN_ATTENTE" th:selected="${statut == 'EN_ATTENTE'}">En attente</option>
+	                        <option value="CONFIRME" th:selected="${statut == 'CONFIRME'}">Confirmé</option>
+	                        <option value="ANNULE" th:selected="${statut == 'ANNULE'}">Annulé</option>
+	                    </select>
+	                </div>
+
+	                <div class="col-md-2 d-flex align-items-end gap-2">
+	                    <button type="submit" class="btn btn-primary flex-grow-1">
+	                        <i class="bi bi-filter"></i> Filtrer
+	                    </button>
+	                    <a th:href="@{/rendezvous}" class="btn btn-outline-secondary" title="Réinitialiser">
+	                        <i class="bi bi-arrow-clockwise"></i>
+	                    </a>
+	                </div>
+	            </form>
+	        </div>
+	    </div>
+	</div>
 
     <!-- Tableau -->
     <div class="card shadow-sm">

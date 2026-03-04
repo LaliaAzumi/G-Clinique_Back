@@ -41,4 +41,14 @@ public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
         """)
         Page<RendezVous> searchAll(@Param("keyword") String keyword, Pageable pageable);
     
+    @Query("SELECT r FROM RendezVous r WHERE " +
+    	       "(:keyword IS NULL OR LOWER(r.motif) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+    	       "OR LOWER(r.patient.nom) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+    	       "OR LOWER(r.medecin.nom) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+    	       "AND (:date IS NULL OR r.date = :date) " +
+    	       "AND (:statut IS NULL OR r.statut = :statut)")
+    	List<RendezVous> searchRendezVous(@Param("keyword") String keyword, 
+    	                                  @Param("date") LocalDate date, 
+    	                                  @Param("statut") String statut);
+    
 }
