@@ -11,6 +11,7 @@
 	<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/main.min.css' rel='stylesheet' />
 	<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/main.min.js'></script>
 	<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/locales-all.min.js'></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .hero-section {
             background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
@@ -43,7 +44,7 @@
 <!-- Navbar -->
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-<!-- Hero Section -->
+<!-- Hero Section
 <section class="hero-section text-center">
     <div class="container">
         <h1 class="display-4 fw-bold mb-3">
@@ -56,8 +57,72 @@
             Gerez vos medecins, patients, rendez-vous et consultations en un seul endroit.
         </p>
     </div>
-</section>
+</section> -->
+<section th:if="${roles[0]} == 'ROLE_ADMIN'" class="container mt-n5">
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-white p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-success bg-opacity-10 text-success mb-0 me-3">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Total Patients</h6>
+                        <h3 class="fw-bold mb-0">1,250</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-white p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-danger bg-opacity-10 text-danger mb-0 me-3">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Consultations</h6>
+                        <h3 class="fw-bold mb-0">342</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-white p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-warning bg-opacity-10 text-warning mb-0 me-3">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Revenus (mois)</h6>
+                        <h3 class="fw-bold mb-0">12,400 Ar</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-white p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-0 me-3">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Médecins</h6>
+                        <h3 class="fw-bold mb-0">18</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-4">Activité des Consultations (7 derniers jours)</h5>
+                <canvas id="adminChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
 <!-- Modules -->
 <section class="container my-5">
     <h2 class="text-center mb-4 fw-bold">Modules de gestion</h2>
@@ -221,7 +286,34 @@
 
 <!-- Footer -->
 <footer th:replace="~{fragments/layout :: footer}"></footer>
-
+<script th:if="${roles[0]} == 'ROLE_ADMIN'">
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('adminChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+            datasets: [{
+                label: 'Nombre de consultations',
+                data: [12, 19, 15, 25, 22, 10, 5],
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
