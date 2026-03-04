@@ -81,4 +81,12 @@ public class RendezVousService {
 
         return heuresDisponibles;
     }
+    public List<RendezVous> search(String keyword, LocalDate date, String statut) {
+       
+        String searchKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+       
+        String searchStatut = (statut != null && !statut.trim().isEmpty()) ? statut : null;
+
+        return rendezVousRepository.searchRendezVous(searchKeyword, date, searchStatut);
+    }
 }

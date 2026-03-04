@@ -61,7 +61,22 @@ public class RendezVousController {
     public String list(	Model model ,
 			            @RequestParam(defaultValue = "0") int page,
 			            @RequestParam(defaultValue = "5") int size,
-			            @RequestParam(required = false) String keyword) {
+			            
+			            @RequestParam(required = false) String keyword,
+			            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+			            @RequestParam(required = false) String statut
+			            ) {
+			            
+			            // Logique pour filtrer 
+			            List<RendezVous> list;
+			            
+			            if ((keyword != null && !keyword.isEmpty()) || date != null || (statut != null && !statut.isEmpty())) {
+			                list = rendezVousService.search(keyword, date, statut);
+			            } else {
+			                list = rendezVousService.findAll();
+			            }
+
+			           
     	Pageable pageable = PageRequest.of(page, size);
 
         Page<RendezVous> rendezvousPage;
@@ -71,8 +86,10 @@ public class RendezVousController {
         } else {
             rendezvousPage = rendezvousRepository.findAll(pageable);
         }
-
-        model.addAttribute("rendezVousList", rendezvousPage.getContent());
+        model.addAttribute("rendezVousList", list);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("date", date);
+        model.addAttribute("statut", statut);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", rendezvousPage.getTotalPages());
         model.addAttribute("keyword", keyword);
