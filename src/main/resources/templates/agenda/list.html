@@ -1,8 +1,8 @@
-<<<<<<< Updated upstream
+
 <!DOCTYPE html>
-=======
+
 	<!DOCTYPE html>
->>>>>>> Stashed changes
+
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -74,7 +74,7 @@
 		                <!-- Boucle des jours, lundi = 1 ... dimanche = 7 -->
 		                <td th:each="day : ${#numbers.sequence(1,7)}" class="calendar-cell">
 		                    <!-- Vérifie s'il y a un rendez-vous à cette date + heure -->
-<<<<<<< Updated upstream
+
 							<span th:each="rv : ${rendezVousList}" 
 							      th:if="${rv.date.dayOfWeek.value == day and rv.heure.hour == hour}"
 							      th:text="${rv.patient.nom + ' ' + rv.patient.prenom + ' (' + rv.motif + ')'}"
@@ -89,7 +89,8 @@
 								  th:data-bs-target="'#rendezVousModal-' + ${rv.id}"
 								  >
 							</span>
-=======
+							<!-- Vérifie s'il y a un rendez-vous à cette date + heure 
+
 							<a th:each="rv : ${rendezVousList}" 
 							   th:if="${rv.date.dayOfWeek.value == day and rv.heure.hour == hour}"
 							   th:href="@{/consultations/new(rendezVousId=${rv.id})}" 
@@ -104,8 +105,8 @@
 							            (${rv.statut == 'TERMINE'} ? ' bg-success' : ' bg-secondary')))">
 							    </span>
 							    <small class="text-muted d-block" style="font-size: 0.7rem;" th:text="${rv.motif}"></small>
-							</a>
->>>>>>> Stashed changes
+							</a>-->
+
 		                </td>
 		            </tr>
 		        </tbody>
@@ -223,6 +224,8 @@
 			                    <label for="maladie" class="form-label">Maladie</label>
 			                    <input type="text" class="form-control" id="maladie" name="maladie" placeholder="Maladie du patient">
 			                  </div>
+							  <input name="diagnostique" id="diagnostique">
+							  <input type="hidden" name="rendezVous.id" th:value="${rv.id}">
 			                </div>
 			              </div>
 			            </div>
@@ -260,6 +263,7 @@
 
 														    <!-- Liste des prescriptions ajoutées -->
 														    <ul id="prescriptionsList" class="list-group mt-2"></ul>
+															<div id="hiddenPrescriptions"></div>
 														</div>
 
 														<script>
@@ -327,7 +331,7 @@
 														}
 
 														function renderPrescriptions() {
-														    const list = document.getElementById('prescriptionList');
+														    const list = document.getElementById('prescriptionsList');
 														    const hidden = document.getElementById('hiddenPrescriptions');
 														    list.innerHTML = '';
 														    hidden.innerHTML = '';
@@ -350,13 +354,19 @@
 														        li.querySelector('button').onclick = () => removeMedicament(m.id);
 														        list.appendChild(li);
 
-														        hidden.innerHTML += `
+														     /*   hidden.innerHTML += `
 														            <input type="hidden" name="prescriptions[${i}].medicament.id" value="${m.id}">
 														            <input type="hidden" name="prescriptions[${i}].posologie" value="${m.posologie}">
 														            <input type="hidden" name="prescriptions[${i}].duree" value="${m.duree}">
-																	<input type="hidden" name="prescriptions[${i}].duree" value="${m.quantite}">
+																	<input type="hidden" name="prescriptions[${i}].quantite" value="${m.quantite}">
 
-														        `;
+														        `;*/
+																hidden.innerHTML += `
+																    <input type="hidden" name="medicamentId" value="${m.id}">
+																    <input type="hidden" name="posologie" value="${m.posologie}">
+																    <input type="hidden" name="duree" value="${m.duree}">
+																    <input type="hidden" name="quantite" value="${m.quantite}">
+																`;
 														    });
 														}
 
@@ -388,7 +398,7 @@
 														    }
 														});
 
-														function addPrescription() {
+														/*function addPrescription() {
 														    const medText = select.options[select.selectedIndex].text;
 														    const posologie = document.getElementById('posologie').value;
 														    const duree = document.getElementById('duree').value;
@@ -398,8 +408,8 @@
 															const stock = parseInt(selectedOption.getAttribute("data-stock"));
 															const quantiteNumber = parseInt(quantite);
 
-															if (quantiteNumber > stock) {
-															    alert("La quantité dépasse le stock disponible !");
+														    if (!medText || !posologie || !duree || !quantite) return alert('Remplir tous les champs');
+															if (quantiteNumber > stock) { alert("La quantité dépasse le stock disponible !");
 															    return;
 															}
 															if (quantiteNumber == 0 ) {
@@ -407,17 +417,53 @@
 																return;
 															}
 															
-														    if (!medText || !posologie || !duree || !quantite) return alert('Remplir tous les champs');
 
 														    const li = document.createElement('li');
 														    li.className = "list-group-item d-flex justify-content-between align-items-center";
-														    li.innerHTML = `${medText} - ${posologie} - ${duree} - ${quantite} <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">X</button>`;
+														    li.innerHTML = `${medText} // ${posologie} // ${duree} // ${quantite} <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">X</button>`;
 														    prescriptionsList.appendChild(li);
 
 														    // Reset inputs
 														    document.getElementById('posologie').value = '';
 														    document.getElementById('duree').value = '';
 														    document.getElementById('quantite').value = '';
+														}*/
+														function addPrescription() {
+														    const medText = select.options[select.selectedIndex].text;
+														    const medId = select.value;
+														    const posologie = document.getElementById('posologie').value;
+														    const duree = document.getElementById('duree').value;
+														    const quantite = document.getElementById('quantite').value;
+
+														    const selectedOption = select.options[select.selectedIndex];
+														    const stock = parseInt(selectedOption.getAttribute("data-stock"));
+														    const quantiteNumber = parseInt(quantite);
+
+														    if (!medId || !posologie || !duree || !quantite) return alert('Remplir tous les champs');
+														    if (quantiteNumber > stock) return alert("La quantité dépasse le stock disponible !");
+														    if (quantiteNumber <= 0) return alert("La quantité doit être > 0 !");
+
+														    // 🔹 Ajouter au tableau selectedMedicaments
+														    selectedMedicaments.push({
+														        id: medId,
+														        nom: medText,
+														        posologie: posologie,
+														        duree: duree,
+														        quantite: quantite
+														    });
+
+														    // 🔹 Re-rendu de la liste + hidden inputs
+														    renderPrescriptions();
+															const li = document.createElement('li');
+																												    li.className = "list-group-item d-flex justify-content-between align-items-center";
+																												    li.innerHTML = `${medText} // ${posologie} // ${duree} // ${quantite} <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">X</button>`;
+																												    prescriptionsList.appendChild(li);
+														    // 🔹 Reset des champs
+														    document.getElementById('posologie').value = '';
+														    document.getElementById('duree').value = '';
+														    document.getElementById('quantite').value = '';
+														    select.value = '';          // déselectionner
+														    inputs.classList.add('d-none'); // cacher le formulaire de prescription
 														}
 														select.addEventListener('change', function() {
 														    if (select.value) {

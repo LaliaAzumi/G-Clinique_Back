@@ -37,8 +37,6 @@ public class Prescription {
     	this.medicament = medicament;
     }
     
-    
-
 	public String getPosologie() {
 		return posologie;
 	}
@@ -46,9 +44,6 @@ public class Prescription {
 	public void setPosologie(String posologie) {
 		this.posologie = posologie;
 	}
-
-	
-
 	public String getDuree() {
 		return duree;
 	}
@@ -56,17 +51,25 @@ public class Prescription {
 	public void setDuree(String duree) {
 		this.duree = duree;
 	}
-
-
-
 	public Integer getQuantite() {
 		return quantite;
 	}
 
-
-
 	public void setQuantite(Integer quantite) {
 		this.quantite = quantite;
+	}
+	public Medicament getMedicament() {
+		return medicament;
+	}
+	public void setMedicament(Medicament medicament) {
+		this.medicament = medicament;
+	}
+	
+	public Ordonnance getOrdonnance() {
+		return ordonnance;
+	}
+	public void setOrdonnance(Ordonnance ordonnance) {
+		this.ordonnance = ordonnance;
 	}
 
     

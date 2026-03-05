@@ -38,15 +38,17 @@ public class Ordonnance {
 	public void setConsultation(Consultation consultation) {
 		this.consultation= consultation;
 	}
-	public List<Prescription> getPrescription() {
+	public List<Prescription> getPrescriptions() {
 		return prescriptions;
 	}
-	public void setConsultation(List<Prescription> prescriptions) {
-		this.prescriptions= prescriptions;
+	public void setPrescriptions(List<Prescription> prescriptions) {
+	    this.prescriptions = prescriptions;
 	}
+	
 	public Ordonnance(Consultation consultation, List<Prescription> prescriptions) {
 		this.consultation = consultation;
 		this.prescriptions = prescriptions;
 	}
+	public Ordonnance () {}
 
 }

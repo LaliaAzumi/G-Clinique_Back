@@ -1,6 +1,7 @@
 package com.erp.clinique.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,11 +24,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.erp.clinique.model.Consultation;
 import com.erp.clinique.model.MedecinUser;
+import com.erp.clinique.model.Medicament;
+import com.erp.clinique.model.Ordonnance;
+import com.erp.clinique.model.Prescription;
 import com.erp.clinique.model.RendezVous;
 import com.erp.clinique.model.Users;
 import com.erp.clinique.repository.ConsultationRepository;
 import com.erp.clinique.repository.MedecinUserRepository;
+import com.erp.clinique.repository.OrdonnanceRepository;
 import com.erp.clinique.service.ConsultationService;
+import com.erp.clinique.service.MedicamentService;
 import com.erp.clinique.service.RendezVousService;
 import com.erp.clinique.service.UserService;
 
@@ -46,7 +52,10 @@ public class ConsultationController {
     private ConsultationRepository consultationRepository;
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private MedicamentService medicamentService;
+    @Autowired
+    private OrdonnanceRepository ordonnanceRepository;
     @Autowired
     private MedecinUserRepository medecinUserRepo;
 
@@ -115,18 +124,59 @@ public class ConsultationController {
     public String save(@Valid @ModelAttribute("consultation") Consultation consultation,
                        BindingResult result,
                        Model model,
-                       RedirectAttributes redirectAttributes) {
+                       RedirectAttributes redirectAttributes,
+                       @RequestParam List<Long> medicamentId,
+                       @RequestParam List<String> posologie,
+                       @RequestParam List<String> duree,
+                       @RequestParam List<Integer> quantite) {
+    	
+    	System.out.println(result.hasErrors());
         if (result.hasErrors()) {
             model.addAttribute("rendezVousList", rendezVousService.findAll());
             return "consultations/form";
         }
-        Long rvId = consultation.getRendezVous().getId();
+       /* Long rvId = consultation.getRendezVous().getId();
         RendezVous rv = rendezVousService.findById(rvId).get();
         consultation.setRendezVous(rv);
 
         consultationService.save(consultation);
         
         redirectAttributes.addFlashAttribute("success", "Consultation enregistree avec succes !");
+        return "redirect:/consultations";*/
+        Long rvId = consultation.getRendezVous().getId();
+        RendezVous rv = rendezVousService.findById(rvId).get();
+        consultation.setRendezVous(rv);
+
+        // 1️⃣ Sauver consultation
+        consultationService.save(consultation);
+
+        // 2️⃣ Créer ordonnance
+        Ordonnance ordonnance = new Ordonnance();
+        ordonnance.setConsultation(consultation);
+
+        // 3️⃣ Créer prescriptions
+        for (int i = 0; i < medicamentId.size(); i++) {
+
+            Medicament medicament = medicamentService
+                    .findById(medicamentId.get(i))
+                    .orElseThrow();
+         // 🔹 Diminuer le stock
+            medicament.setqStock(medicament.getqStock() - quantite.get(i));
+            Prescription p = new Prescription();
+            p.setMedicament(medicament);
+            p.setPosologie(posologie.get(i));
+            p.setDuree(duree.get(i));
+            p.setQuantite(quantite.get(i));
+            p.setOrdonnance(ordonnance);
+
+            ordonnance.getPrescriptions().add(p);
+            System.out.println("presci tafiditra");
+        }
+
+        // 4️⃣ Sauver ordonnance (cascade sauve prescriptions)
+        ordonnanceRepository.save(ordonnance);
+
+        redirectAttributes.addFlashAttribute("success", "Consultation enregistrée !");
         return "redirect:/consultations";
     }
 
