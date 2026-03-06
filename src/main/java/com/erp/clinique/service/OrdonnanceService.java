@@ -86,7 +86,7 @@ public class OrdonnanceService {
 	    table.setWidthPercentage(100);
 	    table.setWidths(new float[]{3, 2, 2, 1, 2});
 
-	    String[] headers = {"Médicament", "Posologie", "Durée", "Quantité", "Prix total"};
+	    String[] headers = {"Médicament", "Posologie", "Durée", "Qtt", "Prix total"};
 	    for (String h : headers) {
 	        PdfPCell cell = new PdfPCell(new Phrase(h, headerFont));
 	        cell.setBorder(PdfPCell.NO_BORDER);

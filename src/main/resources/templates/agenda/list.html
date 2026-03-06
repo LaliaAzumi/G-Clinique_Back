@@ -43,15 +43,28 @@
 
 <div class="container">
 	<div class="d-flex justify-content-between mb-3">
-		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.minusDays(7)})}" class="btn btn-outline-primary">&lt; Semaine précédente</a>
+		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.minusDays(7)})}" class="btn btn-outline-primary">&lt; </a>
 		<h4 th:text="'Semaine du ' + ${#temporals.format(startOfWeek,'dd/MM/yyyy')} + ' au ' + ${#temporals.format(endOfWeek,'dd/MM/yyyy')}"></h4>
 		
 		<a th:href="@{/callendar/callendars}" class="btn btn-outline-primary">
-		    Retour à cette semaine
+			&darr;
 		</a>
-		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.plusDays(7)})}" class="btn btn-outline-primary">Semaine suivante &gt;</a>
+		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.plusDays(7)})}" class="btn btn-outline-primary"> &gt;</a>
 	    </div>
+		<div class="mb-3 d-flex gap-3 flex-wrap align-items-center">
 
+		    <span class="badge bg-warning text-dark">EN_ATTENTE</span>
+		   
+		    <span class="badge bg-primary">EN_ATTENTE_REPORTER</span>
+		   
+
+		    <span class="badge bg-danger">ANNULE</span>
+		 
+
+		    <span class="badge bg-success">TERMINE</span>
+		   
+
+		</div>
 		<div class="table-responsive">
 		    <table class="table table-bordered">
 		        <thead>
@@ -83,7 +96,8 @@
 								            ${rv.statut == 'EN_ATTENTE'} ? ' bg-warning text-dark' :
 								            (${rv.statut == 'CONFIRME'} ? ' bg-primary' :
 								            (${rv.statut == 'ANNULE'} ? ' bg-danger' :
-								            (${rv.statut == 'TERMINE'} ? ' bg-success' : ' bg-secondary')))
+											(${rv.statut == 'EN_ATTENTE_REPORTER'} ? 'bg-primary' :
+								            (${rv.statut == 'TERMINE'} ? ' bg-success' : ' bg-secondary'))))
 								        "
 								  data-bs-toggle="modal"
 								  th:data-bs-target="'#rendezVousModal-' + ${rv.id}"
@@ -125,10 +139,10 @@
 		                
 		                <div class="modal-body">
 		                    <form th:action="@{/rendezvous/updateStatus}" th:object="${rv}" method="post">
-								<!-- Date editable -->
+								<!-- Date editable th:min="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')} " -->
 								<input type="date" class="form-control" name="date"
 								       th:value="${rv.date}" 
-									   th:min="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')}" 
+									  
 									   required>
 
 								<!-- Heure editable -->
@@ -137,30 +151,44 @@
 									   
 									   required>
 
-								<!-- Statut editable -->
+								<!-- Statut editable 
 								<select class="form-select" name="statut">
 								    <option value="EN_ATTENTE" th:selected="${rv.statut=='EN_ATTENTE'}">En Attente</option>
 								    <option value="CONFIRME" th:selected="${rv.statut=='CONFIRME'}">Confirmé</option>
 								    <option value="ANNULE" th:selected="${rv.statut=='ANNULE'}">Annulé</option>
 								    <option value="TERMINE" th:selected="${rv.statut=='TERMINE'}">Terminé</option>
-								</select>
+								</select>-->
 
 								<!-- ID caché -->
 								<input type="hidden" name="rendezVousId"  id ="idRendezVousModal" th:value="${rv.id}">
 		                        <!-- Lecture seule pour les autres infos -->
 		                        <p><strong>Motif :</strong> <span th:text="${rv.motif}"></span></p>
 		                        <p><strong>Patient :</strong> <span th:text="${rv.patient.prenom + ' ' + rv.patient.nom}"></span></p>
-		                        <p><strong>Médecin :</strong> <span th:text="${rv.medecin.nom + ' (' + rv.medecin.specialite + ')'}"></span></p>
 
 		                        <div class="d-flex justify-content-between mt-3">
-		                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+		                            
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
 									<button type="button" 
 									class="btn btn-warning btnCommencer" 
 									th:data-rv-id="${rv.id}"
-									th:data-patient-nom="${rv.patient.prenom + ' ' + rv.patient.nom}">
+									th:data-patient-nom="${rv.patient.prenom + ' ' + rv.patient.nom}"
+									th:if="${rv.statut != 'TERMINE' && rv.statut != 'ANNULE' && rv.statut != 'EN_ATTENTE_REPORTER'}"
+									>
 										Commencer
 									</button>
-									<button type="submit" class="btn btn-warning">Enregistrer</button>
+									<form th:action="@{/rendezvous/updateStatusM}" method="post" style="display:inline;">
+												<input type="hidden" name="id" th:value="${rv.id}">
+												<input type="hidden" name="date" th:value="${rv.date}">
+												<input type="hidden" name="heure" th:value="${rv.heure}">
+												<input type="hidden" name="statut" value="EN_ATTENTE_REPORTER">
+												<button type="submit" class="btn btn-sm btn-outline-danger" 
+														onclick="return confirm('Reporter ce rendez-vous ?')"
+														th:if="${rv.statut != 'TERMINE' && rv.statut != 'ANNULE' && rv.statut != 'EN_ATTENTE_REPORTER'}">
+												<i class="bi bi-x-circle"></i> Reporter
+											</button>
+									</form>
+									<!-- raha tiana afaka manao modif le medecin
+										 <button type="submit" class="btn btn-warning">Enregistrer</button>-->
 		                        </div>
 		                    </form>
 		                </div>
@@ -180,7 +208,7 @@
 					          <i class="bi bi-file-medical"></i> Consultation
 					         <span id="nomPatientModal"></span></span>
 					        </h5>
-					        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					       
 					      </div>
 					      <div class="modal-body">
 					        <form th:action="@{/consultations/save}" method="post">
@@ -232,7 +260,7 @@
 					                    <label for="maladie" class="form-label">Maladie</label>
 					                    <input type="text" class="form-control" id="maladie" name="maladie" placeholder="Maladie du patient">
 					                  </div>
-									  <input name="diagnostique" id="diagnostique">
+									  <input name="diagnostique" id="diagnostique" type="hidden">
 									 
 					                </div>
 					              </div>

@@ -171,17 +171,29 @@
 		    </a>
 		</div>
 		<!-- Medicament -->
-						<div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
-						    <a th:href="@{/medicaments}" class="text-decoration-none">
-						        <div class="card card-module shadow-sm text-center p-4">
-						            <div class="icon-circle bg-success bg-opacity-10 text-success">
-										<i class="bi bi-capsule-pill"></i>
-						            </div>
-						            <h5 class="fw-bold text-dark">Medicaments</h5>
-						            <p class="text-muted small">Gestion des Medicaments </p>
-						        </div>
-						    </a>
-						</div>
+		<div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
+			<a th:href="@{/medicaments}" class="text-decoration-none">
+				<div class="card card-module shadow-sm text-center p-4">
+					<div class="icon-circle bg-success bg-opacity-10 text-success">
+							<i class="bi bi-capsule-pill"></i>
+					</div>
+					<h5 class="fw-bold text-dark">Medicaments</h5>
+					<p class="text-muted small">Gestion des Medicaments </p>
+				</div>
+			</a>
+		</div>
+		<!-- Ordonnance -->
+		<div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">
+			<a th:href="@{/ordonnances}" class="text-decoration-none">
+				<div class="card card-module shadow-sm text-center p-4">
+					<div class="icon-circle bg-success bg-opacity-10 text-success">
+						<i class="bi bi-file-earmark-medical"></i>
+					</div>
+					<h5 class="fw-bold text-dark">Ordonnances</h5>
+					<p class="text-muted small">Gestion des Ordonnances </p>
+				</div>
+			</a>
+		</div>
 
         <!-- Rendez-vous -->
         <div th:if="${roles[0]} == 'ROLE_SECRETAIRE'" class="col-md-6 col-lg-3">

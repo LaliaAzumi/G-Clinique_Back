@@ -185,7 +185,8 @@ public class ConsultationController {
      // 4️⃣ Générer PDF et envoyer email
         try {
         	// 1️⃣ Définir le dossier où tu veux stocker les PDF
-            String folder = "uploads/pdf_ordonnances/";
+        	String folder = "src/main/resources/static/pdf_ordonnances/";
+        	//String folder = "uploads/pdf_ordonnances/";
             File dir = new File(folder);
             if (!dir.exists()) dir.mkdirs();
 

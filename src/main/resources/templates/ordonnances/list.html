@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Clinique - Patients</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<!-- Alerts -->
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container my-4">
+    <h4><i class="bi bi-prescription2"></i> Afficher Ordonnance par ID</h4>
+
+	<form th:action="@{/ordonnances/show}" method="post">
+	    <div class="input-group mb-3">
+	        <input type="number" name="id" id="ordonnanceId" class="form-control" placeholder="Entrez l'ID de l'ordonnance" required>
+	        <button type="submit" class="btn btn-primary">
+	            <i class="bi bi-eye"></i> Afficher
+	        </button>
+	    </div>
+	</form>
+
+	<div th:if="${ordonnance != null}" class="mt-4" id="pdfContainer">
+		 <form th:action="@{/ordonnances}" method="get">
+	        <button type="submit" class="btn btn-secondary mt-2">Fermer</button>
+	    </form>
+		<form th:if="${ordonnance.paye != true}" th:action="@{/ordonnances/considerPaid/{id}(id=${ordonnance.id})}" method="post">
+		    <button type="submit" class="btn btn-primary"
+		            onclick="return confirm('Voulez-vous vraiment marquer cette ordonnance comme payée ?')">
+		        <i class="bi bi-currency-dollar"></i> Payer
+		    </button>
+		</form>
+	    
+	    <iframe th:src="@{'/pdf_ordonnances/ordonnance_' + ${ordonnance.id} + '.pdf'}" width="100%" height="600px"></iframe>
+	   
+	</div>
+</div>
+
+<script>
+    const btn = document.getElementById('showPdfBtn');
+    const input = document.getElementById('ordonnanceId');
+    const container = document.getElementById('pdfContainer');
+    const frame = document.getElementById('pdfFrame');
+	const btnClose = document.getElementById('closePdfBtn');
+
+    btn.addEventListener('click', () => {
+        const id = input.value.trim();
+        if(!id) {
+            alert('Veuillez entrer un ID valide');
+            return;
+        }
+
+        // On construit le chemin vers le PDF directement depuis ta table
+        // Exemple: /uploads/pdf_ordonnances/ordonnance_152.pdf
+        frame.src = `/pdf_ordonnances/ordonnance_${id}.pdf`;
+        container.style.display = 'block';
+    });
+	
+	btnClose.addEventListener('click', () => {
+	    frame.style.display = 'none';
+	    actions.style.display = 'none';
+	    frame.src = '';
+	});
+</script>
+
+<!-- Footer -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -226,7 +226,24 @@ public class RendezVousController {
         rv.setHeure(heure);
         rv.setStatut(statut);                
         rendezVousService.save(rv);
-        return "redirect:/callendar/callendars";
+        
+        // Rediriger vers la liste des rendez-vous
+        return "redirect:/rendezvous"; 
+    }
+    @PostMapping("/updateStatusM")
+    public String updateRendezVousM(@RequestParam Long id,
+                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime heure,
+                                   @RequestParam String statut) {
+        RendezVous rv = rendezVousService.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
+        rv.setDate(date);
+        rv.setHeure(heure);
+        rv.setStatut(statut);                
+        rendezVousService.save(rv);
+        
+        // Rediriger vers la liste agenda
+        return "redirect:/callendar/callendars"; 
     }
    
 }

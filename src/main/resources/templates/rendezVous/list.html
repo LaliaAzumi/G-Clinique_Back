@@ -95,20 +95,70 @@
                             <span class="badge"
                                   th:classappend="${rdv.statut == 'EN_ATTENTE'} ? 'bg-secondary' :
                                                   (${rdv.statut == 'CONFIRME'} ? 'bg-primary' :
-                                                  (${rdv.statut == 'ANNULE'} ? 'bg-danger' : 'bg-success'))"
+												(${rdv.statut == 'EN_ATTENTE_REPORTER'} ? 'bg-warning' :
+                                                  (${rdv.statut == 'ANNULE'} ? 'bg-danger' : 'bg-success')))"
                                   th:text="${rdv.statut}"></span>
                         </td>
                         <td class="text-center">
                             <a th:href="@{/rendezvous/edit/{id}(id=${rdv.id})}"
-                               class="btn btn-sm btn-warning me-1" title="Modifier">
-                                <i class="bi bi-pencil"></i> Modifier
+                               class="btn btn-sm btn-warning me-1" title="Modifier"
+							   th:if="${rdv.statut != 'TERMINE'}">
+                                <i class="bi bi-pencil"></i> 
                             </a>
                             <a th:href="@{/rendezvous/delete/{id}(id=${rdv.id})}"
                                class="btn btn-sm btn-danger"
                                onclick="return confirm('Etes-vous sur de vouloir supprimer ce rendez-vous ?')"
                                title="Supprimer">
-                                <i class="bi bi-trash"></i> Supprimer
+                                <i class="bi bi-trash"></i> 
                             </a>
+							<form th:action="@{/rendezvous/updateStatus}" method="post" style="display:inline;">
+							        <input type="hidden" name="id" th:value="${rdv.id}">
+							        <input type="hidden" name="date" th:value="${rdv.date}">
+							        <input type="hidden" name="heure" th:value="${rdv.heure}">
+							        <input type="hidden" name="statut" value="ANNULE">
+							        <button type="submit" class="btn btn-sm btn-outline-danger" 
+							                onclick="return confirm('Annuler ce rendez-vous ?')"
+											th:if="${rdv.statut == 'EN_ATTENTE' or rdv.statut == 'EN_ATTENTE_REPORTER'}"
+											>
+							            <i class="bi bi-x-circle"></i> Annuler
+							        </button>
+							    </form>
+
+								<button type="button" class="btn btn-sm btn-outline-primary" 
+								            data-bs-toggle="modal" th:data-bs-target="'#modalReporter' + ${rdv.id}"
+											th:if="${rdv.statut == 'EN_ATTENTE' or rdv.statut == 'EN_ATTENTE_REPORTER'}">
+								        <i class="bi bi-calendar-event"></i> Reporter
+								 </button>
+								 <div class="modal fade" th:id="'modalReporter' + ${rdv.id}" tabindex="-1" aria-hidden="true">
+								         <div class="modal-dialog">
+								             <div class="modal-content">
+								                 <div class="modal-header bg-primary text-white">
+								                     <h5 class="modal-title">Reporter le rendez-vous</h5>
+								                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+								                 </div>
+								                 <form th:action="@{/rendezvous/updateStatus}" method="post">
+								                     <div class="modal-body text-start">
+								                         <input type="hidden" name="id" th:value="${rdv.id}">
+								                         <input type="hidden" name="statut" th:value="${rdv.statut}">
+								                         
+								                         <div class="mb-3">
+								                             <label class="form-label">Nouvelle Date</label>
+								                             <input type="date" name="date" class="form-control" th:value="${rdv.date}" required>
+								                         </div>
+								                         <div class="mb-3">
+								                             <label class="form-label">Nouvelle Heure</label>
+								                             <input type="time" name="heure" class="form-control" th:value="${rdv.heure}" required>
+								                         </div>
+								                     </div>
+								                     <div class="modal-footer">
+								                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+								                         <button type="submit" class="btn btn-primary">Confirmer le report</button>
+								                     </div>
+								                 </form>
+								             </div>
+								         </div>
+								     </div>
+								
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(rendezVousList)}">
