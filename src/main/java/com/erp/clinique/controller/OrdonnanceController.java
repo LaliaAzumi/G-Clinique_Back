@@ -1,5 +1,7 @@
 package com.erp.clinique.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
@@ -47,5 +49,22 @@ public class OrdonnanceController {
     	 Ordonnance ordonnance = ordonnanceRepository.findById(id).orElse(null);
     	    model.addAttribute("ordonnance", ordonnance);
         return "ordonnances/list"; // ton template Thymeleaf
+    }
+    
+    @GetMapping("/Medecin")
+    public String ordonnancesMedecin(@RequestParam(required = false) String patient, Model model) {
+        List<Ordonnance> ordonnances;
+
+        if(patient != null && !patient.isEmpty()) {
+            // Rechercher uniquement les ordonnances du patient
+            ordonnances = ordonnanceRepository.findByPatientName(patient);
+        } else {
+            // Par défaut, on ne montre **rien** au départ
+            ordonnances = new ArrayList<>();
+        }
+
+        model.addAttribute("ordonnances", ordonnances);
+        model.addAttribute("patient", patient);
+        return "ordonnances/medecin";
     }
 }
