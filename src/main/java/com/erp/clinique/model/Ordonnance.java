@@ -26,6 +26,9 @@ public class Ordonnance {
     @OneToMany(mappedBy = "ordonnance", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Prescription> prescriptions = new ArrayList<>();
     
+    private String pdfPath;
+    private Boolean paye = false;
+    
     public Long getId() {
 		return id;
 	}
@@ -50,5 +53,17 @@ public class Ordonnance {
 		this.prescriptions = prescriptions;
 	}
 	public Ordonnance () {}
+	public Boolean getPaye() {
+		return paye;
+	}
+	public void setPaye(Boolean paye) {
+		this.paye = paye;
+	}
+	public String getPdfPath() {
+		return pdfPath;
+	}
+	public void setPdfPath(String pdfPath) {
+		this.pdfPath = pdfPath;
+	}
 
 }

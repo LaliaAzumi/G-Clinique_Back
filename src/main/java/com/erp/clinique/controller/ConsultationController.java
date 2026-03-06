@@ -131,6 +131,7 @@ public class ConsultationController {
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("consultation") Consultation consultation,
                        BindingResult result,
+                       @RequestParam("rendezVousId") Long rendezVousId,
                        Model model,
                        RedirectAttributes redirectAttributes,
                        @RequestParam List<Long> medicamentId,
@@ -143,16 +144,13 @@ public class ConsultationController {
             model.addAttribute("rendezVousList", rendezVousService.findAll());
             return "consultations/form";
         }
-       /* Long rvId = consultation.getRendezVous().getId();
-        RendezVous rv = rendezVousService.findById(rvId).get();
-        consultation.setRendezVous(rv);
-
-        consultationService.save(consultation);
         
-        redirectAttributes.addFlashAttribute("success", "Consultation enregistree avec succes !");
-        return "redirect:/consultations";*/
-        Long rvId = consultation.getRendezVous().getId();
-        RendezVous rv = rendezVousService.findById(rvId).get();
+     
+        
+        RendezVous rv = rendezVousService.findById(rendezVousId)
+                .orElseThrow(() -> new IllegalArgumentException("Rendez-vous invalide avec l'ID : " + rendezVousId));
+        
+   
         consultation.setRendezVous(rv);
 
         // 1️⃣ Sauver consultation
@@ -186,17 +184,41 @@ public class ConsultationController {
         
      // 4️⃣ Générer PDF et envoyer email
         try {
-            File pdf = ordonnanceService.generateOrdonnancePdf(ordonnance);
+        	// 1️⃣ Définir le dossier où tu veux stocker les PDF
+            String folder = "uploads/pdf_ordonnances/";
+            File dir = new File(folder);
+            if (!dir.exists()) dir.mkdirs();
+
+            // 2️⃣ Nommer le PDF
+            String filename = "ordonnance_" + ordonnance.getId() + ".pdf";
+            File pdfFile = new File(dir, filename);
+
+            // 3️⃣ Générer le PDF et l'enregistrer sur disque
+            ordonnanceService.generateOrdonnancePdf(ordonnance, pdfFile); // à adapter pour que la méthode accepte File
+
+            // 4️⃣ Sauver le chemin dans l'ordonnance
+            ordonnance.setPdfPath(folder + filename);
+            ordonnanceRepository.save(ordonnance);
+           
             String patientEmail = rv.getPatient().getEmail(); // vérifie qu'il n'est pas nul
-            emailService.sendPdfEmail(patientEmail,
-                    "Votre ordonnance - Clinique",
-                    "Bonjour, voici votre ordonnance avec le détail des médicaments.",
-                    pdf);
+            String subject = "Votre ordonnance - Clinique";
+            String body = "Bonjour,\n\n"
+                    + "Voici votre ordonnance avec le détail des médicaments.\n"
+                    + "Veuillez revenir à la secrétaire et lui communiquer votre numéro d'ordonnance "
+                    + "pour pouvoir poursuivre l'achat des médicaments prescrits.\n\n"
+                    + "Merci et bon rétablissement !";
+            emailService.sendPdfEmail(patientEmail, subject, body, pdfFile);
             redirectAttributes.addFlashAttribute("success", "Consultation enregistrée et email envoyé !");
+            
+         // ✅ Mettre le rendez-vous en TERMINE
+            rv.setStatut("TERMINE");
+            rendezVousService.save(rv);
+            
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Consultation enregistrée mais l'email n'a pas pu être envoyé.");
         }
+        
         redirectAttributes.addFlashAttribute("success", "Consultation enregistrée !");
         return "redirect:/consultations";
     }
