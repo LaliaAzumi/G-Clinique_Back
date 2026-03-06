@@ -1,5 +1,6 @@
 package com.erp.clinique.controller;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,7 +34,9 @@ import com.erp.clinique.repository.ConsultationRepository;
 import com.erp.clinique.repository.MedecinUserRepository;
 import com.erp.clinique.repository.OrdonnanceRepository;
 import com.erp.clinique.service.ConsultationService;
+import com.erp.clinique.service.EmailService;
 import com.erp.clinique.service.MedicamentService;
+import com.erp.clinique.service.OrdonnanceService;
 import com.erp.clinique.service.RendezVousService;
 import com.erp.clinique.service.UserService;
 
@@ -58,6 +61,11 @@ public class ConsultationController {
     private OrdonnanceRepository ordonnanceRepository;
     @Autowired
     private MedecinUserRepository medecinUserRepo;
+    @Autowired
+    private OrdonnanceService ordonnanceService;
+
+    @Autowired
+    private EmailService emailService; // ton service pour envoyer les emails
 
     // Lister toutes les consultations
     @GetMapping
@@ -175,7 +183,20 @@ public class ConsultationController {
 
         // 4️⃣ Sauver ordonnance (cascade sauve prescriptions)
         ordonnanceRepository.save(ordonnance);
-
+        
+     // 4️⃣ Générer PDF et envoyer email
+        try {
+            File pdf = ordonnanceService.generateOrdonnancePdf(ordonnance);
+            String patientEmail = rv.getPatient().getEmail(); // vérifie qu'il n'est pas nul
+            emailService.sendPdfEmail(patientEmail,
+                    "Votre ordonnance - Clinique",
+                    "Bonjour, voici votre ordonnance avec le détail des médicaments.",
+                    pdf);
+            redirectAttributes.addFlashAttribute("success", "Consultation enregistrée et email envoyé !");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Consultation enregistrée mais l'email n'a pas pu être envoyé.");
+        }
         redirectAttributes.addFlashAttribute("success", "Consultation enregistrée !");
         return "redirect:/consultations";
     }

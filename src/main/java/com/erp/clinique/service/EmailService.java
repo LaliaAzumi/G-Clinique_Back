@@ -1,9 +1,14 @@
 package com.erp.clinique.service;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
@@ -50,5 +55,17 @@ public class EmailService {
             System.err.println("Erreur technique lors de l'envoi de l'email : " + e.getMessage());
         }
    }
+    
+    public void sendPdfEmail(String to, String subject, String text, File pdf) throws Exception {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(text);
+        helper.addAttachment(pdf.getName(), pdf);
+
+        mailSender.send(message);
+    }
 
 }
