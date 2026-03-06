@@ -1,8 +1,7 @@
 package com.erp.clinique.controller;
 
 import java.util.List;
-import com.erp.clinique.service.*;
-import com.erp.clinique.repository.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +11,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.erp.clinique.model.Users;
+import com.erp.clinique.service.ConsultationService;
+import com.erp.clinique.service.MedecinService;
+import com.erp.clinique.service.PatientService;
+import com.erp.clinique.service.RendezVousService;
 import com.erp.clinique.service.UserService;
 
 @Controller
@@ -31,6 +34,7 @@ public class HomeController {
     private MedecinService medecinService;
     @Autowired
     private RendezVousService rendezVousService;
+   
     @GetMapping("/home")
     public String home(Model model) {
     	// Récupère l'utilisateur connecté

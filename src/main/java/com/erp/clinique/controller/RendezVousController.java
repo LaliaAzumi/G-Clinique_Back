@@ -29,6 +29,7 @@ import com.erp.clinique.repository.MedecinUserRepository;
 import com.erp.clinique.repository.RendezVousRepository;
 import com.erp.clinique.service.EmailService;
 import com.erp.clinique.service.MedecinService;
+import com.erp.clinique.service.NotificationService;
 import com.erp.clinique.service.PatientService;
 import com.erp.clinique.service.RendezVousService;
 import com.erp.clinique.service.UserService;
@@ -53,22 +54,21 @@ public class RendezVousController {
     private MedecinUserRepository medecinUserRepository;
     @Autowired
     private RendezVousRepository rendezvousRepository;
+    @Autowired
+    private NotificationService notificationService;
     
     
 
     // Lister tous les rendez-vous
     @GetMapping
     public String list(	Model model ,
-			            @RequestParam(defaultValue = "0") int page,
-			            @RequestParam(defaultValue = "5") int size,
-			            
-			            @RequestParam(required = false) String keyword,
+			            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,@RequestParam(required = false) String keyword,
 			            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
 			            @RequestParam(required = false) String statut
 			            ) {
 			            
 			            // Logique pour filtrer 
-			            List<RendezVous> list;
+			     List<RendezVous> list;
 			            
 			            if ((keyword != null && !keyword.isEmpty()) || date != null || (statut != null && !statut.isEmpty())) {
 			                list = rendezVousService.search(keyword, date, statut);
@@ -173,6 +173,23 @@ public class RendezVousController {
 
                 emailService.sendRendezVousEmail(patientEmail, sujet, corps);
                 emailService.sendRendezVousEmail(medecinEmail, sujet, corps);
+                
+                
+                //notif
+                String notifMessage = String.format(
+                        "Nouveau rendez-vous pour %s %s le %s à %s",
+                        rendezVous.getPatient().getNom(),
+                        rendezVous.getPatient().getPrenom(),
+                        rendezVous.getDate(),
+                        rendezVous.getHeure()
+                );
+                Long idmed = rendezVous.getMedecin().getId();
+                Optional<MedecinUser> idusers = medecinUserRepository.findByMedecinId(idmed);
+                
+                MedecinUser muy = idusers.get();
+                System.out.println("MedecinUser trouvé : userId=" + muy.getUserId());
+                
+                notificationService.sendNotificationToUser(muy.getUserId(), notifMessage);
             } else {
                 System.out.println("Utilisateur associé au MedecinUser introuvable !");
             }
@@ -222,14 +239,131 @@ public class RendezVousController {
                                    @RequestParam String statut) {
         RendezVous rv = rendezVousService.findById(id)
                         .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
+        
+     // 1️⃣ Déterminer le message pour le médecin (notification WebSocket)
+        String notifMessage;
+        String emailMessage; // pour le patient
+
+        if ("ANNULE".equalsIgnoreCase(statut)) {
+            notifMessage = String.format(
+                "Le rendez-vous avec le motif %s de %s %s prévu le %s à %s a été annulé.",
+                rv.getMotif(),
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure()
+            );
+            emailMessage = String.format(
+                "Bonjour %s %s,\n\nVotre rendez-vous prévu le %s à %s pour le motif %s a été annulé.\n\nCordialement,\nL'équipe ERP Clinique",
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure(),
+                rv.getMotif()
+            );
+        } else if (!rv.getDate().equals(date) && !rv.getHeure().equals(heure)) {
+            notifMessage = String.format(
+                "Le rendez-vous avec le motif %s de %s %s a été déplacé du %s à %s vers le %s à %s.",
+                rv.getMotif(),
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure(),
+                date,
+                heure
+            );
+            emailMessage = String.format(
+                "Bonjour %s %s,\n\nVotre rendez-vous prévu le %s à %s pour le motif %s a été déplacé au %s à %s.\n\nCordialement,\nL'équipe ERP Clinique",
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure(),
+                rv.getMotif(),
+                date,
+                heure
+            );
+        } else if (!rv.getDate().equals(date)) {
+            notifMessage = String.format(
+                "Le rendez-vous avec le motif %s de %s %s prévu le %s a été déplacé à la date %s.",
+                rv.getMotif(),
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                date
+            );
+            emailMessage = String.format(
+                "Bonjour %s %s,\n\nVotre rendez-vous prévu le %s pour le motif %s a été déplacé au %s.\n\nCordialement,\nL'équipe ERP Clinique",
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getMotif(),
+                date
+            );
+        } else if (!rv.getHeure().equals(heure)) {
+            notifMessage = String.format(
+                "Le rendez-vous avec le motif %s de %s %s prévu le %s à %s a été déplacé à %s.",
+                rv.getMotif(),
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure(),
+                heure
+            );
+            emailMessage = String.format(
+                "Bonjour %s %s,\n\nVotre rendez-vous prévu le %s à %s pour le motif %s a été déplacé à %s.\n\nCordialement,\nL'équipe ERP Clinique",
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure(),
+                rv.getMotif(),
+                heure
+            );
+        } else {
+            notifMessage = String.format(
+                "Le rendez-vous avec le motif %s de %s %s prévu le %s à %s a été modifié.",
+                rv.getMotif(),
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure()
+            );
+            emailMessage = String.format(
+                "Bonjour %s %s,\n\nVotre rendez-vous prévu le %s à %s pour le motif %s a été modifié.\n\nCordialement,\nL'équipe ERP Clinique",
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                rv.getDate(),
+                rv.getHeure(),
+                rv.getMotif()
+            );
+        }
+
+        // 2️⃣ Envoi notification WebSocket au médecin
+        Long idmed = rv.getMedecin().getId();
+        Optional<MedecinUser> idusers = medecinUserRepository.findByMedecinId(idmed);
+        if (idusers.isPresent()) {
+            MedecinUser muy = idusers.get();
+            System.out.println("MedecinUser trouvé : userId=" + muy.getUserId());
+            notificationService.sendNotificationToUser(muy.getUserId(), notifMessage);
+        }
+
+        // 3️⃣ Envoi email au patient
+        String patientEmail = rv.getPatient().getEmail();
+        String sujet = "Modification de votre rendez-vous";
+        emailService.sendRendezVousEmail(patientEmail, sujet, emailMessage);
+
+        // 4️⃣ Mise à jour du rendez-vous
         rv.setDate(date);
         rv.setHeure(heure);
         rv.setStatut(statut);                
         rendezVousService.save(rv);
         
+        
+        
         // Rediriger vers la liste des rendez-vous
         return "redirect:/rendezvous"; 
     }
+    
+    
     @PostMapping("/updateStatusM")
     public String updateRendezVousM(@RequestParam Long id,
                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -237,10 +371,29 @@ public class RendezVousController {
                                    @RequestParam String statut) {
         RendezVous rv = rendezVousService.findById(id)
                         .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
+        
+        String notifMessage = String.format(
+                "Le rendez-vous avec %s %s prévu le %s à %s a été reporté. Merci de le reprogrammer.",
+                rv.getPatient().getNom(),
+                rv.getPatient().getPrenom(),
+                date,
+                heure
+        );
+        
         rv.setDate(date);
         rv.setHeure(heure);
         rv.setStatut(statut);                
         rendezVousService.save(rv);
+        
+        List<Users> secretaires = userService.findByRole("SECRETAIRE");
+        
+
+        for (Users sec : secretaires) {
+         
+                notificationService.sendNotificationToUser(sec.getId(), notifMessage);
+           
+        }
+        
         
         // Rediriger vers la liste agenda
         return "redirect:/callendar/callendars"; 

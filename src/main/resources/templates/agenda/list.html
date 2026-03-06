@@ -41,6 +41,8 @@
 <!-- Alerts -->
 <div th:replace="~{fragments/layout :: alerts}"></div>
 
+<div th:replace="~{fragments/layout :: notification-scripts}"></div>
+
 <div class="container">
 	<div class="d-flex justify-content-between mb-3">
 		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.minusDays(7)})}" class="btn btn-outline-primary">&lt; </a>
@@ -138,7 +140,7 @@
 		                </div>
 		                
 		                <div class="modal-body">
-		                    <form th:action="@{/rendezvous/updateStatus}" th:object="${rv}" method="post">
+		                    <form th:action="@{/rendezvous/updateStatusM}" th:object="${rv}" method="post">
 								<!-- Date editable th:min="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')} " -->
 								<input type="date" class="form-control" name="date"
 								       th:value="${rv.date}" 
@@ -680,7 +682,10 @@ document.querySelector('#modalCommencer form').addEventListener('submit', functi
 																});
 																
 																</script>
-<!-- Footer -->
+																
+
+
+																														<!-- Footer -->
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

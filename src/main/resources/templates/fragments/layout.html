@@ -45,6 +45,7 @@
                     <i class="bi bi-box-arrow-right"></i> Deconnexion
                 </button>
             </form>
+			
     </div>
 </nav>
 
@@ -60,6 +61,82 @@
     </div>
 </div>
 
+<div th:fragment="notification-scripts">
+<div id="toastContainer" 
+			     style="position:fixed; top:20px; right:20px; z-index:99999;"></div>
+				 
+				 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+				 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+				 <script th:inline="javascript">
+
+				 const userId = sessionStorage.getItem('userId');
+				 
+
+				 const socket = new SockJS('/ws-notif');
+				 const stompClient = Stomp.over(socket);
+
+				 stompClient.connect({}, function(frame) {
+
+				     console.log("WebSocket connecté");
+					 console.log("Connecté : " + frame);
+					 console.log("User ID :", userId);
+
+				     stompClient.subscribe('/topic/notifications-' + userId, function(message) {
+						console.log("MESSAGE RECU :", message.body);
+				         showToast(message.body);
+				     });
+
+				 });
+
+				 function showToast(message) {
+				     const container = document.getElementById("toastContainer");
+
+				     const toast = document.createElement("div");
+				     toast.style.background = "#0d6efd";
+				     toast.style.color = "white";
+				     toast.style.padding = "15px 20px";
+				     toast.style.marginTop = "10px";
+				     toast.style.borderRadius = "8px";
+				     toast.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+				     toast.style.display = "flex";
+				     toast.style.justifyContent = "space-between";
+				     toast.style.alignItems = "center";
+				     toast.style.minWidth = "250px";
+				     toast.style.opacity = "0";
+				     toast.style.transition = "opacity 0.4s ease";
+
+				     const msgSpan = document.createElement("span");
+				     msgSpan.innerText = message;
+				     toast.appendChild(msgSpan);
+
+				     const closeBtn = document.createElement("button");
+				     closeBtn.innerHTML = "&times;";
+				     closeBtn.style.background = "transparent";
+				     closeBtn.style.border = "none";
+				     closeBtn.style.color = "white";
+				     closeBtn.style.fontSize = "18px";
+				     closeBtn.style.cursor = "pointer";
+				     closeBtn.onclick = () => {
+				         toast.style.opacity = "0";
+				         setTimeout(() => toast.remove(), 400);
+				     };
+				     toast.appendChild(closeBtn);
+
+				     container.appendChild(toast);
+
+				     setTimeout(() => {
+				         toast.style.opacity = "1";
+				     }, 10);
+
+				     // Audio local dans le projet
+				     const audio = new Audio("/sounds/notif.mp3");
+				     audio.play();
+				 }
+				 </script>
+				 </div>
+				 
+				 
 <!-- ==================== FOOTER ==================== -->
 <footer th:fragment="footer" class="bg-light text-center py-3 mt-5 border-top">
     <div class="container">
