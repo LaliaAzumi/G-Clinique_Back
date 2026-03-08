@@ -33,10 +33,10 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     @Query("SELECT MONTH(c.date), COUNT(c) FROM Consultation c WHERE YEAR(c.date) = YEAR(CURRENT_DATE) GROUP BY MONTH(c.date)")
     List<Object[]> countConsultationsByMonth();
 
- // Toutes les consultations d’un médecin
+
     Page<Consultation> findByRendezVousMedecinId(Long medecinId, Pageable pageable);
 
-    // Recherche par médecin + nom du patient
+  
     Page<Consultation> findByRendezVousMedecinIdAndRendezVousPatientNomContainingIgnoreCase(
             Long medecinId, String nom, Pageable pageable);
     

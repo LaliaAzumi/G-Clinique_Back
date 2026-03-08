@@ -1,21 +1,21 @@
 package com.erp.clinique.repository;
 
-import com.erp.clinique.model.Medecin;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import com.erp.clinique.model.Medecin;
 
 @Repository
 public interface MedecinRepository extends JpaRepository<Medecin, Long> {
 
     List<Medecin> findByNomContainingIgnoreCase(String nom);
     
-   // Page<Medecin> findByNomContainingIgnoreCase(String nom, Pageable pageable);
 
     @Query("""
             SELECT m FROM Medecin m

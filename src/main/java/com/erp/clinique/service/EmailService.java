@@ -17,7 +17,6 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     public void sendPasswordEmail(String email, String username, String motDePasse) {
-        // ✅ Sécurité : Vérifier si l'email est valide
         if (email == null || email.trim().isEmpty()) {
             System.err.println("Erreur : Impossible d'envoyer l'email de mot de passe, l'adresse est vide.");
             return;
@@ -34,10 +33,9 @@ public class EmailService {
         mailSender.send(message);
     }
     
-    // Nouvelle méthode pour rendez-vous
+   
     public void sendRendezVousEmail(String to, String sujet, String corps) {
-        // ✅ Sécurité : Vérifier si l'email du destinataire est présent
-        // C'est ici que l'erreur "Illegal address in string ''" se produisait
+    	
         if (to == null || to.trim().isEmpty()) {
             System.err.println("Annulation de l'envoi : L'adresse email du patient est manquante.");
             return; 
@@ -51,7 +49,6 @@ public class EmailService {
             message.setText(corps);
             mailSender.send(message);
         } catch (Exception e) {
-            // ✅ On capture l'erreur pour éviter de faire planter toute l'application (Erreur 500)
             System.err.println("Erreur technique lors de l'envoi de l'email : " + e.getMessage());
         }
    }

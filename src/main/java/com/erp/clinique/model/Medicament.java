@@ -60,5 +60,4 @@ public class Medicament {
 	public void setqStock(Integer qStock) {
 		this.qStock = qStock;
 	}
-    
 }

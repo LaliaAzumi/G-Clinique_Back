@@ -58,8 +58,6 @@
             return;
         }
 
-        // On construit le chemin vers le PDF directement depuis ta table
-        // Exemple: /uploads/pdf_ordonnances/ordonnance_152.pdf
         frame.src = `/pdf_ordonnances/ordonnance_${id}.pdf`;
         container.style.display = 'block';
     });

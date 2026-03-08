@@ -45,7 +45,7 @@ public class UserController {
     private UserRepository userRepository;
     
 
-    // Liste des utilisateurs selon rôle
+   
     @GetMapping("/secretaires")
     public String listSecretaires(
     		Model model,
@@ -71,53 +71,44 @@ public class UserController {
         
     }
 
-    // Formulaire création secrétaire
+    
     @GetMapping("/secretaires/new")
     public String newSecretaire(Model model) {
         model.addAttribute("secretaire", new Users());
-        return "secretaires/form"; // Thymeleaf template
+        return "secretaires/form"; 
     }
 
-    // Sauvegarde secrétaire
+  
     @PostMapping("/secretaires/save")
     public String saveSecretaire(@Valid @ModelAttribute("user") Users user,
                                  BindingResult result,
                                  Model model) {
 
-        // Validation côté serveur
+       
         if (result.hasErrors()) {
             return "secretaires/form";
         }
 
-        // Vérifier si username existe
+      
         if (userService.findByUsername(user.getUsername()).isPresent()) {
             model.addAttribute("error", "Nom d'utilisateur déjà utilisé !");
             return "secretaires/form";
         }
 
-        // Générer mot de passe aléatoire
+        
         String randomPassword = MdpUtils.generateRandomMdp();
-        System.out.println("Mot de passe généré : " + randomPassword); // debug
+       // System.out.println("Mdp huhu " + randomPassword); 
 
-        // Encoder le mot de passe
         user.setMdp(randomPassword);
-
-        // Role SECRETAIRE
         user.setRole("SECRETAIRE");
-
-        // Premiers login obligatoire changement mdp
         user.setFirstLogin(true);
-
-        // Sauvegarder en base
         userService.saveUser(user);
-
-        // Envoyer email avec mot de passe temporaire
         emailService.sendPasswordEmail(user.getEmail(), user.getUsername(),randomPassword);
 
         return "redirect:/users/secretaires";
     }
 
-    // Sauvegarde users for medecin
+    
     @PostMapping("/usersForM/save")
     public String saveUsersForM(@Valid @ModelAttribute("user") Users user,
                                  BindingResult result,
@@ -125,47 +116,33 @@ public class UserController {
                                  RedirectAttributes redirectAttributes,
                                  @RequestParam Long medecinId) {
 
-        // Validation côté serveur
+       
         if (result.hasErrors()) {
             return "secretaires/form";
         }
 
-        // Vérifier si username existe
         if (userService.findByUsername(user.getUsername()).isPresent()) {
             model.addAttribute("error", "Nom d'utilisateur déjà utilisé !");
             return "medecinUser/form";
         }
 
-        // Générer mot de passe aléatoire
         String randomPassword = MdpUtils.generateRandomMdp();
-        System.out.println("Mot de passe généré : " + randomPassword); // debug
+        //System.out.println("Mdp huhu : " + randomPassword);
 
-        // Encoder le mot de passe
         user.setMdp(randomPassword);
-
-        // Role MEDECIN
         user.setRole("MEDECIN");
-
-        // Premiers login obligatoire changement mdp
         user.setFirstLogin(true);
 
-        // Sauvegarder en base
-       // userService.saveUser(user);
         Users userEnregistre = userService.saveUser(user);
-        
-     // Créer le lien dans MedecinUser
         MedecinUser link = new MedecinUser(medecinId, userEnregistre.getId());
         medecinUserRepository.save(link);
-
-        // Envoyer email avec mot de passe temporaire
         emailService.sendPasswordEmail(user.getEmail(), user.getUsername(),randomPassword);
-
         redirectAttributes.addFlashAttribute("success", "Medecin enregistre avec succes !");
         
         return "redirect:/medecins";
     }
 
-    // Sauvegarder nouveau mot de passe
+   
     @PostMapping("/change-password")
     public String changePassword(@ModelAttribute("user") Users user) {
         Users dbUser = userService.findById(user.getId()).orElseThrow();
@@ -175,7 +152,7 @@ public class UserController {
         return "redirect:/home";
     }
 
-    // Supprimer un user (optionnel)
+    
     @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         userService.deleteById(id);
@@ -186,7 +163,7 @@ public class UserController {
     public String showEditForm(@PathVariable Long id, Model model,
                                RedirectAttributes redirectAttributes) {
 
-        return userService.findById(id)   // <- ici, instance et pas classe
+        return userService.findById(id)   
                 .map(user -> {
                     model.addAttribute("secretaire", user);
                     return "secretaires/form";

@@ -48,9 +48,6 @@
 <!-- Navbar -->
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-
-
-	 
 <!-- Hero Section-->
 <section class="hero-section text-center">
     <div class="container">
@@ -65,7 +62,6 @@
         </p>
     </div>
 </section>
-
 
 <section th:if="${roles[0]} == 'ROLE_ADMIN'" class=" dash container mt-n5">
     <div class="row g-4 mb-5">
@@ -230,32 +226,29 @@
             </a>
         </div>
 		<!-- Agenda  -->
-				<div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
-				            <a th:href="@{/callendar}" class="text-decoration-none">
-				                <div class="card card-module shadow-sm text-center p-4">
-				                    <div class="icon-circle bg-danger bg-opacity-10 text-danger">
-				                        <i class="bi bi-calendar-event"></i>
-				                    </div>
-				                    <h5 class="fw-bold text-dark">Agenda des rdv</h5>
-				                   <p class="text-muted small">Suivi des diagnostiques et consultations</p>
-				      </div>
-				    </a>
-
+		<div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
+            <a th:href="@{/callendar}" class="text-decoration-none">
+                <div class="card card-module shadow-sm text-center p-4">
+                    <div class="icon-circle bg-danger bg-opacity-10 text-danger">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Agenda des rdv</h5>
+                   	<p class="text-muted small">Suivi des diagnostiques et consultations</p>
+      			</div>
+    		</a>
+		</div>
+		<!-- Ordonnance -->
+		<div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
+			<a th:href="@{/ordonnances/Medecin}" class="text-decoration-none">
+				<div class="card card-module shadow-sm text-center p-4">
+					<div class="icon-circle bg-success bg-opacity-10 text-success">
+						<i class="bi bi-file-earmark-medical"></i>
+					</div>
+					<h5 class="fw-bold text-dark">Ordonnances</h5>
+					<p class="text-muted small">Gestion des Ordonnances </p>
 				</div>
-				<!-- Ordonnance -->
-						<div th:if="${roles[0]} == 'ROLE_MEDECIN'" class="col-md-6 col-lg-3">
-							<a th:href="@{/ordonnances/Medecin}" class="text-decoration-none">
-								<div class="card card-module shadow-sm text-center p-4">
-									<div class="icon-circle bg-success bg-opacity-10 text-success">
-										<i class="bi bi-file-earmark-medical"></i>
-									</div>
-									<h5 class="fw-bold text-dark">Ordonnances</h5>
-									<p class="text-muted small">Gestion des Ordonnances </p>
-								</div>
-							</a>
-						</div>
-		
-
+			</a>
+		</div>
     </div>
 	<!-- Modal Premier Login -->
 	<div th:if="${firstLogin}" class="modal fade" id="firstLoginModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -267,15 +260,15 @@
 	      <div class="modal-body">
 	        <form th:action="@{/users/change-password}" th:object="${user}" method="post" id="firstLoginForm">
 				<input type="hidden" th:field="*{id}" />
-	          <div class="mb-3">
-	            <label for="newPassword" class="form-label">Nouveau mot de passe *</label>
-	            <input type="password" class="form-control" id="newPassword" th:field="*{mdp}" required>
-	          </div>
-	          <div class="mb-3">
-	            <label for="confirmPassword" class="form-label">Retaper le mot de passe *</label>
-	            <input type="password" class="form-control" id="confirmPassword" required>
-	            <div class="text-danger small mt-1" id="passwordError" style="display:none;">Les mots de passe ne correspondent pas.</div>
-	          </div>
+	          	<div class="mb-3">
+		            <label for="newPassword" class="form-label">Nouveau mot de passe *</label>
+		            <input type="password" class="form-control" id="newPassword" th:field="*{mdp}" required>
+	          	</div>
+	          	<div class="mb-3">
+	            	<label for="confirmPassword" class="form-label">Retaper le mot de passe *</label>
+	            	<input type="password" class="form-control" id="confirmPassword" required>
+	            	<div class="text-danger small mt-1" id="passwordError" style="display:none;">Les mots de passe ne correspondent pas.</div>
+	          	</div>
 	        </form>
 	      </div>
 	      <div class="modal-footer">

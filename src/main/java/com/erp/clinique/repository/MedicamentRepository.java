@@ -14,8 +14,7 @@ import com.erp.clinique.model.Medicament;
 @Repository
 public interface MedicamentRepository extends JpaRepository<Medicament, Long>{
     List<Medicament> findByNomContainingIgnoreCase(String nom);
-
-	
+    
 	@Query("""
 	            SELECT m FROM Medicament m
 	            WHERE 

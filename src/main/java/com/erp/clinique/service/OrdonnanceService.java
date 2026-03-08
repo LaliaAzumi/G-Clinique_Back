@@ -27,30 +27,25 @@ public class OrdonnanceService {
 	    PdfWriter.getInstance(document, new FileOutputStream(file));
 	    document.open();
 
-	    // FONT
 	    Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
 	    Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
 	    Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 11);
 
-	    // CLINIQUE NAME
 	    Paragraph clinicName = new Paragraph("ERP CLINIQUE", titleFont);
 	    clinicName.setAlignment(Element.ALIGN_CENTER);
 	    document.add(clinicName);
 
-	    // DATE ET HEURE
 	    String dateHeure = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 	    Paragraph datePara = new Paragraph("Date & Heure : " + dateHeure, normalFont);
 	    datePara.setAlignment(Element.ALIGN_CENTER);
 	    document.add(datePara);
 
-	    document.add(new Paragraph(" ")); // Saut de ligne
+	    document.add(new Paragraph(" ")); 
 
-	    // Infos Médecin et Patient
 	    PdfPTable infoTable = new PdfPTable(2);
 	    infoTable.setWidthPercentage(100);
 	    infoTable.setWidths(new float[]{1, 1});
 
-	    // Médecin
 	    PdfPCell medecinCell = new PdfPCell();
 	    medecinCell.setBorder(PdfPCell.NO_BORDER);
 	    medecinCell.addElement(new Paragraph("Médecin :", headerFont));
@@ -59,7 +54,6 @@ public class OrdonnanceService {
 	    medecinCell.addElement(new Paragraph("Tel : " + ordonnance.getConsultation().getRendezVous().getMedecin().getTelephone(), normalFont));
 	    medecinCell.addElement(new Paragraph("Adresse : " + ordonnance.getConsultation().getRendezVous().getMedecin().getAdresse(), normalFont));
 
-	    // Patient
 	    PdfPCell patientCell = new PdfPCell();
 	    patientCell.setBorder(PdfPCell.NO_BORDER);
 	    patientCell.addElement(new Paragraph("Patient :", headerFont));
@@ -72,16 +66,14 @@ public class OrdonnanceService {
 	    infoTable.addCell(patientCell);
 	    document.add(infoTable);
 
-	    document.add(new Paragraph(" ")); // saut de ligne
+	    document.add(new Paragraph(" "));
 
-	    // Maladie et Motif
 	    document.add(new Paragraph("Ordonnance : " + ordonnance.getId(), normalFont));
 	    document.add(new Paragraph("Motif : " + ordonnance.getConsultation().getRendezVous().getMotif(), normalFont));
 	    document.add(new Paragraph("Maladie : " + ordonnance.getConsultation().getMaladie(), normalFont));
 
 	    document.add(new Paragraph(" "));
 
-	    // Tableau Médicaments
 	    PdfPTable table = new PdfPTable(5);
 	    table.setWidthPercentage(100);
 	    table.setWidths(new float[]{3, 2, 2, 1, 2});

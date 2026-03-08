@@ -28,7 +28,6 @@
 					<form th:action="${patient.id == null} ? @{/patients/save} : @{/patients/saveEdit/{id}(id=${patient.id})}" 
 					      th:object="${patient}" method="post">
 						
-                        <!-- ID cache pour modification-->
                         <input type="hidden" th:field="*{id}"/>
 
                         <div class="mb-3">
@@ -48,64 +47,57 @@
 						 <div class="mb-3">
 						     <label for="dateNaissance" class="form-label fw-semibold">Date de naissance *</label>
 
-							 <!-- Affichage lisible par défaut -->
 							 <input type="text" class="form-control" 
 							        id="dateNaissanceText" 
 							        placeholder="jj/mm/aaaa"
 							        th:value="${patient != null && patient.dateNaissance != null} ? ${#temporals.format(patient.dateNaissance, 'dd/MM/yyyy')} : ''" />
 
-							 <!-- Input type date caché 
-							 <input type="date" class="form-control d-none" 
-							        id="dateNaissanceDate"
-							        th:field="*{dateNaissance}" />-->
 									<input type="date" class="form-control d-none" 
 									       id="dateNaissanceDate"
 									       th:field="*{dateNaissance}" 
 									       th:value="${patient.dateNaissance != null} ? ${#temporals.format(patient.dateNaissance, 'yyyy-MM-dd')} : ''" />
 
-									
 									<script>
-									function pad(n) {
-									    return n.toString().padStart(2, '0');
-									}
-
-									const textInput = document.getElementById('dateNaissanceText');
-									const dateInput = document.getElementById('dateNaissanceDate');
-									const form = document.querySelector('form');
-
-									// Synchronisation initiale si date existante
-									if(textInput.value) {
-									    const parts = textInput.value.split('/');
-									    dateInput.value = `${parts[2]}-${pad(parts[1])}-${pad(parts[0])}`;
-									}
-
-									// Au focus sur le champ texte
-									textInput.addEventListener('focus', () => {
-									    textInput.classList.add('d-none');
-									    dateInput.classList.remove('d-none');
-									    dateInput.focus();
-									});
-
-									// Au blur du champ date
-									dateInput.addEventListener('blur', () => {
-									    if(dateInput.value) {
-									        const [year, month, day] = dateInput.value.split('-');
-									        textInput.value = `${pad(day)}/${pad(month)}/${year}`;
-									    }
-									    dateInput.classList.add('d-none');
-									    textInput.classList.remove('d-none');
-									});
-
-									// Avant submit
-									form.addEventListener('submit', () => {
-									    if(textInput.value) {
-									        const parts = textInput.value.split('/');
-									        dateInput.value = `${parts[2]}-${pad(parts[1])}-${pad(parts[0])}`;
-									    }
-									});
+										function pad(n) {
+										    return n.toString().padStart(2, '0');
+										}
+	
+										const textInput = document.getElementById('dateNaissanceText');
+										const dateInput = document.getElementById('dateNaissanceDate');
+										const form = document.querySelector('form');
+	
+										// Synchronisation initiale si date existante
+										if(textInput.value) {
+										    const parts = textInput.value.split('/');
+										    dateInput.value = `${parts[2]}-${pad(parts[1])}-${pad(parts[0])}`;
+										}
+	
+										// Au focus sur le champ texte
+										textInput.addEventListener('focus', () => {
+										    textInput.classList.add('d-none');
+										    dateInput.classList.remove('d-none');
+										    dateInput.focus();
+										});
+	
+										// Au blur du champ date
+										dateInput.addEventListener('blur', () => {
+										    if(dateInput.value) {
+										        const [year, month, day] = dateInput.value.split('-');
+										        textInput.value = `${pad(day)}/${pad(month)}/${year}`;
+										    }
+										    dateInput.classList.add('d-none');
+										    textInput.classList.remove('d-none');
+										});
+	
+										// Avant submit
+										form.addEventListener('submit', () => {
+										    if(textInput.value) {
+										        const parts = textInput.value.split('/');
+										        dateInput.value = `${parts[2]}-${pad(parts[1])}-${pad(parts[0])}`;
+										    }
+										});
 									</script>
 							 
-						
                         <div class="mb-3">
                             <label for="telephone" class="form-label fw-semibold">Telephone</label>
                             <input type="text" class="form-control" id="telephone"

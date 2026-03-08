@@ -1,0 +1,6 @@
+-- installer une version un peu old du docker desktop 4.5.1 old mais stable
+-- a chaque modification dans le projet faire cette commande dans le terminale racine du projet 
+		.\mvnw clean package -DskipTests
+-- puis lancer relancer le build :
+		docker compose up --build
+--aller vers localhoost:8080 et voila

@@ -34,7 +34,6 @@ public class Consultation {
     
     private String maladie;
 
-    // Constructeurs
     public Consultation() {}
 
     public Consultation(LocalDate date, String diagnostique, RendezVous rendezVous, String maladie) {
@@ -44,7 +43,7 @@ public class Consultation {
         this.maladie = maladie;
     }
 
-    // Getters et Setters
+  
     public Long getId() {
         return id;
     }

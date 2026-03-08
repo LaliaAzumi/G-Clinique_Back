@@ -19,7 +19,6 @@ public class MedecinUser {
     @Column(unique = true, nullable = false)
     private Long userId;
     
- // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -50,6 +49,4 @@ public class MedecinUser {
         this.medecinId = medecinId;
         this.userId = userId;
     }
-    
-
 }

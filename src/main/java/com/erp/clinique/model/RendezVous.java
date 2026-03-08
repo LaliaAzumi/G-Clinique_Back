@@ -31,7 +31,7 @@ public class RendezVous {
     private LocalDate date;
     
     @Column(nullable = false)
-    private LocalTime heure; // 08:00, 14:30, etc.
+    private LocalTime heure; 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
@@ -42,17 +42,16 @@ public class RendezVous {
     private Medecin medecin;
 
     @Column(nullable = false)
-    private String statut = "EN_ATTENTE"; // EN_ATTENTE, CONFIRME, ANNULE, TERMINE
+    private String statut = "EN_ATTENTE"; 
 
     @OneToOne(mappedBy = "rendezVous", cascade = CascadeType.ALL, orphanRemoval = true)
     private Consultation consultation;
     
     @Column(nullable = true)
-    private  String googleEventId; // ID de l'événement Google Calendar
+    private  String googleEventId;
 
-    // Constructeurs
+   
     public RendezVous() {}
-
     public RendezVous(String motif, LocalDate date,LocalTime heure, Patient patient, Medecin medecin, String statut ) {
         this.motif = motif;
         this.date = date;
@@ -62,7 +61,7 @@ public class RendezVous {
         this.heure = heure;
     }
 
-    // Getters et Setters
+    
     public Long getId() {
         return id;
     }

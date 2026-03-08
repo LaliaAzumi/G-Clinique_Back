@@ -7,9 +7,9 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class NotifController {
 
-    @MessageMapping("/sendMessage") // url côté JS pour envoyer
-    @SendTo("/topic/messages") // url pour diffuser
+    @MessageMapping("/sendMessage") 
+    @SendTo("/topic/messages") 
     public String sendMessage(String message) {
-        return message; // ici tu peux enrichir le message avec date, user, etc.
+        return message; 
     }
 }

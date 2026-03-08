@@ -47,86 +47,51 @@
 	<div class="d-flex justify-content-between mb-3">
 		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.minusDays(7)})}" class="btn btn-outline-primary">&lt; </a>
 		<h4 th:text="'Semaine du ' + ${#temporals.format(startOfWeek,'dd/MM/yyyy')} + ' au ' + ${#temporals.format(endOfWeek,'dd/MM/yyyy')}"></h4>
-		
-		<a th:href="@{/callendar/callendars}" class="btn btn-outline-primary">
-			&darr;
-		</a>
+		<a th:href="@{/callendar/callendars}" class="btn btn-outline-primary">&darr;</a>
 		<a th:href="@{/callendar/callendars(startOfWeek=${startOfWeek.plusDays(7)})}" class="btn btn-outline-primary"> &gt;</a>
-	    </div>
-		<div class="mb-3 d-flex gap-3 flex-wrap align-items-center">
-
-		    <span class="badge bg-warning text-dark">EN_ATTENTE</span>
-		   
-		    <span class="badge bg-primary">EN_ATTENTE_REPORTER</span>
-		   
-
-		    <span class="badge bg-danger">ANNULE</span>
-		 
-
-		    <span class="badge bg-success">TERMINE</span>
-		   
-
-		</div>
-		<div class="table-responsive">
-		    <table class="table table-bordered">
-		        <thead>
-		            <tr>
-		                <th class="hour-col"></th>
-		                <th class="day-header">Lundi</th>
-		                <th class="day-header">Mardi</th>
-		                <th class="day-header">Mercredi</th>
-		                <th class="day-header">Jeudi</th>
-		                <th class="day-header">Vendredi</th>
-		                <th class="day-header">Samedi</th>
-		                <th class="day-header">Dimanche</th>
-		            </tr>
-		        </thead>
-		        <tbody>
-		            <!-- Boucle des heures de 8h à 18h -->
-		            <tr th:each="hour : ${#numbers.sequence(8,18)}">
-		                <td class="hour-col" th:text="${hour} + ':00'"></td>
-
-		                <!-- Boucle des jours, lundi = 1 ... dimanche = 7 -->
-		                <td th:each="day : ${#numbers.sequence(1,7)}" class="calendar-cell">
-		                    <!-- Vérifie s'il y a un rendez-vous à cette date + heure -->
-
-							<span th:each="rv : ${rendezVousList}" 
-							      th:if="${rv.date.dayOfWeek.value == day and rv.heure.hour == hour}"
-							      th:text="${rv.patient.nom + ' ' + rv.patient.prenom + ' (' + rv.motif + ')'}"
-							      class="badge bg-primary text-white d-block py-1 mb-1"
-								  th:classappend="
-								            ${rv.statut == 'EN_ATTENTE'} ? ' bg-warning text-dark' :
-								            (${rv.statut == 'CONFIRME'} ? ' bg-primary' :
-								            (${rv.statut == 'ANNULE'} ? ' bg-danger' :
-											(${rv.statut == 'EN_ATTENTE_REPORTER'} ? 'bg-primary' :
-								            (${rv.statut == 'TERMINE'} ? ' bg-success' : ' bg-secondary'))))
-								        "
-								  data-bs-toggle="modal"
-								  th:data-bs-target="'#rendezVousModal-' + ${rv.id}"
-								  >
-							</span>
-							<!-- Vérifie s'il y a un rendez-vous à cette date + heure 
-
-							<a th:each="rv : ${rendezVousList}" 
-							   th:if="${rv.date.dayOfWeek.value == day and rv.heure.hour == hour}"
-							   th:href="@{/consultations/new(rendezVousId=${rv.id})}" 
-							   class="text-decoration-none">
-							    
-							    <span th:text="${rv.patient.nom + ' ' + rv.patient.prenom}"
-							          class="badge d-block py-2 mb-1 shadow-sm"
-							          th:classappend="
-							            ${rv.statut == 'EN_ATTENTE'} ? ' bg-warning text-dark' :
-							            (${rv.statut == 'CONFIRME'} ? ' bg-primary' :
-							            (${rv.statut == 'ANNULE'} ? ' bg-danger' :
-							            (${rv.statut == 'TERMINE'} ? ' bg-success' : ' bg-secondary')))">
-							    </span>
-							    <small class="text-muted d-block" style="font-size: 0.7rem;" th:text="${rv.motif}"></small>
-							</a>-->
-
-		                </td>
-		            </tr>
-		        </tbody>
-		    </table>
+	</div>
+	<div class="mb-3 d-flex gap-3 flex-wrap align-items-center">
+		<span class="badge bg-warning text-dark">EN_ATTENTE</span>
+		<span class="badge bg-primary">EN_ATTENTE_REPORTER</span>
+		<span class="badge bg-danger">ANNULE</span>
+		<span class="badge bg-success">TERMINE</span>
+	</div>
+	<div class="table-responsive">
+		<table class="table table-bordered">
+		 	<thead>
+		     	<tr>
+	                <th class="hour-col"></th>
+	                <th class="day-header">Lundi</th>
+	                <th class="day-header">Mardi</th>
+	                <th class="day-header">Mercredi</th>
+	                <th class="day-header">Jeudi</th>
+	                <th class="day-header">Vendredi</th>
+	                <th class="day-header">Samedi</th>
+	                <th class="day-header">Dimanche</th>
+	            </tr>
+	        </thead>
+	        <tbody>
+		        <tr th:each="hour : ${#numbers.sequence(8,18)}">
+	                <td class="hour-col" th:text="${hour} + ':00'"></td>
+	                <td th:each="day : ${#numbers.sequence(1,7)}" class="calendar-cell">
+						<span th:each="rv : ${rendezVousList}" 
+						      th:if="${rv.date.dayOfWeek.value == day and rv.heure.hour == hour}"
+						      th:text="${rv.patient.nom + ' ' + rv.patient.prenom + ' (' + rv.motif + ')'}"
+						      class="badge bg-primary text-white d-block py-1 mb-1"
+							  th:classappend=" 	${rv.statut == 'EN_ATTENTE'} ? ' bg-warning text-dark' :
+									            (${rv.statut == 'CONFIRME'} ? ' bg-primary' :
+									            (${rv.statut == 'ANNULE'} ? ' bg-danger' :
+												(${rv.statut == 'EN_ATTENTE_REPORTER'} ? 'bg-primary' :
+									            (${rv.statut == 'TERMINE'} ? ' bg-success' : ' bg-secondary'))))
+									        "
+							  data-bs-toggle="modal"
+							  th:data-bs-target="'#rendezVousModal-' + ${rv.id}"
+						  >
+						</span>
+	                </td>
+	            </tr>
+	        </tbody>
+	    </table>
 		</div>
 		<div th:each="rv : ${rendezVousList}">
 		    <div class="modal fade" th:id="'rendezVousModal-' + ${rv.id}" tabindex="-1" aria-hidden="true">
@@ -138,187 +103,147 @@
 		                    </h5>
 		                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		                </div>
-		                
 		                <div class="modal-body">
 		                    <form th:action="@{/rendezvous/updateStatusM}" th:object="${rv}" method="post">
-								<!-- Date editable th:min="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')} " -->
-								<input type="date" class="form-control" name="date"
-								       th:value="${rv.date}" 
-									  
-									   required>
-
-								<!-- Heure editable -->
-								<input type="time" class="form-control" name="heure"
-								       th:value="${rv.heure}" min="08:00" max="18:00" step="3600" 
-									   
-									   required>
-
-								<!-- Statut editable 
-								<select class="form-select" name="statut">
-								    <option value="EN_ATTENTE" th:selected="${rv.statut=='EN_ATTENTE'}">En Attente</option>
-								    <option value="CONFIRME" th:selected="${rv.statut=='CONFIRME'}">Confirmé</option>
-								    <option value="ANNULE" th:selected="${rv.statut=='ANNULE'}">Annulé</option>
-								    <option value="TERMINE" th:selected="${rv.statut=='TERMINE'}">Terminé</option>
-								</select>-->
-
-								<!-- ID caché -->
+								<input type="date" class="form-control" name="date" th:value="${rv.date}" required>
+								<input type="time" class="form-control" name="heure" th:value="${rv.heure}" min="08:00" max="18:00" step="3600" required>
 								<input type="hidden" name="rendezVousId"  id ="idRendezVousModal" th:value="${rv.id}">
-		                        <!-- Lecture seule pour les autres infos -->
 		                        <p><strong>Motif :</strong> <span th:text="${rv.motif}"></span></p>
 		                        <p><strong>Patient :</strong> <span th:text="${rv.patient.prenom + ' ' + rv.patient.nom}"></span></p>
 
 		                        <div class="d-flex justify-content-between mt-3">
-		                            
 									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
 									<button type="button" 
-									class="btn btn-warning btnCommencer" 
-									th:data-rv-id="${rv.id}"
-									th:data-patient-nom="${rv.patient.prenom + ' ' + rv.patient.nom}"
-									th:if="${rv.statut != 'TERMINE' && rv.statut != 'ANNULE' && rv.statut != 'EN_ATTENTE_REPORTER'}"
+										class="btn btn-warning btnCommencer" 
+										th:data-rv-id="${rv.id}"
+										th:data-patient-nom="${rv.patient.prenom + ' ' + rv.patient.nom}"
+										th:if="${rv.statut != 'TERMINE' && rv.statut != 'ANNULE' && rv.statut != 'EN_ATTENTE_REPORTER'}"
 									>
-										Commencer
+									Commencer
 									</button>
 									<form th:action="@{/rendezvous/updateStatusM}" method="post" style="display:inline;">
-												<input type="hidden" name="id" th:value="${rv.id}">
-												<input type="hidden" name="date" th:value="${rv.date}">
-												<input type="hidden" name="heure" th:value="${rv.heure}">
-												<input type="hidden" name="statut" value="EN_ATTENTE_REPORTER">
-												<button type="submit" class="btn btn-sm btn-outline-danger" 
-														onclick="return confirm('Reporter ce rendez-vous ?')"
-														th:if="${rv.statut != 'TERMINE' && rv.statut != 'ANNULE' && rv.statut != 'EN_ATTENTE_REPORTER'}">
-												<i class="bi bi-x-circle"></i> Reporter
-											</button>
+										<input type="hidden" name="id" th:value="${rv.id}">
+										<input type="hidden" name="date" th:value="${rv.date}">
+										<input type="hidden" name="heure" th:value="${rv.heure}">
+										<input type="hidden" name="statut" value="EN_ATTENTE_REPORTER">
+										<button type="submit" class="btn btn-sm btn-outline-danger" 
+												onclick="return confirm('Reporter ce rendez-vous ?')"
+												th:if="${rv.statut != 'TERMINE' && rv.statut != 'ANNULE' && rv.statut != 'EN_ATTENTE_REPORTER'}">
+											<i class="bi bi-x-circle"></i> Reporter
+										</button>
 									</form>
-									<!-- raha tiana afaka manao modif le medecin
-										 <button type="submit" class="btn btn-warning">Enregistrer</button>-->
 		                        </div>
 		                    </form>
 		                </div>
 		            </div>
 		        </div>
 		    </div>
-			
 		</div>
 
 		<!-- Modal Commencer -->
-					<!-- Modal Consultation -->
-					<div class="modal fade" id="modalCommencer" tabindex="-1" aria-hidden="true">
-					  <div class="modal-dialog modal-lg"> <!-- modal plus grand -->
-					    <div class="modal-content">
-					      <div class="modal-header bg-warning text-dark">
-					        <h5 class="modal-title">
-					          <i class="bi bi-file-medical"></i> Consultation
-					         <span id="nomPatientModal"></span></span>
-					        </h5>
-					       
-					      </div>
-					      <div class="modal-body">
-					        <form th:action="@{/consultations/save}" method="post">
-					          <div class="row">
-					            <!-- Colonne gauche : Consultation -->
-					            <div class="col-md-6">
-					              <div class="card mb-3 shadow-sm">
-					                <div class="card-header bg-warning text-dark">Consultation</div>
-					                <div class="card-body">
-					                  <!-- Tous les champs consultation -->
-					                  <div class="mb-3">
-					                    <label for="dateConsultation" class="form-label">Date</label>
-					                    <input type="date" class="form-control" id="dateConsultation" name="date"
-					                           th:value="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')}" required readonly>
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="temperature" class="form-label">Température (°C)</label>
-					                    <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder="Ex: 37.5">
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="tension" class="form-label">Tension (mmHg)</label>
-					                    <input type="text" class="form-control" id="tension" name="tension" placeholder="Ex: 120/80">
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="pouls" class="form-label">Pouls (bpm)</label>
-					                    <input type="number" class="form-control" id="pouls" name="pouls" placeholder="Ex: 72">
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="frequenceResp" class="form-label">Fréquence respiratoire (resp/min)</label>
-					                    <input type="number" class="form-control" id="frequenceResp" name="frequenceResp" placeholder="Ex: 16">
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="saturation" class="form-label">Saturation SpO₂ (%)</label>
-					                    <input type="number" step="1" class="form-control" id="saturation" name="saturation" placeholder="Ex: 98">
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="douleur" class="form-label">Douleur (0-10)</label>
-					                    <input type="number" class="form-control" id="douleur" name="douleur" min="0" max="10" placeholder="Ex: 3">
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="poids" class="form-label">Poids (kg)</label>
-					                    <input type="number" step="0.1" class="form-control" id="poids" name="poids" placeholder="Ex: 70">
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="observations" class="form-label">Autres observations</label>
-					                    <textarea class="form-control" id="observations" name="observations" rows="4" placeholder="Ajouter d'autres informations ici..."></textarea>
-					                  </div>
-					                  <div class="mb-3">
-					                    <label for="maladie" class="form-label">Maladie</label>
-					                    <input type="text" class="form-control" id="maladie" name="maladie" placeholder="Maladie du patient">
-					                  </div>
-									  <input name="diagnostique" id="diagnostique" type="hidden">
-									 
-					                </div>
-					              </div>
-					            </div>
+		<div class="modal fade" id="modalCommencer" tabindex="-1" aria-hidden="true">
+		  <div class="modal-dialog modal-lg">
+		    <div class="modal-content">
+		      <div class="modal-header bg-warning text-dark">
+		        <h5 class="modal-title">
+		          <i class="bi bi-file-medical"></i> Consultation
+		         <span id="nomPatientModal"></span></span>
+		        </h5>
+		       
+		      </div>
+		      <div class="modal-body">
+		        <form th:action="@{/consultations/save}" method="post">
+		          <div class="row">
+		            <div class="col-md-6">
+		              <div class="card mb-3 shadow-sm">
+		                <div class="card-header bg-warning text-dark">Consultation</div>
+		                <div class="card-body">
+		                  <div class="mb-3">
+		                    <label for="dateConsultation" class="form-label">Date</label>
+		                    <input type="date" class="form-control" id="dateConsultation" name="date"
+		                           th:value="${#temporals.format(T(java.time.LocalDate).now(),'yyyy-MM-dd')}" required readonly>
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="temperature" class="form-label">Température (°C)</label>
+		                    <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" placeholder="Ex: 37.5">
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="tension" class="form-label">Tension (mmHg)</label>
+		                    <input type="text" class="form-control" id="tension" name="tension" placeholder="Ex: 120/80">
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="pouls" class="form-label">Pouls (bpm)</label>
+		                    <input type="number" class="form-control" id="pouls" name="pouls" placeholder="Ex: 72">
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="frequenceResp" class="form-label">Fréquence respiratoire (resp/min)</label>
+		                    <input type="number" class="form-control" id="frequenceResp" name="frequenceResp" placeholder="Ex: 16">
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="saturation" class="form-label">Saturation SpO₂ (%)</label>
+		                    <input type="number" step="1" class="form-control" id="saturation" name="saturation" placeholder="Ex: 98">
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="douleur" class="form-label">Douleur (0-10)</label>
+		                    <input type="number" class="form-control" id="douleur" name="douleur" min="0" max="10" placeholder="Ex: 3">
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="poids" class="form-label">Poids (kg)</label>
+		                    <input type="number" step="0.1" class="form-control" id="poids" name="poids" placeholder="Ex: 70">
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="observations" class="form-label">Autres observations</label>
+		                    <textarea class="form-control" id="observations" name="observations" rows="4" placeholder="Ajouter d'autres informations ici..."></textarea>
+		                  </div>
+		                  <div class="mb-3">
+		                    <label for="maladie" class="form-label">Maladie</label>
+		                    <input type="text" class="form-control" id="maladie" name="maladie" placeholder="Maladie du patient">
+		                  </div>
+						  <input name="diagnostique" id="diagnostique" type="hidden">
+		                </div>
+		              </div>
+		            </div>
 
-					            <!-- Colonne droite : Ordonnance -->
-								 <!-- Colonne droite : Ordonnance -->
-											     <div class="col-md-6">
-											               <div class="card mb-3 shadow-sm">
-											                 <div class="card-header bg-success text-white">Ordonnance</div>
-											                 <div class="card-body">
-																<div class="col-mb-3">
-																    <label class="form-label fw-semibold">Medicaments *</label>
-																    <div class="input-group">
-																        <select class="form-select" id="medicamentSelect">
-																            <option value="">-- Choisir un médicament --</option>
-																            <option th:each="m : ${medicaments}" th:value="${m.id}" th:text="${m.nom}" th:data-stock="${m.qStock}"></option>
-																        </select>
-																        <button class="btn btn-outline-secondary" type="button" onclick="toggleSearch('medicament')">
-																            <i class="bi bi-search"></i>
-																        </button>
-																    </div>
+		            <!-- Colonne droite : Ordonnance -->
+				     <div class="col-md-6">
+		               <div class="card mb-3 shadow-sm">
+		                 <div class="card-header bg-success text-white">Ordonnance</div>
+		                 <div class="card-body">
+							<div class="col-mb-3">
+							    <label class="form-label fw-semibold">Medicaments *</label>
+							    <div class="input-group">
+							        <select class="form-select" id="medicamentSelect">
+							            <option value="">-- Choisir un médicament --</option>
+							            <option th:each="m : ${medicaments}" th:value="${m.id}" th:text="${m.nom}" th:data-stock="${m.qStock}"></option>
+							        </select>
+							        <button class="btn btn-outline-secondary" type="button" onclick="toggleSearch('medicament')">
+							            <i class="bi bi-search"></i>
+							        </button>
+							    </div>
+							    <input type="text" id="medicamentSearch" class="form-control mt-2 d-none" placeholder="Rechercher un medicament...">
+							    <div id="medicamentResults" class="list-group mt-1 d-none"></div>
 
-																    <!-- Recherche -->
-																    <input type="text" id="medicamentSearch" class="form-control mt-2 d-none" placeholder="Rechercher un medicament...">
-																    <div id="medicamentResults" class="list-group mt-1 d-none"></div>
-
-																    <!-- Prescription inputs -->
-																    <div id="prescriptionInputs" class="mt-3 d-none">
-																        <input type="text" id="posologie" class="form-control mb-2" placeholder="Posologie">
-																        <input type="text" id="duree" class="form-control mb-2" placeholder="Durée">
-																        <input type="number" id="quantite" class="form-control mb-2" placeholder="Quantité (max ${m.qStock})"  
-																		min="1" >
-																        <button class="btn btn-success" type="button" onclick="addPrescription()">Ajouter</button>
-																    </div>
-
-																    <!-- Liste des prescriptions ajoutées -->
-																    <ul id="prescriptionsList" class="list-group mt-2"></ul>
-																	<div id="hiddenPrescriptions"></div>
-																</div>
-
-																
-																<input type="hidden" name="rendezVousId" id="idRendezVousConsultation">
-
-					          </div>
-
-					          <!-- Boutons -->
-					          <div class="d-flex justify-content-end mt-3">
-					            <button type="submit" class="btn btn-success">Enregistrer</button>
-								<button type="button" class="btn btn-secondary" id="btnRetour">Retour</button>
-					          </div>
-					        </form>
-					      </div>
-					    </div>
-					  </div>
-					</div>
+							    <div id="prescriptionInputs" class="mt-3 d-none">
+							        <input type="text" id="posologie" class="form-control mb-2" placeholder="Posologie">
+							        <input type="text" id="duree" class="form-control mb-2" placeholder="Durée">
+							        <input type="number" id="quantite" class="form-control mb-2" placeholder="Quantité (max ${m.qStock})"  
+									min="1" >
+							        <button class="btn btn-success" type="button" onclick="addPrescription()">Ajouter</button>
+							    </div>
+							    <ul id="prescriptionsList" class="list-group mt-2"></ul>
+								<div id="hiddenPrescriptions"></div>
+							</div>
+							<input type="hidden" name="rendezVousId" id="idRendezVousConsultation">
+		          </div>
+		          <div class="d-flex justify-content-end mt-3">
+		            <button type="submit" class="btn btn-success">Enregistrer</button>
+					<button type="button" class="btn btn-secondary" id="btnRetour">Retour</button>
+		          </div>
+		        </form>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 		
 	</div>
 <script>
@@ -346,32 +271,6 @@ document.querySelector('#modalCommencer form').addEventListener('submit', functi
 });
 </script>
 <script>
-   /* const modalCommencerEl = document.getElementById('modalCommencer');
-    const modalCommencer = new bootstrap.Modal(modalCommencerEl, {
-        backdrop: 'static',  // clic dehors ne ferme pas le modal
-        keyboard: false      // ESC ne ferme pas le modal
-    });
-
-    let lastModalEl = null; // on garde une référence au modal initial
-
-    document.querySelectorAll('.btnCommencer').forEach(btn => {
-        btn.addEventListener('click', () => {
-            lastModalEl = btn.closest('.modal'); 
-            if(lastModalEl){
-                const parentModal = bootstrap.Modal.getInstance(lastModalEl) || new bootstrap.Modal(lastModalEl);
-                parentModal.hide();
-            }
-            modalCommencer.show();
-        });
-    });
-
-    document.getElementById('btnRetour').addEventListener('click', () => {
-        modalCommencer.hide();
-        if(lastModalEl){
-            const previousModal = bootstrap.Modal.getInstance(lastModalEl) || new bootstrap.Modal(lastModalEl);
-            previousModal.show();
-        }
-    });*/
 	const modalCommencerEl = document.getElementById('modalCommencer');
 	const modalCommencer = new bootstrap.Modal(modalCommencerEl, {
 	    backdrop: 'static',
@@ -382,37 +281,26 @@ document.querySelector('#modalCommencer form').addEventListener('submit', functi
 
 	document.querySelectorAll('.btnCommencer').forEach(btn => {
 	    btn.addEventListener('click', () => {
-	        // 1. Fermer le modal de détails précédent
+	       
 	        lastModalEl = btn.closest('.modal'); 
 	        if(lastModalEl){
 	            const parentModal = bootstrap.Modal.getInstance(lastModalEl);
 	            if(parentModal) parentModal.hide();
 	        }
 
-	        // 2. Transférer les données au modal unique
-	       /* const rvId = btn.getAttribute('data-rv-id'); // Récupère l'ID du RV 
-	        document.querySelector('#modalCommencer input[name="rendezVous.id"]').value = rvId;
-	        
-	        // Optionnel : Récupérer le nom du patient depuis le modal parent pour l'afficher
-	        const nomPatient = lastModalEl.querySelector('.modal-title').innerText; 
-	        document.getElementById('nomPatientModal').innerText = nomPatient;
-*/
-// 2. Récupérer les infos du bouton
         const rvId = btn.getAttribute('data-rv-id');
         const nomPatient = btn.getAttribute('data-patient-nom');
 
-        // 3. Injecter les infos dans le modal unique
-		// 2. Injecter l'ID dans le champ du formulaire de CONSULTATION (pour le save)
+        // Injecter les infos dans le modal unique
+		// Injecter l'ID dans le champ du formulaire de CONSULTATION (pour le save)
 		const inputConsultation = document.getElementById('idRendezVousConsultation');
 		if(inputConsultation) inputConsultation.value = rvId;
         document.getElementById('idRendezVousModal').value = rvId;
         document.getElementById('nomPatientModal').innerText = nomPatient;
-	        // 3. Afficher le modal
 	        modalCommencer.show();
 	    });
 	});
 
-	// Correction pour le bouton Retour
 	const btnRetour = document.getElementById('btnRetour');
 	if(btnRetour) {
 	    btnRetour.addEventListener('click', () => {
@@ -423,269 +311,188 @@ document.querySelector('#modalCommencer form').addEventListener('submit', functi
 	        }
 	    });
 	}
-	
-	
-	
-	
 </script>
-
-
 <script>
-																let selectedMedicaments = [];
+	let selectedMedicaments = [];
 
-																function toggleSearch(type) {
-																    const select = document.getElementById(type + "Select");
-																    const input = document.getElementById(type + "Search");
-																    const results = document.getElementById(type + "Results");
+	function toggleSearch(type) {
+	    const select = document.getElementById(type + "Select");
+	    const input = document.getElementById(type + "Search");
+	    const results = document.getElementById(type + "Results");
 
-																    select.classList.toggle("d-none");
-																    input.classList.toggle("d-none");
-																    results.classList.add("d-none");
-																    input.value = "";
-																}
+	    select.classList.toggle("d-none");
+	    input.classList.toggle("d-none");
+	    results.classList.add("d-none");
+	    input.value = "";
+	}
 
-																function setupSearch(type) {
-																    const select = document.getElementById(type + "Select");
-																    const input = document.getElementById(type + "Search");
-																    const results = document.getElementById(type + "Results");
+	function setupSearch(type) {
+	    const select = document.getElementById(type + "Select");
+	    const input = document.getElementById(type + "Search");
+	    const results = document.getElementById(type + "Results");
 
-																    input.addEventListener("input", function () {
-																        const filter = input.value.toLowerCase();
-																        results.innerHTML = "";
+	    input.addEventListener("input", function () {
+	        const filter = input.value.toLowerCase();
+	        results.innerHTML = "";
 
-																        if (!filter) {
-																            results.classList.add("d-none");
-																            return;
-																        }
+	        if (!filter) {
+	            results.classList.add("d-none");
+	            return;
+	        }
 
-																        Array.from(select.options).forEach(option => {
-																            if (option.text.toLowerCase().includes(filter)) {
-																                const item = document.createElement("a");
-																                item.className = "list-group-item list-group-item-action";
-																                item.textContent = option.text;
+	        Array.from(select.options).forEach(option => {
+	            if (option.text.toLowerCase().includes(filter)) {
+	                const item = document.createElement("a");
+	                item.className = "list-group-item list-group-item-action";
+	                item.textContent = option.text;
 
-																                item.onclick = function () {
-																                    addMedicament(option.value, option.text);
-																                    toggleSearch(type);
-																                };
+	                item.onclick = function () {
+	                    addMedicament(option.value, option.text);
+	                    toggleSearch(type);
+	                };
 
-																                results.appendChild(item);
-																            }
-																        });
+	                results.appendChild(item);
+	            }
+	        });
 
-																        results.classList.remove("d-none");
-																    });
-																}
+	        results.classList.remove("d-none");
+	    });
+	}
 
-																function addMedicament(id, nom) {
-																    if (selectedMedicaments.find(m => m.id === id)) return;
+	function addMedicament(id, nom) {
+	    if (selectedMedicaments.find(m => m.id === id)) return;
 
-																    selectedMedicaments.push({id, nom, posologie: '', duree: ''});
-																    renderPrescriptions();
-																}
+	    selectedMedicaments.push({id, nom, posologie: '', duree: ''});
+	    renderPrescriptions();
+	}
 
-																function removeMedicament(id) {
-																    selectedMedicaments = selectedMedicaments.filter(m => m.id !== id);
-																    renderPrescriptions();
-																}
+	function removeMedicament(id) {
+	    selectedMedicaments = selectedMedicaments.filter(m => m.id !== id);
+	    renderPrescriptions();
+	}
 
-																function updatePrescription(index, field, value) {
-																    selectedMedicaments[index][field] = value;
-																    renderPrescriptions();
-																}
+	function updatePrescription(index, field, value) {
+	    selectedMedicaments[index][field] = value;
+	    renderPrescriptions();
+	}
 
-															/*	function renderPrescriptions() {
-																    const list = document.getElementById('prescriptionsList');
-																    const hidden = document.getElementById('hiddenPrescriptions');
-																    list.innerHTML = '';
-																    hidden.innerHTML = '';
+	function renderPrescriptions() {
+	    const list = document.getElementById('prescriptionsList');
+	    const hidden = document.getElementById('hiddenPrescriptions');
+	    list.innerHTML = '';
+	    hidden.innerHTML = '';
 
-																    selectedMedicaments.forEach((m, i) => {
-																        const li = document.createElement('li');
-																        li.className = 'list-group-item';
-																        li.innerHTML = `
-																            <div class="d-flex justify-content-between align-items-center">
-																                <span>${m.nom}</span>
-																                <button type="button" class="btn btn-sm btn-danger">✖</button>
-																            </div>
-																            <div class="mt-1">
-																                <input type="text" class="form-control mb-1" placeholder="Posologie" onchange="updatePrescription(${i}, 'posologie', this.value)">
-																                <input type="text" class="form-control" placeholder="Durée" onchange="updatePrescription(${i}, 'duree', this.value)">
-																				<input type="text" class="form-control" placeholder="quantite" onchange="updatePrescription(${i}, 'quantite', this.value)">
+	    selectedMedicaments.forEach((m, i) => {
+	        // Affichage visuel (Le petit bandeau avec la croix rouge)
+	        const li = document.createElement('li');
+	        li.className = 'list-group-item d-flex justify-content-between align-items-center bg-light mb-1';
+	        li.innerHTML = `
+	            <span><strong>${m.nom}</strong> : ${m.posologie} pendant ${m.duree} (Qté: ${m.quantite})</span>
+	            <button type="button" class="btn btn-sm btn-danger" onclick="removeMedicament('${m.id}')">✖</button>
+	        `;
+	        list.appendChild(li);
 
-																            </div>
-																        `;
-																        li.querySelector('button').onclick = () => removeMedicament(m.id);
-																        list.appendChild(li);
+	        // Champs cachés pour l'envoi du formulaire au contrôleur Java
+	        hidden.innerHTML += `
+	            <input type="hidden" name="medicamentId" value="${m.id}">
+	            <input type="hidden" name="posologie" value="${m.posologie}">
+	            <input type="hidden" name="duree" value="${m.duree}">
+	            <input type="hidden" name="quantite" value="${m.quantite}">
+	        `;
+	    });
+	}
 
-																     /*   hidden.innerHTML += `
-																            <input type="hidden" name="prescriptions[${i}].medicament.id" value="${m.id}">
-																            <input type="hidden" name="prescriptions[${i}].posologie" value="${m.posologie}">
-																            <input type="hidden" name="prescriptions[${i}].duree" value="${m.duree}">
-																			<input type="hidden" name="prescriptions[${i}].quantite" value="${m.quantite}">
+	setupSearch("medicament");
+	
+	const select = document.getElementById('medicamentSelect');
+	const inputs = document.getElementById('prescriptionInputs');
+	const prescriptionsList = document.getElementById('prescriptionsList');
 
-																        `;
-																		hidden.innerHTML += `
-																		    <input type="hidden" name="medicamentId" value="${m.id}">
-																		    <input type="hidden" name="posologie" value="${m.posologie}">
-																		    <input type="hidden" name="duree" value="${m.duree}">
-																		    <input type="hidden" name="quantite" value="${m.quantite}">
-																		`;
-																    });
-																}*/
-																function renderPrescriptions() {
-																    const list = document.getElementById('prescriptionsList');
-																    const hidden = document.getElementById('hiddenPrescriptions');
-																    list.innerHTML = '';
-																    hidden.innerHTML = '';
+	select.addEventListener('change', function() {
+	    if (select.value) {
+	        const selectedOption = select.options[select.selectedIndex];
+	        const stock = parseInt(selectedOption.getAttribute("data-stock"));
 
-																    selectedMedicaments.forEach((m, i) => {
-																        // 1. Affichage visuel (Le petit bandeau avec la croix rouge)
-																        const li = document.createElement('li');
-																        li.className = 'list-group-item d-flex justify-content-between align-items-center bg-light mb-1';
-																        li.innerHTML = `
-																            <span><strong>${m.nom}</strong> : ${m.posologie} pendant ${m.duree} (Qté: ${m.quantite})</span>
-																            <button type="button" class="btn btn-sm btn-danger" onclick="removeMedicament('${m.id}')">✖</button>
-																        `;
-																        list.appendChild(li);
+	        const quantiteInput = document.getElementById('quantite');
 
-																        // 2. Champs cachés pour l'envoi du formulaire au contrôleur Java
-																        hidden.innerHTML += `
-																            <input type="hidden" name="medicamentId" value="${m.id}">
-																            <input type="hidden" name="posologie" value="${m.posologie}">
-																            <input type="hidden" name="duree" value="${m.duree}">
-																            <input type="hidden" name="quantite" value="${m.quantite}">
-																        `;
-																    });
-																}
+	        if (stock === 0) {
+	            alert("Ce médicament est en rupture de stock !");
+	            inputs.classList.add('d-none');
+	            select.value = "";
+	            return;
+	        }
 
-																setupSearch("medicament");
+	        inputs.classList.remove('d-none');
+	        quantiteInput.max = stock;
+	        quantiteInput.placeholder = "Quantité (max " + stock + ")";
+	    } else {
+	        inputs.classList.add('d-none');
+	    }
+	});
+
+	function addPrescription() {
+		const select = document.getElementById('medicamentSelect');
+		    const medId = select.value;
+		    
+		    // VÉRIFICATION ANTI-DOUBLON
+		    const dejaPresent = selectedMedicaments.find(m => m.id === medId);
+		    
+		    if (dejaPresent) {
+		        alert("Ce médicament est déjà dans l'ordonnance. Modifiez-le ou supprimez-le d'abord.");
+		        select.value = ''; 
+		        document.getElementById('prescriptionInputs').classList.add('d-none'); 
+		        return; 
+		    }
+			
+	    const medText = select.options[select.selectedIndex].text;
+	   
+	    const posologie = document.getElementById('posologie').value;
+	    const duree = document.getElementById('duree').value;
+	    const quantite = document.getElementById('quantite').value;
+
+	    const selectedOption = select.options[select.selectedIndex];
+	    const stock = parseInt(selectedOption.getAttribute("data-stock"));
+	    const quantiteNumber = parseInt(quantite);
+
+	    if (!medId || !posologie || !duree || !quantite) return alert('Remplir tous les champs');
+	    if (quantiteNumber > stock) return alert("La quantité dépasse le stock disponible !");
+	    if (quantiteNumber <= 0) return alert("La quantité doit être > 0 !");
+
+	    //  Ajout au tblau selectedMedicaments
+	    selectedMedicaments.push({
+	        id: medId,
+	        nom: medText,
+	        posologie: posologie,
+	        duree: duree,
+	        quantite: quantite
+	    });
+
+	    // Re-rendu de la liste + hidden inputs
+	    renderPrescriptions();
+		
+	    // Reset des champs
+	    document.getElementById('posologie').value = '';
+	    document.getElementById('duree').value = '';
+	    document.getElementById('quantite').value = '';
+	    select.value = '';          // déselectionner
+	    inputs.classList.add('d-none'); // cacher le formulaire de prescription
+	}
+	select.addEventListener('change', function() {
+	    if (select.value) {
+	        inputs.classList.remove('d-none');
+
+	        const selectedOption = select.options[select.selectedIndex];
+	        const stock = selectedOption.getAttribute("data-stock");
+
+	        const quantiteInput = document.getElementById('quantite');
+	        quantiteInput.max = stock;
+	        quantiteInput.placeholder = "Quantité (max " + stock + ")";
+	    } else {
+	        inputs.classList.add('d-none');
+	    }
+	});
+</script>
 																
-																const select = document.getElementById('medicamentSelect');
-																const inputs = document.getElementById('prescriptionInputs');
-																const prescriptionsList = document.getElementById('prescriptionsList');
-
-																select.addEventListener('change', function() {
-																    if (select.value) {
-																        const selectedOption = select.options[select.selectedIndex];
-																        const stock = parseInt(selectedOption.getAttribute("data-stock"));
-
-																        const quantiteInput = document.getElementById('quantite');
-
-																        if (stock === 0) {
-																            alert("Ce médicament est en rupture de stock !");
-																            inputs.classList.add('d-none');
-																            select.value = "";
-																            return;
-																        }
-
-																        inputs.classList.remove('d-none');
-																        quantiteInput.max = stock;
-																        quantiteInput.placeholder = "Quantité (max " + stock + ")";
-																    } else {
-																        inputs.classList.add('d-none');
-																    }
-																});
-
-																/*function addPrescription() {
-																    const medText = select.options[select.selectedIndex].text;
-																    const posologie = document.getElementById('posologie').value;
-																    const duree = document.getElementById('duree').value;
-																    const quantite = document.getElementById('quantite').value;
-
-																	const selectedOption = select.options[select.selectedIndex];
-																	const stock = parseInt(selectedOption.getAttribute("data-stock"));
-																	const quantiteNumber = parseInt(quantite);
-
-																    if (!medText || !posologie || !duree || !quantite) return alert('Remplir tous les champs');
-																	if (quantiteNumber > stock) { alert("La quantité dépasse le stock disponible !");
-																	    return;
-																	}
-																	if (quantiteNumber == 0 ) {
-																		alert("La quantité ne doit pas etre 0 !");
-																		return;
-																	}
-																	
-
-																    const li = document.createElement('li');
-																    li.className = "list-group-item d-flex justify-content-between align-items-center";
-																    li.innerHTML = `${medText} // ${posologie} // ${duree} // ${quantite} <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">X</button>`;
-																    prescriptionsList.appendChild(li);
-
-																    // Reset inputs
-																    document.getElementById('posologie').value = '';
-																    document.getElementById('duree').value = '';
-																    document.getElementById('quantite').value = '';
-																}*/
-																function addPrescription() {
-																	const select = document.getElementById('medicamentSelect');
-																	    const medId = select.value;
-																	    
-																	    // 1. AJOUT DE LA VÉRIFICATION ANTI-DOUBLON
-																	    // On regarde si l'ID est déjà présent dans le tableau JS
-																	    const dejaPresent = selectedMedicaments.find(m => m.id === medId);
-																	    
-																	    if (dejaPresent) {
-																	        alert("Ce médicament est déjà dans l'ordonnance. Modifiez-le ou supprimez-le d'abord.");
-																	        select.value = ''; // On remet le select à zéro
-																	        document.getElementById('prescriptionInputs').classList.add('d-none'); // On cache le formulaire
-																	        return; // On arrête la fonction ici
-																	    }
-																		
-																    const medText = select.options[select.selectedIndex].text;
-																   
-																    const posologie = document.getElementById('posologie').value;
-																    const duree = document.getElementById('duree').value;
-																    const quantite = document.getElementById('quantite').value;
-
-																    const selectedOption = select.options[select.selectedIndex];
-																    const stock = parseInt(selectedOption.getAttribute("data-stock"));
-																    const quantiteNumber = parseInt(quantite);
-
-																    if (!medId || !posologie || !duree || !quantite) return alert('Remplir tous les champs');
-																    if (quantiteNumber > stock) return alert("La quantité dépasse le stock disponible !");
-																    if (quantiteNumber <= 0) return alert("La quantité doit être > 0 !");
-
-																    // 🔹 Ajouter au tableau selectedMedicaments
-																    selectedMedicaments.push({
-																        id: medId,
-																        nom: medText,
-																        posologie: posologie,
-																        duree: duree,
-																        quantite: quantite
-																    });
-
-																    // 🔹 Re-rendu de la liste + hidden inputs
-																    renderPrescriptions();
-																	
-																														   
-																    // 🔹 Reset des champs
-																    document.getElementById('posologie').value = '';
-																    document.getElementById('duree').value = '';
-																    document.getElementById('quantite').value = '';
-																    select.value = '';          // déselectionner
-																    inputs.classList.add('d-none'); // cacher le formulaire de prescription
-																}
-																select.addEventListener('change', function() {
-																    if (select.value) {
-																        inputs.classList.remove('d-none');
-
-																        const selectedOption = select.options[select.selectedIndex];
-																        const stock = selectedOption.getAttribute("data-stock");
-
-																        const quantiteInput = document.getElementById('quantite');
-																        quantiteInput.max = stock;
-																        quantiteInput.placeholder = "Quantité (max " + stock + ")";
-																    } else {
-																        inputs.classList.add('d-none');
-																    }
-																});
-																
-																</script>
-																
-
-
-																														<!-- Footer -->
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

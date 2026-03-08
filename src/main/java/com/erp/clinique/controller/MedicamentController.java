@@ -31,8 +31,7 @@ public class MedicamentController {
 	@Autowired
 	private MedicamentService medicamentService;
 	
-	// Lister tous les medicaments
-    @GetMapping
+	@GetMapping
     public String listmedicaments(
             Model model,
             @RequestParam(defaultValue = "0") int page,
@@ -59,14 +58,14 @@ public class MedicamentController {
     }
     
     
-    // Afficher le formulaire de creation
+   
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("medicament", new Medicament());
         return "medicaments/form";
     }
 
-    // Enregistrer un nouveau medicament
+   
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("medicament") Medicament medicament,
                        BindingResult result,
@@ -82,7 +81,7 @@ public class MedicamentController {
         
     }
 
-    // Afficher le formulaire de modification
+    
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model,
                                RedirectAttributes redirectAttributes) {
@@ -97,7 +96,7 @@ public class MedicamentController {
                 });
     }
 
-    // Supprimer un medecin
+    
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

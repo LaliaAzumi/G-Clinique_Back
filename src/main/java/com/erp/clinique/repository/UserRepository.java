@@ -14,7 +14,6 @@ import com.erp.clinique.model.Users;
 public interface UserRepository extends JpaRepository<Users, Long> {
     Optional<Users> findByUsername(String username);
     
- // Ajout pour récupérer tous les users d’un rôle donné
     List<Users> findByRole(String role);
     
     Page<Users> findByRole(String role, Pageable pageable);

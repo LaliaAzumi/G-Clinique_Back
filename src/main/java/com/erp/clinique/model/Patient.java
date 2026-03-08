@@ -101,7 +101,4 @@ public class Patient {
     public String toString() {
         return "Patient . " + nom + " " + prenom + " "+ dateNaissance + "" +telephone +" "+ adresse;
     }
-	
-	
-
 }

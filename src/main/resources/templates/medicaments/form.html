@@ -26,9 +26,7 @@
                 </div>
                 <div class="card-body">
                     <form th:action="@{/medicaments/save}" th:object="${medicament}" method="post">
-                        <!-- ID cache pour modification -->
                         <input th:field="*{id}"/>
-
                         <div class="mb-3">
                             <label for="nom" class="form-label fw-semibold">Nom *</label>
                             <input type="text" class="form-control" id="nom"
@@ -58,11 +56,6 @@
 							<div th:if="${#fields.hasErrors('qStock')}"
 								class="text-danger small" th:errors="*{qStock}"></div>
 						</div>
-
-                       
-
-                       
-                        
 
                         <div class="d-flex justify-content-between">
                             <a th:href="@{/medicaments}" class="btn btn-secondary">

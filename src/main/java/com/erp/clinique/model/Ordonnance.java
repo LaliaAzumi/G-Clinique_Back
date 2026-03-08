@@ -69,7 +69,7 @@ public class Ordonnance {
 	public String getClientName() {
 	    if (consultation != null && consultation.getRendezVous() != null 
 	        && consultation.getRendezVous().getPatient() != null) {
-	        return consultation.getRendezVous().getPatient().getNom() +" "+consultation.getRendezVous().getPatient().getPrenom(); // ou getFullName()
+	        return consultation.getRendezVous().getPatient().getNom() +" "+consultation.getRendezVous().getPatient().getPrenom(); 
 	    }
 	    return "";
 	}

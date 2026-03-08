@@ -38,7 +38,6 @@ public class Medecin {
     @OneToMany(mappedBy = "medecin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RendezVous> rendezVous = new ArrayList<>();
 
-    // Constructeurs
     public Medecin() {}
 
     public Medecin(String nom, String specialite, String telephone, String adresse) {
@@ -48,7 +47,6 @@ public class Medecin {
         this.adresse = adresse;
     }
 
-    // Getters et Setters
     public Long getId() {
         return id;
     }

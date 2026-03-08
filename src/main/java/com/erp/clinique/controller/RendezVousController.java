@@ -59,26 +59,21 @@ public class RendezVousController {
     
     
 
-    // Lister tous les rendez-vous
+   
     @GetMapping
     public String list(	Model model ,
 			            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,@RequestParam(required = false) String keyword,
 			            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
 			            @RequestParam(required = false) String statut
-			            ) {
-			            
-			            // Logique pour filtrer 
-			     List<RendezVous> list;
-			            
-			            if ((keyword != null && !keyword.isEmpty()) || date != null || (statut != null && !statut.isEmpty())) {
-			                list = rendezVousService.search(keyword, date, statut);
-			            } else {
-			                list = rendezVousService.findAll();
-			            }
-
-			           
+			            ) {   
+    	List<RendezVous> list;
+    	if ((keyword != null && !keyword.isEmpty()) || date != null || (statut != null && !statut.isEmpty())) {
+			     list = rendezVousService.search(keyword, date, statut);
+		} else {
+			     list = rendezVousService.findAll();
+		}
+	          
     	Pageable pageable = PageRequest.of(page, size);
-
         Page<RendezVous> rendezvousPage;
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -86,6 +81,7 @@ public class RendezVousController {
         } else {
             rendezvousPage = rendezvousRepository.findAll(pageable);
         }
+        
         model.addAttribute("rendezVousList", list);
         model.addAttribute("keyword", keyword);
         model.addAttribute("date", date);
@@ -97,7 +93,7 @@ public class RendezVousController {
         return "rendezvous/list";
     }
 
-    // Afficher le formulaire de creation
+    
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("rendezVous", new RendezVous());
@@ -106,7 +102,7 @@ public class RendezVousController {
         return "rendezvous/form";
     }
 
-    // Enregistrer un nouveau rendez-vous
+   
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("rendezVous") RendezVous rendezVous,
                        BindingResult result,
@@ -120,11 +116,11 @@ public class RendezVousController {
         
         
         boolean isNew = (rendezVous.getId() == null);
-     // 1. Récupérer les heures disponibles
+    
         List<LocalTime> heuresLibres = rendezVousService.getHeuresDisponibles(
                 rendezVous.getMedecin().getId(), rendezVous.getDate());
 
-        // 2. Vérifier si l'heure choisie est libre
+       
         if (!heuresLibres.contains(rendezVous.getHeure())) {
         	String message;
             if (heuresLibres.isEmpty()) {
@@ -139,10 +135,10 @@ public class RendezVousController {
             return "rendezvous/form";
         }
 
-        //enregisterna apina condition 
+       
         rendezVousService.save(rendezVous);
 
-        // Email patient
+        
         String patientEmail = rendezVous.getPatient().getEmail();
         System.out.println("Email patient : " + patientEmail);
 
@@ -157,24 +153,7 @@ public class RendezVousController {
             Optional<Users> userOpt = userService.findById(mu.getUserId());
             if (userOpt.isPresent()) {
                 String medecinEmail = userOpt.get().getEmail();
-                System.out.println("Email médecin : " + medecinEmail);
-
-                String sujet = isNew ? "Nouveau rendez-vous" : "Rendez-vous modifié";
-                String corps = String.format(
-                    "Bonjour,\n\nLe rendez-vous pour  %s %s est %s.\nDate : %s\nHeure : %s\nStatut : %s",
-                    rendezVous.getPatient().getNom(),
-                    rendezVous.getPatient().getPrenom(),
-
-                    isNew ? "créé" : "mis à jour",
-                    rendezVous.getDate(),
-                    rendezVous.getHeure(),
-                    rendezVous.getStatut()
-                );
-
-                emailService.sendRendezVousEmail(patientEmail, sujet, corps);
-                emailService.sendRendezVousEmail(medecinEmail, sujet, corps);
-                
-                
+                //System.out.println("Email médecin : " + medecinEmail);
                 //notif
                 String notifMessage = String.format(
                         "Nouveau rendez-vous pour %s %s le %s à %s",
@@ -203,7 +182,6 @@ public class RendezVousController {
     }
 
     
-    // Afficher le formulaire de modification
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model,
                                RedirectAttributes redirectAttributes) {
@@ -220,7 +198,7 @@ public class RendezVousController {
                 });
     }
 
-    // Supprimer un rendez-vous
+    
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -232,6 +210,8 @@ public class RendezVousController {
         }
         return "redirect:/rendezvous";
     }
+    
+    
     @PostMapping("/updateStatus")
     public String updateRendezVous(@RequestParam Long id,
                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -240,9 +220,9 @@ public class RendezVousController {
         RendezVous rv = rendezVousService.findById(id)
                         .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
         
-     // 1️⃣ Déterminer le message pour le médecin (notification WebSocket)
+    
         String notifMessage;
-        String emailMessage; // pour le patient
+        String emailMessage; 
 
         if ("ANNULE".equalsIgnoreCase(statut)) {
             notifMessage = String.format(
@@ -337,7 +317,7 @@ public class RendezVousController {
             );
         }
 
-        // 2️⃣ Envoi notification WebSocket au médecin
+      
         Long idmed = rv.getMedecin().getId();
         Optional<MedecinUser> idusers = medecinUserRepository.findByMedecinId(idmed);
         if (idusers.isPresent()) {
@@ -346,20 +326,17 @@ public class RendezVousController {
             notificationService.sendNotificationToUser(muy.getUserId(), notifMessage);
         }
 
-        // 3️⃣ Envoi email au patient
+        
         String patientEmail = rv.getPatient().getEmail();
         String sujet = "Modification de votre rendez-vous";
         emailService.sendRendezVousEmail(patientEmail, sujet, emailMessage);
 
-        // 4️⃣ Mise à jour du rendez-vous
+        
         rv.setDate(date);
         rv.setHeure(heure);
         rv.setStatut(statut);                
         rendezVousService.save(rv);
         
-        
-        
-        // Rediriger vers la liste des rendez-vous
         return "redirect:/rendezvous"; 
     }
     
@@ -387,15 +364,10 @@ public class RendezVousController {
         
         List<Users> secretaires = userService.findByRole("SECRETAIRE");
         
-
         for (Users sec : secretaires) {
-         
                 notificationService.sendNotificationToUser(sec.getId(), notifMessage);
-           
         }
         
-        
-        // Rediriger vers la liste agenda
         return "redirect:/callendar/callendars"; 
     }
    

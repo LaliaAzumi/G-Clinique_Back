@@ -33,22 +33,23 @@ public class OrdonnanceController {
         Optional<Ordonnance> optionalOrd = ordonnanceRepository.findById(id);
         if(optionalOrd.isPresent()) {
             Ordonnance ord = optionalOrd.get();
-            ord.setPaye(true); // met paye à true
+            ord.setPaye(true); 
             ordonnanceRepository.save(ord);
-            model.addAttribute("ordonnance", ord); // remet l'ordonnance à jour
+            model.addAttribute("ordonnance", ord);
             model.addAttribute("successMessage", "Ordonnance marquée payée !");
-            return "ordonnances/list"; // retourne la même vue Thymeleaf
+            return "ordonnances/list"; 
         } else {
         	 model.addAttribute("errorMessage", "Ordonnance non trouvée");
-             return "ordonnances/list"; // même vue mais avec erreur
+             return "ordonnances/list"; 
         }
     }
- // Récupérer l'ordonnance par ID et afficher la page
+    
+ 
     @PostMapping("/show")
     public String showOrdonnance(@RequestParam Long id, Model model) {
     	 Ordonnance ordonnance = ordonnanceRepository.findById(id).orElse(null);
     	    model.addAttribute("ordonnance", ordonnance);
-        return "ordonnances/list"; // ton template Thymeleaf
+        return "ordonnances/list";
     }
     
     @GetMapping("/Medecin")
@@ -56,10 +57,8 @@ public class OrdonnanceController {
         List<Ordonnance> ordonnances;
 
         if(patient != null && !patient.isEmpty()) {
-            // Rechercher uniquement les ordonnances du patient
             ordonnances = ordonnanceRepository.findByPatientName(patient);
         } else {
-            // Par défaut, on ne montre **rien** au départ
             ordonnances = new ArrayList<>();
         }
 

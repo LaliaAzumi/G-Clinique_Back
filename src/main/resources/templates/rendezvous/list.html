@@ -90,7 +90,7 @@
                         <td th:text="${rdv.date}"></td>
 						<td th:text="${rdv.heure}"></td>
                         <td th:text="${rdv.motif}"></td>
-                        <td th:text="${rdv.patient.nom + ' ' + rdv.patient.prenom}"></td>
+						<td th:text="${rdv.patient?.nom} + ' ' + ${rdv.patient?.prenom} ?: 'Patient Anonyme'"></td>
                         <td th:text="${rdv.medecin.nom}"></td>
                         <td>
                             <span class="badge"

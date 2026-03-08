@@ -21,11 +21,6 @@ import com.erp.clinique.service.UserService;
 public class HomeController {
 	@Autowired
 	private UserService userService;
-
-    @GetMapping("/login")
-    public String login() {
-        return "login"; // correspond à login.html dans templates
-    }
     @Autowired
     private PatientService patientService;
     @Autowired
@@ -34,19 +29,20 @@ public class HomeController {
     private MedecinService medecinService;
     @Autowired
     private RendezVousService rendezVousService;
+    
+    @GetMapping("/login")
+    public String login() {
+        return "login"; 
+    }
    
     @GetMapping("/home")
     public String home(Model model) {
-    	// Récupère l'utilisateur connecté
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
         String username = auth.getName();
         Users user = userService.findByUsername(username)
                                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        
-        
-        // Liste des rôles
         List<String> roles = auth.getAuthorities()
                                  .stream()
                                  .map(GrantedAuthority::getAuthority)
@@ -55,13 +51,12 @@ public class HomeController {
         List<Object[]> results = consultationService.countConsultationsByMonth();
         
         for (Object[] result : results) {
-            int month = (int) result[0]; // Le mois (1-12)
-            long count = (long) result[1]; // Le nombre
+            int month = (int) result[0]; 
+            long count = (long) result[1];
             monthlyData[month - 1] = (int) count;
         }
         
         model.addAttribute("monthlyConsultations", monthlyData);
-        
         model.addAttribute("username", username);
         model.addAttribute("roles", roles);
         model.addAttribute("firstLogin", user.isFirstLogin());
@@ -70,7 +65,6 @@ public class HomeController {
         model.addAttribute("totalConsultations", consultationService.findAll().size());
         model.addAttribute("totalMedecins", medecinService.findAll().size());
         model.addAttribute("totalRdvAttente", rendezVousService.findByStatut("EN_ATTENTE").size());
-        
         
         return "home"; 
     }

@@ -23,8 +23,6 @@ public class PatientService {
         return patientRepository.findAll();
     }
   
-    
-    // Trouver un patient par ID
     public Optional<Patient> getPatientById(Long id) {
         return patientRepository.findById(id);
     }
@@ -38,7 +36,7 @@ public class PatientService {
             existingPatient.setDateNaissance(patient.getDateNaissance());
             existingPatient.setTelephone(patient.getTelephone());
             existingPatient.setAdresse(patient.getAdresse());
-            patientRepository.save(existingPatient); // JPA fera un UPDATE
+            patientRepository.save(existingPatient); 
         } else {
             throw new RuntimeException("Patient introuvable avec l'id : " + patient.getId());
         }

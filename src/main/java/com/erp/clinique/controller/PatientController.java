@@ -37,7 +37,7 @@ public class PatientController {
     @Autowired
     private PatientRepository patientRepository;
 
- // Lister tous les medecins
+
     @GetMapping
     public String listPatients(Model model,
     		  @RequestParam(defaultValue = "0") int page,
@@ -61,13 +61,14 @@ public class PatientController {
          return "patients/list";
     }
     
-    // Afficher le formulaire de creation
+   
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("patient", new Patient());
         return "patients/form";
     }
-     // enregistre new client hehe
+     
+    
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("patient") Patient patient,
                        BindingResult result,
@@ -80,23 +81,22 @@ public class PatientController {
         System.out.println("ID reçu : " + patient.getId());
 
         if (patient.getId() != null) {
-            // Modification d'un patient existant
             patientService.updatePatient(patient);
             redirectAttributes.addFlashAttribute("success", "Patient modifié avec succès !");
         } else {
         	
         	if (patientService.existsByEmail(patient.getEmail())) {
         	    redirectAttributes.addFlashAttribute("error", "Patient déjà existant !");
-        	 // Patient déjà existant → retour formulaire rendez-vous
+        	
                 model.addAttribute("rendezVous", new RendezVous());
                 model.addAttribute("medecins", medecinService.findAll());
                 model.addAttribute("patients", patientService.getAllPatients());
 
-                // Sélectionner le patient existant par défaut
+               
                 Patient existingPatient = patientService.getByEmail(patient.getEmail());
                 model.addAttribute("selectedPatient", existingPatient);
 
-                // Message d'erreur
+             
                 model.addAttribute("error", "Patient déjà existant !");
                 return "rendezvous/form";
         	    
@@ -110,7 +110,7 @@ public class PatientController {
         return "redirect:/patients";
     }
     
-    // enregistre new client editer  hehe
+   
     @PostMapping("/saveEdit/{id}")
     public String saveEdit(@PathVariable("id") Long id,
                            @Valid @ModelAttribute("patient") Patient patient,
@@ -121,19 +121,18 @@ public class PatientController {
             return "patients/form";
         }
 
-        // On force l'ID du patient à partir de l'URL
+        
         patient.setId(id);
 
-        System.out.println("ID reçu via URL : " + patient.getId());
+       // System.out.println("id url" + patient.getId());
 
-        // Modification d'un patient existant
         patientService.updatePatient(patient);
         redirectAttributes.addFlashAttribute("success", "Patient modifié avec succès !");
 
         return "redirect:/patients";
     }
     
-    // Afficher le formulaire de modification
+  
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model,
                                RedirectAttributes redirectAttributes) {
@@ -141,7 +140,7 @@ public class PatientController {
         Optional<Patient> existingPatient = patientService.getPatientById(id);
 
         if (existingPatient.isPresent()) {
-            // Ici tu passes le vrai patient avec son ID déjà rempli
+     
         	System.out.println("Patient à modifier ID = " + existingPatient.get().getId());
             model.addAttribute("patient", existingPatient.get());
             return "patients/form";
@@ -151,7 +150,7 @@ public class PatientController {
         }
     }
     
-    // Supprimer un patient
+    
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

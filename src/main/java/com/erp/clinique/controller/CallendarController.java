@@ -35,26 +35,21 @@ public class CallendarController {
     private MedecinUserRepository medecinUserRepo;
     @Autowired
     private MedicamentRepository medicamentRepository;
-	// Lister tous les rendez-vous
+	
     
 	@GetMapping("/callendars")
 	public String agendaSemaine(@RequestParam(required = false) String startOfWeek, Model model) {
-
-        // 1️⃣ Récupérer l'utilisateur connecté
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Users user = userService.findByUsername(username)
                                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        // 2️⃣ Récupérer le medecinId correspondant
         MedecinUser medUser = medecinUserRepo.findByUserId(user.getId());
         if (medUser == null) {
             throw new RuntimeException("Médecin non trouvé pour cet utilisateur");
         }
         
         Long medecinId = medUser.getMedecinId();
-
-        // 3️⃣ Calcul semaine
         LocalDate start;
         if (startOfWeek != null) {
             start = LocalDate.parse(startOfWeek);
@@ -63,13 +58,10 @@ public class CallendarController {
         }
         LocalDate end = start.plusDays(6);
 
-        // 4️⃣ Récupérer les rendez-vous du médecin pour la semaine
         List<RendezVous> rdvs = rendezVousService.findByMedecinIdAndDateBetween(medecinId, start, end);
-        
         List<Medicament> medicaments = medicamentRepository.findAll();
         model.addAttribute("medicaments", medicaments);
-
-        // 5️⃣ Passer au modèle pour Thymeleaf
+        
         model.addAttribute("startOfWeek", start);
         model.addAttribute("endOfWeek", end);
         model.addAttribute("rendezVousList", rdvs);

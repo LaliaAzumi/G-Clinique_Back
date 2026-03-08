@@ -23,7 +23,6 @@ public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
     
     List<RendezVous> findByMedecinIdAndDateBetween(Long medecinId, LocalDate start, LocalDate end);
     
- // ✅ Trouver tous les RDV d’un médecin à une date précise
     List<RendezVous> findByMedecinIdAndDate(Long medecinId, LocalDate date);
     
 

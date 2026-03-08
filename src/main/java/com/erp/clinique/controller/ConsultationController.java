@@ -65,9 +65,9 @@ public class ConsultationController {
     private OrdonnanceService ordonnanceService;
 
     @Autowired
-    private EmailService emailService; // ton service pour envoyer les emails
+    private EmailService emailService; 
 
-    // Lister toutes les consultations
+   
     @GetMapping
     public String list(Model model,
                        @RequestParam(defaultValue = "0") int page,
@@ -75,24 +75,24 @@ public class ConsultationController {
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        // 1️⃣ Récupérer l'utilisateur connecté
+        
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Users user = userService.findByUsername(username)
                                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        // 2️⃣ Récupérer le medecinId correspondant
+        
         MedecinUser medUser = medecinUserRepo.findByUserId(user.getId());
         if (medUser == null) {
             throw new RuntimeException("Médecin non trouvé pour cet utilisateur");
         }
         Long medecinId = medUser.getMedecinId();
 
-        // 3️⃣ Pagination + tri DESC
+        
         Pageable sortedByDateDesc = PageRequest.of(page, size, Sort.by("date").descending());
         Page<Consultation> consultationPage;
 
-        // 4️⃣ Logique de recherche
+        
         if ((keyword != null && !keyword.isEmpty()) && date != null) {
             consultationPage = consultationRepository
                 .findByRendezVousMedecinIdAndRendezVousPatientNomContainingIgnoreCaseAndDate(
@@ -109,17 +109,17 @@ public class ConsultationController {
                 .findByRendezVousMedecinId(medecinId, sortedByDateDesc);
         }
 
-        // 5️⃣ Passer les données au modèle
+        
         model.addAttribute("consultations", consultationPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", consultationPage.getTotalPages());
         model.addAttribute("keyword", keyword);
-        model.addAttribute("date", date); // pour pré-remplir le champ date dans le formulaire
+        model.addAttribute("date", date); 
 
         return "consultations/list";
     }
 
-    // Afficher le formulaire de creation
+    
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("consultation", new Consultation());
@@ -127,7 +127,7 @@ public class ConsultationController {
         return "consultations/form";
     }
 
-    // Enregistrer une nouvelle consultation
+   
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("consultation") Consultation consultation,
                        BindingResult result,
@@ -145,28 +145,20 @@ public class ConsultationController {
             return "consultations/form";
         }
         
-     
-        
         RendezVous rv = rendezVousService.findById(rendezVousId)
                 .orElseThrow(() -> new IllegalArgumentException("Rendez-vous invalide avec l'ID : " + rendezVousId));
         
-   
         consultation.setRendezVous(rv);
-
-        // 1️⃣ Sauver consultation
         consultationService.save(consultation);
 
-        // 2️⃣ Créer ordonnance
         Ordonnance ordonnance = new Ordonnance();
         ordonnance.setConsultation(consultation);
 
-        // 3️⃣ Créer prescriptions
         for (int i = 0; i < medicamentId.size(); i++) {
-
             Medicament medicament = medicamentService
                     .findById(medicamentId.get(i))
                     .orElseThrow();
-         // 🔹 Diminuer le stock
+         
             medicament.setqStock(medicament.getqStock() - quantite.get(i));
             Prescription p = new Prescription();
             p.setMedicament(medicament);
@@ -174,34 +166,28 @@ public class ConsultationController {
             p.setDuree(duree.get(i));
             p.setQuantite(quantite.get(i));
             p.setOrdonnance(ordonnance);
-
             ordonnance.getPrescriptions().add(p);
-            System.out.println("presci tafiditra");
+           // System.out.println("presci tafiditra");
         }
 
-        // 4️⃣ Sauver ordonnance (cascade sauve prescriptions)
         ordonnanceRepository.save(ordonnance);
         
-     // 4️⃣ Générer PDF et envoyer email
+     
         try {
-        	// 1️⃣ Définir le dossier où tu veux stocker les PDF
         	String folder = "src/main/resources/static/pdf_ordonnances/";
         	//String folder = "uploads/pdf_ordonnances/";
             File dir = new File(folder);
             if (!dir.exists()) dir.mkdirs();
 
-            // 2️⃣ Nommer le PDF
             String filename = "ordonnance_" + ordonnance.getId() + ".pdf";
             File pdfFile = new File(dir, filename);
 
-            // 3️⃣ Générer le PDF et l'enregistrer sur disque
-            ordonnanceService.generateOrdonnancePdf(ordonnance, pdfFile); // à adapter pour que la méthode accepte File
+            ordonnanceService.generateOrdonnancePdf(ordonnance, pdfFile);
 
-            // 4️⃣ Sauver le chemin dans l'ordonnance
             ordonnance.setPdfPath(folder + filename);
             ordonnanceRepository.save(ordonnance);
            
-            String patientEmail = rv.getPatient().getEmail(); // vérifie qu'il n'est pas nul
+            String patientEmail = rv.getPatient().getEmail(); 
             String subject = "Votre ordonnance - Clinique";
             String body = "Bonjour,\n\n"
                     + "Voici votre ordonnance avec le détail des médicaments.\n"
@@ -211,7 +197,6 @@ public class ConsultationController {
             emailService.sendPdfEmail(patientEmail, subject, body, pdfFile);
             redirectAttributes.addFlashAttribute("success", "Consultation enregistrée et email envoyé !");
             
-         // ✅ Mettre le rendez-vous en TERMINE
             rv.setStatut("TERMINE");
             rendezVousService.save(rv);
             
@@ -224,7 +209,7 @@ public class ConsultationController {
         return "redirect:/consultations";
     }
 
-    // Afficher le formulaire de modification
+   
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model,
                                RedirectAttributes redirectAttributes) {
@@ -240,7 +225,7 @@ public class ConsultationController {
                 });
     }
 
-    // Supprimer une consultation
+   
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
