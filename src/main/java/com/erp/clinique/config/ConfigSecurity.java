@@ -22,12 +22,17 @@ public class ConfigSecurity {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserAuthService userAuthService) throws Exception {
         http
+        
         	.csrf(csrf -> csrf.disable()) // Souvent nécessaire en dev pour Docker
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**").permitAll()
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN") 
                 .anyRequest().authenticated()
+            )
+         // --- AJOUTE CES LIGNES ICI ---
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
             )
             .formLogin(form -> form
                 .loginPage("/login")

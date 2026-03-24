@@ -38,9 +38,12 @@
 				 <strong th:text="${ord.paye} ? 'Déjà payé' : 'Pas encore payé'"></strong>
             </div>
             <div>
-                <a th:href="@{'/pdf_ordonnances/ordonnance_' + ${ord.id} + '.pdf'}" target="_blank" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-eye"></i> Voir PDF
-                </a>
+				<a th:href="@{'/pdf_ordonnances/ordonnance_' + ${ord.id} + '.pdf'}" 
+				   target="_blank" 
+				   class="btn btn-sm btn-outline-primary">
+				    <i class="bi bi-eye"></i> Voir PDF
+				</a>
+                
             </div>
         </div>
     </div>

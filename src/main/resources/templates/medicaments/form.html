@@ -26,7 +26,7 @@
                 </div>
                 <div class="card-body">
                     <form th:action="@{/medicaments/save}" th:object="${medicament}" method="post">
-                        <input th:field="*{id}"/>
+                        <input type="hidden" th:field="*{id}"/>
                         <div class="mb-3">
                             <label for="nom" class="form-label fw-semibold">Nom *</label>
                             <input type="text" class="form-control" id="nom"
@@ -51,8 +51,8 @@
 						
 						<div class="mb-3">
 							<label for="qStock" class="form-label fw-semibold">Stock *</label>
-							<input type="number" class="form-control" id="description"
-								th:field="*{description}" placeholder="description du qStock" required>
+							<input type="number" class="form-control" id="qStock"
+								th:field="*{qStock}" placeholder=" Quantité en Stock" required>
 							<div th:if="${#fields.hasErrors('qStock')}"
 								class="text-danger small" th:errors="*{qStock}"></div>
 						</div>

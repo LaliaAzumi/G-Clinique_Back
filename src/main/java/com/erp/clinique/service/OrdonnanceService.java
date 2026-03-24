@@ -102,7 +102,7 @@ public class OrdonnanceService {
 
 	    document.add(new Paragraph(" "));
 
-	    Paragraph fin = new Paragraph("La clinique vous remercie et vous souhaite un prompt rétablissement !", normalFont);
+	    Paragraph fin = new Paragraph("La clinique vous remercie et vous souhaite un bon rétablissement !", normalFont);
 	    fin.setAlignment(Element.ALIGN_CENTER);
 	    document.add(fin);
 

@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   db:
     image: mysql:8.0
@@ -5,11 +7,11 @@ services:
     restart: always
     environment:
       - MYSQL_DATABASE=clinique
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes # Indispensable pour laisser vide
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     ports:
       - "3309:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -19,10 +21,12 @@ services:
     container_name: spring_app_clinique
     ports:
       - "8080:8080"
+    volumes:
+      - ./mes-pdfs:/app/pdf_ordonnances
     depends_on:
       db:
         condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/clinique
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD= # Vide ici aussi
+      - SPRING_DATASOURCE_PASSWORD=

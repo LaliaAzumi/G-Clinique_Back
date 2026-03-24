@@ -174,8 +174,9 @@ public class ConsultationController {
         
      
         try {
-        	String folder = "src/main/resources/static/pdf_ordonnances/";
+        	//String folder = "src/main/resources/static/pdf_ordonnances/";
         	//String folder = "uploads/pdf_ordonnances/";
+        	String folder = "/app/pdf_ordonnances/";
             File dir = new File(folder);
             if (!dir.exists()) dir.mkdirs();
 
