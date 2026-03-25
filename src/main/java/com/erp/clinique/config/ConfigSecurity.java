@@ -9,6 +9,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.erp.clinique.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import com.erp.clinique.model.Medicament;
 import com.erp.clinique.model.Users;
 import com.erp.clinique.repository.MedicamentRepository;
@@ -18,33 +24,28 @@ import com.erp.clinique.service.UserService;
 @Configuration
 @EnableWebSecurity
 public class ConfigSecurity {
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 	
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserAuthService userAuthService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        
-        	.csrf(csrf -> csrf.disable()) // Souvent nécessaire en dev pour Docker
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**").permitAll()
-                .requestMatchers("/login").permitAll()
+                .requestMatchers("/login", "/api/**", "/api/setup/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN") 
                 .anyRequest().authenticated()
             )
-         // --- AJOUTE CES LIGNES ICI ---
-            .headers(headers -> headers
-                .frameOptions(frame -> frame.sameOrigin())
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendRedirect("/login");
+                })
             )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/home", true)
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
-            )
-            .userDetailsService(userAuthService);
-            ;
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            
         return http.build();
     }
 

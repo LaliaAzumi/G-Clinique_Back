@@ -30,11 +30,8 @@ public class HomeController {
     @Autowired
     private RendezVousService rendezVousService;
     
-    @GetMapping("/login")
-    public String login() {
-        return "login"; 
-    }
-   
+    // Note: Le endpoint /login est géré par FastApiLoginController
+    
     @GetMapping("/home")
     public String home(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -1,0 +1,7 @@
+fastapi[all]
+uvicorn[standard]
+httpx
+pyjwt
+passlib[bcrypt]
+python-multipart
+pydantic-settings

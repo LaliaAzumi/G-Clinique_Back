@@ -24,6 +24,19 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Sauvegarde un utilisateur avec mot de passe deja hache (appele par FastAPI)
+     * Ne re-hache pas le mot de passe
+     */
+    public Users saveUserInternal(Users user) {
+        // Le mot de passe est deja hache par FastAPI, on sauvegarde directement
+        return userRepository.save(user);
+    }
+
+    public List<Users> findAll() {
+        return userRepository.findAll();
+    }
+
     public Optional<Users> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }

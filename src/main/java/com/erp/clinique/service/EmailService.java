@@ -22,15 +22,21 @@ public class EmailService {
             return;
         }
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("Votre compte secrétaire - ERP Clinique");
-        message.setFrom("Admin clinique <nekenarakotomalala760@gmail.com>");
-        message.setText("Bonjour,\n\nVotre compte a été créé.\n" +
-                        "Nom d'utilisateur : " + username + "\n" +
-                        "Mot de passe temporaire : " + motDePasse + "\n\n" +
-                        "Merci de changer votre mot de passe lors de votre première connexion.");
-        mailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Votre compte a ete cree - ERP Clinique");
+            message.setFrom("Admin clinique <nekenarakotomalala760@gmail.com>");
+            message.setText("Bonjour,\n\nVotre compte a ete cree.\n" +
+                            "Nom d'utilisateur : " + username + "\n" +
+                            "Mot de passe temporaire : " + motDePasse + "\n\n" +
+                            "Merci de changer votre mot de passe lors de votre premiere connexion.");
+            mailSender.send(message);
+            System.out.println("Email envoye avec succes a : " + email);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'envoi de l'email : " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
    
