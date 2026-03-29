@@ -1,89 +1,118 @@
+"""
+G-Clinique FastAPI Application - Point d'entrée
+Architecture propre et organisée
+"""
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from auth_controller import auth_controller
-from user_manager import user_manager
-from schemas import LoginRequest, AuthResponse, UserCreateRequest, UserResponse
-from typing import Optional, List
+from typing import Optional, Dict, Any
 
+from config import settings
+from app.controllers import (
+    auth_controller,
+    medecins_router,
+    secretaires_router,
+    patients_router,
+    consultations_router,
+    rendezvous_router,
+    ordonnances_router,
+    medicaments_router,
+    notifications_router,
+    calendar_router,
+)
+from app.services import user_service
+
+# Application FastAPI
 app = FastAPI(
-    title="Auth & User API",
-    description="Microservice FastAPI pour l'authentification et la gestion des utilisateurs",
-    version="1.1.0"
+    title="G-Clinique API",
+    description="API FastAPI - Proxy vers Spring Boot pour la gestion médicale",
+    version="1.0.0",
 )
 
-security = HTTPBearer()  # Schéma de sécurité Bearer pour les tokens JWT
+# Inclusion des routeurs par domaine
+app.include_router(medecins_router)
+app.include_router(secretaires_router)
+app.include_router(patients_router)
+app.include_router(consultations_router)
+app.include_router(rendezvous_router)
+app.include_router(ordonnances_router)
+app.include_router(medicaments_router)
+app.include_router(notifications_router)
+app.include_router(calendar_router)
 
-@app.post("/api/auth/login", response_model=AuthResponse)
-async def login(login_data: LoginRequest):
-    """Endpoint d'authentification : valide l'utilisateur et retourne un token JWT"""
+# Sécurité Bearer JWT
+security = HTTPBearer()
+
+
+# ============ AUTHENTIFICATION ============
+
+@app.post("/api/auth/login")
+async def login(login_data: Dict[str, Any]):
+    """Authentifie un utilisateur et retourne un token JWT"""
     return await auth_controller.login(login_data)
+
 
 @app.post("/api/auth/verify")
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Endpoint de vérification : valide la légitimité d'un token JWT"""
-    token = credentials.credentials  # Extrait le token du header Authorization
-    payload = await auth_controller.verify_token(token)
+    """Vérifie la validité d'un token JWT"""
+    payload = await auth_controller.verify_token(credentials.credentials)
     return {
-        "valid": True,  # Token valide
-        "user_id": payload.get("sub"),  # ID de l'utilisateur
-        "username": payload.get("username"),  # Nom d'utilisateur
-        "role": payload.get("role")  # Rôle de l'utilisateur
+        "valid": True,
+        "user_id": payload.get("sub"),
+        "username": payload.get("username"),
+        "role": payload.get("role")
     }
+
 
 @app.get("/api/auth/health")
 async def health_check():
-    """Endpoint de vérification de santé du service"""
-    return {"status": "healthy", "service": "auth-api"}
+    """Vérifie la santé du service"""
+    return {"status": "healthy", "service": "g-clinique-api", "version": "1.0.0"}
 
-# ============ ENDPOINTS DE GESTION DES UTILISATEURS ============
 
-@app.post("/api/users/create", response_model=UserResponse)
-async def create_user(user_data: UserCreateRequest):
-    """
-    Endpoint de creation d'un nouvel utilisateur
-    Delegue a Spring Boot via user_manager
-    """
+# ============ GESTION DES UTILISATEURS ============
+
+@app.post("/api/users/create")
+async def create_user(user_data: Dict[str, Any]):
+    """Crée un nouvel utilisateur (délègue à Spring Boot)"""
     try:
-        result = await user_manager.create_user(user_data)
+        result = await user_service.create_user(user_data)
         return result
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=409, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/api/users/list")
 async def list_users(role: Optional[str] = None):
-    """
-    Liste tous les utilisateurs via Spring Boot
-    """
+    """Liste tous les utilisateurs"""
     try:
-        users = await user_manager.list_users(role)
+        users = await user_service.list_users(role)
         return {"users": users, "count": len(users)}
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/api/users/{username}")
 async def get_user(username: str):
-    """
-    Recupere les informations d'un utilisateur par son username via Spring Boot
-    """
-    user = await user_manager.get_user_by_username(username)
+    """Récupère un utilisateur par username"""
+    user = await user_service.get_user(username)
     if not user:
-        raise HTTPException(status_code=404, detail="Utilisateur non trouve")
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
     return user
+
 
 @app.delete("/api/users/{user_id}")
 async def delete_user(user_id: int):
-    """
-    Supprime un utilisateur par son ID via Spring Boot
-    """
+    """Supprime un utilisateur par ID"""
     try:
-        success = await user_manager.delete_user(user_id)
+        success = await user_service.delete_user(user_id)
         if not success:
-            raise HTTPException(status_code=404, detail="Utilisateur non trouve")
-        return {"message": "Utilisateur supprime avec succes"}
+            raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+        return {"message": "Utilisateur supprimé avec succès"}
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn

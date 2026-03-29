@@ -1,0 +1,470 @@
+{
+  "info": {
+    "name": "G-Clinique FastAPI",
+    "description": "Collection complète pour tester l'API FastAPI de G-Clinique",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentification",
+      "item": [
+        {
+          "name": "1. Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "http://localhost:8000/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2. Verify Token",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/auth/verify"
+          }
+        },
+        {
+          "name": "3. Health Check",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/auth/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍⚕️ Médecins",
+      "item": [
+        {
+          "name": "1. Liste Médecins",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/medecins"
+          }
+        },
+        {
+          "name": "2. Détail Médecin",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/medecins/1"
+          }
+        },
+        {
+          "name": "3. Créer Médecin + User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/medecins/create-with-user",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Martin\",\n  \"prenom\": \"Pierre\",\n  \"email\": \"dr.martin@gclinique.com\",\n  \"specialite\": \"Cardiologie\",\n  \"telephone\": \"0123456789\",\n  \"username\": \"dr.martin\",\n  \"password\": \"temp123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👩‍💼 Secrétaires",
+      "item": [
+        {
+          "name": "1. Liste Secrétaires",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/secretaires"
+          }
+        },
+        {
+          "name": "2. Créer Secrétaire",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/secretaires/create",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Dupont\",\n  \"prenom\": \"Marie\",\n  \"email\": \"marie.dupont@gclinique.com\",\n  \"telephone\": \"0987654321\",\n  \"username\": \"secretaire1\",\n  \"password\": \"temp123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Utilisateurs",
+      "item": [
+        {
+          "name": "1. Liste Utilisateurs",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/users/list"
+          }
+        },
+        {
+          "name": "2. Détail Utilisateur",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/users/admin"
+          }
+        },
+        {
+          "name": "3. Créer Utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/users/create",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@email.com\",\n  \"password\": \"password123\",\n  \"role\": \"PATIENT\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧑‍⚕️ Patients",
+      "item": [
+        {
+          "name": "1. Liste Patients",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/patients?page=0&size=10"
+          }
+        },
+        {
+          "name": "2. Recherche Patients",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/patients/search?keyword=dupont"
+          }
+        },
+        {
+          "name": "3. Détail Patient",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/patients/1"
+          }
+        },
+        {
+          "name": "4. Créer Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/patients/save",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Durand\",\n  \"prenom\": \"Sophie\",\n  \"email\": \"sophie.durand@email.com\",\n  \"telephone\": \"0145678901\",\n  \"dateNaissance\": \"1990-05-15\",\n  \"adresse\": \"15 Rue de Paris\",\n  \"genre\": \"FEMININ\"\n}"
+            }
+          }
+        },
+        {
+          "name": "5. Modifier Patient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/patients/update",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nom\": \"Durand\",\n  \"prenom\": \"Sophie Marie\",\n  \"email\": \"sophie.durand@email.com\",\n  \"telephone\": \"0145678901\"\n}"
+            }
+          }
+        },
+        {
+          "name": "6. Supprimer Patient",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/patients/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏥 Consultations",
+      "item": [
+        {
+          "name": "1. Liste Consultations",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/consultations"
+          }
+        },
+        {
+          "name": "2. Consultations par Patient",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/consultations/patient/1"
+          }
+        },
+        {
+          "name": "3. Créer Consultation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/consultations/save",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-03-28\",\n  \"patientId\": 1,\n  \"medecinId\": 1,\n  \"motif\": \"Consultation generale\",\n  \"diagnostic\": \"Patient en bonne sante\",\n  \"traitement\": \"Aucun\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Rendez-vous",
+      "item": [
+        {
+          "name": "1. Liste Rendez-vous",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/rendez-vous"
+          }
+        },
+        {
+          "name": "2. Rendez-vous par Date",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/rendez-vous?date=2024-03-28"
+          }
+        },
+        {
+          "name": "3. Créer Rendez-vous",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/rendez-vous/save",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-03-28\",\n  \"heure\": \"14:00\",\n  \"patientId\": 1,\n  \"medecinId\": 1,\n  \"motif\": \"Consultation de suivi\",\n  \"statut\": \"EN_ATTENTE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4. Confirmer Rendez-vous",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/rendez-vous/1/confirm"
+          }
+        },
+        {
+          "name": "5. Supprimer Rendez-vous",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/rendez-vous/1"
+          }
+        },
+        {
+          "name": "6. Calendrier Events",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/rendez-vous/calendar/events?start_date=2024-03-01&end_date=2024-03-31"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💊 Ordonnances",
+      "item": [
+        {
+          "name": "1. Liste Ordonnances",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/ordonnances"
+          }
+        },
+        {
+          "name": "2. Ordonnances par Patient",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/ordonnances/patient/1"
+          }
+        },
+        {
+          "name": "3. Créer Ordonnance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/ordonnances/save",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 1,\n  \"medecinId\": 1,\n  \"date\": \"2024-03-28\",\n  \"medicaments\": [\n    {\n      \"medicamentId\": 1,\n      \"dosage\": \"500mg\",\n      \"frequence\": \"3 fois par jour\",\n      \"duree\": \"7 jours\"\n    }\n  ],\n  \"instructions\": \"Prendre apres les repas\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4. Générer PDF",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/ordonnances/1/pdf"
+          }
+        },
+        {
+          "name": "5. Envoyer Email",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/ordonnances/1/send-email"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💊 Médicaments",
+      "item": [
+        {
+          "name": "1. Liste Médicaments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/medicaments?page=0&size=10"
+          }
+        },
+        {
+          "name": "2. Recherche Médicaments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/medicaments/search?keyword=doliprane"
+          }
+        },
+        {
+          "name": "3. Créer Médicament",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "url": "http://localhost:8000/api/v1/medicaments/save",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Efferalgan\",\n  \"description\": \"Paracetamol 500mg effervescent\",\n  \"type\": \"Comprime effervescent\",\n  \"stock\": 100,\n  \"prix\": 6.20\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "1. Liste Notifications",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/notifications"
+          }
+        },
+        {
+          "name": "2. Non Lues",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/notifications/unread"
+          }
+        },
+        {
+          "name": "3. Compte Non Lues",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/notifications/count"
+          }
+        },
+        {
+          "name": "4. Marquer comme Lu",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/notifications/1/mark-read"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📆 Calendrier",
+      "item": [
+        {
+          "name": "1. Events",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/calendar/events?start_date=2024-03-01&end_date=2024-03-31"
+          }
+        },
+        {
+          "name": "2. Disponibilités Médecin",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/calendar/disponibilites/1?date=2024-03-28"
+          }
+        },
+        {
+          "name": "3. Stats",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "http://localhost:8000/api/v1/calendar/stats?start_date=2024-03-01&end_date=2024-03-31"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Configuration initiale",
+          "pm.globals.set('base_url', 'http://localhost:8000');"
+        ]
+      }
+    }
+  ]
+}
