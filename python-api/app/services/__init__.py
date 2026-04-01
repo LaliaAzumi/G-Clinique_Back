@@ -3,4 +3,6 @@
 
 from .users import UserService
 
+user_service = UserService()
+
 __all__ = ["UserService"]

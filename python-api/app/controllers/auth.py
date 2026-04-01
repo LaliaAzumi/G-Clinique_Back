@@ -5,11 +5,11 @@ Gère le login et la vérification des tokens JWT
 import httpx
 from datetime import datetime, timedelta
 import jwt
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, APIRouter
 from typing import Dict, Any
-
 from config import settings
 
+router = APIRouter(prefix="/api/auth", tags=["Authentification"])
 
 class AuthController:
     """Service d'authentification - communique avec Spring Boot"""
