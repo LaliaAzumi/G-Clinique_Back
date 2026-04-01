@@ -1,6 +1,8 @@
 # app/services/__init__.py
 # Services métier - Logique métier et communication avec Spring Boot
 
-from .users import user_service
+from .users import UserService
 
-__all__ = ["user_service"]
+user_service = UserService()
+
+__all__ = ["UserService"]
