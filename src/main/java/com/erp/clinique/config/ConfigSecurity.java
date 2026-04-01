@@ -20,6 +20,8 @@ import com.erp.clinique.repository.MedicamentRepository;
 import com.erp.clinique.security.JwtAuthenticationFilter;
 import com.erp.clinique.service.UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 public class ConfigSecurity {
@@ -28,25 +30,40 @@ public class ConfigSecurity {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 	
     @Bean
+   
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**").permitAll()
-                .requestMatchers("/login", "/api/**", "/api/setup/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN") 
-                .anyRequest().authenticated()
-            )
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) -> {
+    http
+        .csrf(csrf -> csrf.disable())
+        // Désactiver CORS si vous gérez déjà cela au niveau du Controller ou de FastAPI
+        .cors(cors -> cors.configure(http)) 
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            // Routes statiques et login
+            .requestMatchers("/api/v1/patients/**").permitAll()
+            .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**").permitAll()
+            .requestMatchers("/login").permitAll()
+            // Routes API : On autorise explicitement
+            .requestMatchers("/api/v1/auth/**", "/api/setup/**").permitAll()
+            .requestMatchers("/api/v1/auth/verify").permitAll()
+            .requestMatchers("/api/**").permitAll() 
+            // Admin
+            .requestMatchers("/admin/**").hasRole("ADMIN") 
+            .anyRequest().authenticated()
+        )
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint((request, response, authException) -> {
+                // Si la requête commence par /api, on renvoie 401 au lieu de rediriger vers /login
+                if (request.getRequestURI().startsWith("/api/")) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                } else {
                     response.sendRedirect("/login");
-                })
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            
-        return http.build();
-    }
+                }
+            })
+        )
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
+    return http.build();
+}
 
     @Bean
     public PasswordEncoder passwordEncoder() {
