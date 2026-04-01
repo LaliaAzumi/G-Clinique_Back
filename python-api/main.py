@@ -21,6 +21,7 @@ from app.controllers import (
     chambres_router
 )
 from app.services import user_service
+from fastapi.middleware.cors import CORSMiddleware
 
 # Application FastAPI
 app = FastAPI(
@@ -28,7 +29,13 @@ app = FastAPI(
     description="API FastAPI - Proxy vers Spring Boot pour la gestion médicale",
     version="1.0.0",
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], # URL de votre React
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Inclusion des routeurs par domaine
 app.include_router(medecins_router)
 app.include_router(secretaires_router)
