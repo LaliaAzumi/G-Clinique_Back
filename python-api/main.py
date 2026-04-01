@@ -5,6 +5,7 @@ Architecture propre et organisée
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional, Dict, Any
+from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from app.controllers import (
@@ -27,6 +28,14 @@ app = FastAPI(
     title="G-Clinique API",
     description="API FastAPI - Proxy vers Spring Boot pour la gestion médicale",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8081"],  # ton frontend React
+    allow_credentials=True,
+    allow_methods=["*"],  # autorise GET, POST, PUT, DELETE…
+    allow_headers=["*"],  # autorise tous les headers (y compris Authorization)
 )
 
 # Inclusion des routeurs par domaine
