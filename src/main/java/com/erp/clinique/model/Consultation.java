@@ -2,6 +2,8 @@ package com.erp.clinique.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,6 +32,7 @@ public class Consultation {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rendez_vous_id", nullable = false, unique = true)
+    @JsonIgnore
     private RendezVous rendezVous;
     
     private String maladie;

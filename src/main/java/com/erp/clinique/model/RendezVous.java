@@ -2,6 +2,8 @@ package com.erp.clinique.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -14,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -47,12 +50,21 @@ public class RendezVous {
 
     @Column(nullable = false)
     private String statut = "EN_ATTENTE"; 
+    
+    @Column(nullable = false)
+    private String statutPaiement = "EN_ATTENTE_PAIEMENT"; 
 
     @OneToOne(mappedBy = "rendezVous", cascade = CascadeType.ALL, orphanRemoval = true)
     private Consultation consultation;
     
     @Column(nullable = true)
     private  String googleEventId;
+    
+    @OneToMany(mappedBy = "rendezvous", cascade = CascadeType.ALL)
+    private List<Prestation> prestations = new ArrayList<>();
+    
+    public List<Prestation> getPrestations() { return prestations; }
+    public void setPrestations(List<Prestation> prestations) { this.prestations = prestations; }
 
    
     public RendezVous() {}
@@ -64,6 +76,8 @@ public class RendezVous {
         this.statut = statut;
         this.heure = heure;
     }
+    
+    
 
     
     public Long getId() {
@@ -114,6 +128,14 @@ public class RendezVous {
         this.statut = statut;
     }
     
+    public String getStatutPaiement() {
+        return statutPaiement;
+    }
+
+    public void setStatutPaiement(String statutPaiement) {
+        this.statutPaiement = statutPaiement;
+    }
+    
     public LocalTime getHeure() {
         return heure;
     }
@@ -135,5 +157,14 @@ public class RendezVous {
 
     public void setGoogleEventId(String googleEventId) {
         this.googleEventId = googleEventId;
+    }
+    
+ // SECRETAIRE CHANGE STATUT APRES AVOIR PAYÉ
+    public void validerPaiement() {
+        // Utilise .equals() pour comparer les Strings en Java !
+        if ("EN_ATTENTE_PAIEMENT".equals(this.statutPaiement)) {
+            this.statutPaiement = "PAYE";
+            this.statut = "EN_ATTENTE";
+        }
     }
 }

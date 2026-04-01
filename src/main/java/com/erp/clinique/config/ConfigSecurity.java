@@ -1,24 +1,23 @@
 package com.erp.clinique.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import com.erp.clinique.security.JwtAuthenticationFilter;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.erp.clinique.model.ActeMedical;
 import com.erp.clinique.model.Medicament;
 import com.erp.clinique.model.Users;
+import com.erp.clinique.repository.ActeMedicalRepository;
 import com.erp.clinique.repository.MedicamentRepository;
-import com.erp.clinique.service.UserAuthService;
+import com.erp.clinique.security.JwtAuthenticationFilter;
 import com.erp.clinique.service.UserService;
 
 @Configuration
@@ -55,11 +54,18 @@ public class ConfigSecurity {
     }
     
     @Bean
-    CommandLineRunner initAdmin(UserService userService) {
+    CommandLineRunner initAdmin(UserService userService, ActeMedicalRepository acteRepo) {
         return args -> {
             if (userService.findByUsername("admin").isEmpty()) {
                 Users admin = new Users("admin", "admin@gmail.com", "admin123", "ADMIN");
                 userService.saveUser(admin);
+            }
+         // 2. Initialisation des Actes Médicaux
+            if (acteRepo.count() == 0) {
+                acteRepo.save(new ActeMedical( "Consultation Générale", 25000.0));
+                acteRepo.save(new ActeMedical( "Analyse de sang", 15000.0));
+                acteRepo.save(new ActeMedical("Radiographie", 45000.0));
+                System.out.println("✅ Actes médicaux de base créés");
             }
         };
     } 

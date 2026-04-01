@@ -135,3 +135,47 @@ async def get_medecin(medecin_id: int, authorization: str = Header(...)):
             return response.json()
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+            
+            
+@router.get("/{medecin_id}/portefeuille")
+async def get_portefeuille_medecin(medecin_id: int, authorization: str = Header(...)):
+    """
+    Récupère les gains du médecin : 50% du total des prestations payées.
+    """
+    # 1. On vérifie l'identité du médecin (Token)
+    await verify_token(authorization)
+    # Dans ton fichier Python
+    url = f"{settings.spring_boot_url}/api/v1/medecins/{medecin_id}/portefeuille"
+    print(f"J'appelle Java ici : {url}") # Ajoute ce print pour débugger
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url, headers={"Authorization": authorization})
+            
+            if response.status_code != 200:
+                print(f"Erreur Java: {response.status_code}")
+                raise HTTPException(status_code=500, detail="Erreur Spring Boot")
+            
+            # 1. On récupère l'objet ApiResponse complet
+            resultat_api = response.json() 
+            
+            # 2. On extrait le dictionnaire "data" qui contient nos chiffres
+            # C'est ici que se trouvent totalEncaisse et maPart
+            stats = resultat_api.get("data", {}) 
+            
+            # Sécurité : on s'assure d'avoir des nombres (0.0 si absent)
+            total = stats.get("totalEncaisse", 0.0)
+            ma_part = stats.get("maPart", 0.0)
+            clinique = stats.get("commissionClinique", 0.0)
+
+            return {
+                "medecin_id": medecin_id,
+                "chiffre_affaire_total": total,
+                "gain_net_medecin": ma_part,
+                "commission_clinique": clinique,
+                "devise": stats.get("devise", "Ar"),
+                "message": "Calcul basé sur 50% des actes payés"
+            }
+            
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Spring Boot hors ligne : {str(e)}")
