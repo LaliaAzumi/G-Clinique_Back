@@ -125,3 +125,7 @@ class AuthController:
 
 # Instance singleton
 auth_controller = AuthController()
+# À la fin de auth.py
+router = None
+
+

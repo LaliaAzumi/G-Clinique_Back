@@ -1,17 +1,25 @@
 package com.erp.clinique.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.erp.clinique.dto.ApiResponse;
 import com.erp.clinique.dto.LoginApiRequest;
 import com.erp.clinique.dto.UserProfileResponse;
 import com.erp.clinique.service.FastApiAuthService;
 import com.erp.clinique.service.FastApiUserService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Contrôleur REST API pour les frontends 
@@ -282,15 +290,28 @@ public class FrontendApiController {
                 .body(new ApiResponse(false, "Token invalide", null));
         }
 
+//        return ResponseEntity.ok(new ApiResponse(
+//            true,
+//            "Token valide",
+//            Map.of(
+//                "valid", true,
+//                "user_id", tokenData.get("sub"),
+//                "username", tokenData.get("username"),
+//                "role", tokenData.get("role")
+//            )
+//        ));
+     // C'EST ICI QU'IL FAUT CHANGER :
+        // On remplace le Map.of(...) par un HashMap
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("valid", true);
+        userData.put("user_id", tokenData.get("sub"));      // Si "sub" est null, HashMap l'accepte
+        userData.put("username", tokenData.get("username")); // Si "username" est null, HashMap l'accepte
+        userData.put("role", tokenData.get("role"));         // Si "role" est null, HashMap l'accepte
+
         return ResponseEntity.ok(new ApiResponse(
             true,
             "Token valide",
-            Map.of(
-                "valid", true,
-                "user_id", tokenData.get("sub"),
-                "username", tokenData.get("username"),
-                "role", tokenData.get("role")
-            )
+            userData // On envoie le HashMap au lieu du Map.of
         ));
     }
 

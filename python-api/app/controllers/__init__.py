@@ -2,7 +2,7 @@
 # Controllers FastAPI - Tous les endpoints API
 
 from .auth import auth_controller
-from .auth import router as auth_router
+#from .auth import router as auth_router
 from .medecins import router as medecins_router
 from .secretaires import router as secretaires_router
 from .patients import router as patients_router
@@ -12,6 +12,7 @@ from .ordonnances import router as ordonnances_router
 from .medicaments import router as medicaments_router
 from .notifications import router as notifications_router
 from .calendar import router as calendar_router
+from .chambres import router as chambres_router
 
 __all__ = [
     "auth_controller",
@@ -25,4 +26,5 @@ __all__ = [
     "medicaments_router",
     "notifications_router",
     "calendar_router",
+    "chambres_router",
 ]

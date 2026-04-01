@@ -18,6 +18,7 @@ from app.controllers import (
     medicaments_router,
     notifications_router,
     calendar_router,
+    chambres_router
 )
 from app.services import user_service
 
@@ -38,6 +39,7 @@ app.include_router(ordonnances_router)
 app.include_router(medicaments_router)
 app.include_router(notifications_router)
 app.include_router(calendar_router)
+app.include_router(chambres_router)
 
 # Sécurité Bearer JWT
 security = HTTPBearer()

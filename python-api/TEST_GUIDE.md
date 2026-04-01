@@ -74,8 +74,8 @@ curl http://localhost:8000/api/v1/medecins \
 
 ### 2.2 Détail d'un médecin
 ```bash
-curl http://localhost:8000/api/v1/medecins/1 \
-  -H "Authorization: Bearer <TOKEN>"
+<!--curl http://localhost:8000/api/v1/medecins/1 \-->
+<!--  -H "Authorization: Bearer <TOKEN>"-->
 ```
 
 ### 2.3 Créer un médecin avec compte utilisateur
