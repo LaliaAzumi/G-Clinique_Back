@@ -1,15 +1,24 @@
 package com.erp.clinique.controller;
 
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.erp.clinique.dto.ApiResponse;
 import com.erp.clinique.model.Medecin;
+import com.erp.clinique.repository.PrestationRepository;
 import com.erp.clinique.service.FastApiAuthService;
 import com.erp.clinique.service.MedecinFastApiService;
 import com.erp.clinique.service.MedecinService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /**
  * API REST pour la gestion des médecins via FastAPI
@@ -28,6 +37,9 @@ public class MedecinApiController {
 
     @Autowired
     private FastApiAuthService fastApiAuthService;
+    
+    @Autowired
+    private PrestationRepository prestationRepository;
 
     /**
      * Crée un médecin avec son compte utilisateur via FastAPI
@@ -169,5 +181,42 @@ public class MedecinApiController {
             )))
             .orElseGet(() -> ResponseEntity.status(404)
                 .body(new ApiResponse(false, "Médecin non trouvé", null)));
+    }
+
+    /**
+     * Récupère le portefeuille financier du médecin (50% des prestations payées)
+     */
+    @GetMapping("/{id}/portefeuille")
+    public ResponseEntity<ApiResponse> getPortefeuille(@PathVariable Long id) {
+        try {
+            // 1. Calcul de la somme totale brute via le Repository
+            Double totalBrut = prestationRepository.calculerTotalBrut(id);
+            
+            if (totalBrut == null) {
+                totalBrut = 0.0;
+            }
+
+            // 2. Calcul de la part du médecin (50%)
+            Double partMedecin = totalBrut * 0.5;
+            Double partClinique = totalBrut * 0.5;
+
+            // 3. Retourne la réponse formatée
+            Map<String, Object> data = Map.of(
+                "totalEncaisse", totalBrut,
+                "maPart", partMedecin,
+                "commissionClinique", partClinique,
+                "devise", "Ar"
+            );
+
+            return ResponseEntity.ok(new ApiResponse(
+                true, 
+                "Portefeuille récupéré avec succès", 
+                data
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                .body(new ApiResponse(false, "Erreur lors du calcul financier : " + e.getMessage(), null));
+        }
     }
 }

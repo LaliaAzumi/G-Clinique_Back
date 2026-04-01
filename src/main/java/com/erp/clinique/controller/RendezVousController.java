@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.erp.clinique.model.Medecin;
 import com.erp.clinique.model.MedecinUser;
+import com.erp.clinique.model.Patient;
 import com.erp.clinique.model.RendezVous;
 import com.erp.clinique.model.Users;
 import com.erp.clinique.repository.MedecinUserRepository;
@@ -369,6 +370,42 @@ public class RendezVousController {
         }
         
         return "redirect:/callendar/callendars"; 
+    }
+    
+    
+    
+    //controller create rdv cote patient
+    @PostMapping("/save_public")
+    public String savePublic(@ModelAttribute("patient") Patient patient,
+                             @RequestParam Long medecinId,
+                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime heure,
+                             @RequestParam List<Long> acteIds,
+                             @RequestParam String nomExpediteur,
+                             @RequestParam String codeTransaction,
+                             @RequestParam Double montantEnvoye,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            // On appelle le service qui gère la création/vérification du patient + RDV + Paiement
+            rendezVousService.enregistrerRendezVousComplet(
+                patient, 
+                medecinId, 
+                date, 
+                heure, 
+                acteIds, 
+                nomExpediteur, 
+                codeTransaction, 
+                montantEnvoye
+            );
+
+            redirectAttributes.addFlashAttribute("success", "Votre demande de rendez-vous a été enregistrée. Elle sera validée après vérification de votre paiement.");
+            return "redirect:/rendezvous/confirmation"; // Crée une page de succès simple
+            
+        } catch (RuntimeException e) {
+            // En cas d'erreur (ex: créneau déjà pris), on renvoie vers le formulaire avec le message
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/rendezvous/new";
+        }
     }
    
 }

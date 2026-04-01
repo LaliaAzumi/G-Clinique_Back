@@ -32,39 +32,6 @@ async def verify_token(auth_header: str) -> dict:
         except httpx.RequestError:
             raise HTTPException(status_code=503, detail="Service Spring Boot indisponible")
 
-
-@router.get("")
-async def list_rendez_vous(
-    authorization: str = Header(...),
-    patient_id: Optional[int] = Query(None),
-    medecin_id: Optional[int] = Query(None),
-    date: Optional[str] = Query(None)
-):
-    """Liste les rendez-vous avec filtres"""
-    await verify_token(authorization)
-    
-    async with httpx.AsyncClient() as client:
-        try:
-            params = {}
-            if patient_id:
-                params["patientId"] = patient_id
-            if medecin_id:
-                params["medecinId"] = medecin_id
-            if date:
-                params["date"] = date
-            
-            response = await client.get(
-                f"{settings.spring_boot_url}/api/v1/rendez-vous",
-                params=params,
-                headers={"Authorization": authorization}
-            )
-            if response.status_code != 200:
-                raise HTTPException(status_code=500, detail="Erreur lors de la récupération")
-            return response.json()
-        except httpx.RequestError as e:
-            raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
-
-
 @router.post("/save")
 async def save_rendez_vous(data: Dict[str, Any], authorization: str = Header(...)):
     """Crée ou met à jour un rendez-vous"""
@@ -87,7 +54,48 @@ async def save_rendez_vous(data: Dict[str, Any], authorization: str = Header(...
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
+@router.get("")
+async def list_rendez_vous(
+    authorization: str = Header(...),
+    patient_id: Optional[int] = Query(None),
+    medecin_id: Optional[int] = Query(None),
+    date: Optional[str] = Query(None)
+):
+    """Liste les rendez-vous avec filtres"""
+    await verify_token(authorization)
+    
+    # Ajout de follow_redirects=True pour gérer le code 302 de Spring Boot
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        try:
+            params = {}
+            if patient_id: params["patientId"] = patient_id
+            if medecin_id: params["medecinId"] = medecin_id
+            if date: params["date"] = date
+            
+            response = await client.get(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous",
+                params=params,
+                headers={"Authorization": authorization}
+            )
 
+            # Vérification du contenu avant de tenter le .json()
+            if response.status_code != 200:
+                print(f"Erreur Spring Boot ({response.status_code}): {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code, 
+                    detail="Le service Spring Boot n'a pas renvoyé de données valides."
+                )
+
+            # Sécurité : on vérifie si le contenu est bien du JSON
+            try:
+                return response.json()
+            except Exception:
+                print(f"Contenu non-JSON reçu : {response.text}")
+                raise HTTPException(status_code=500, detail="Réponse du serveur invalide (pas de JSON)")
+
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+            
 @router.get("/{rendez_vous_id}")
 async def get_rendez_vous(rendez_vous_id: int, authorization: str = Header(...)):
     """Récupère un rendez-vous par ID"""
@@ -175,3 +183,60 @@ async def get_calendar_events(
             return response.json()
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+            
+            
+@router.post("/save-public")
+async def save_public_rendez_vous(data: Dict[str, Any]):
+    """
+    Crée un rendez-vous complet (Patient + RDV + Paiement + Prestations).
+    ACCÈS PUBLIC : Pas de vérification de token ici.
+    """
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous/save-public",
+                json=data,
+                timeout=10.0 
+            )
+            
+            if response.status_code == 400:
+                error_detail = response.json().get("error", "Données invalides ou créneau indisponible")
+                raise HTTPException(status_code=400, detail=error_detail)
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail="Erreur interne du serveur de santé")
+            
+            return response.json()
+            
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Connexion au service Spring Boot impossible : {str(e)}")
+
+"""
+partie secretaire valider paiement d'un rdv
+"""
+@router.patch("/{rendez_vous_id}/valider-paiement")
+async def valider_paiement_rdv(rendez_vous_id: int, authorization: str = Header(...)):
+    """
+    Action Secrétaire : Valide le paiement d'un rendez-vous.
+    Appelle la méthode métier rdv.validerPaiement() côté Spring Boot.
+    """
+    # On vérifie que la secrétaire est bien connectée
+    await verify_token(authorization)
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.patch(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}/valider-paiement",
+                headers={"Authorization": authorization}
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Rendez-vous introuvable")
+                
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail="Erreur lors de la validation du paiement")
+                
+            return response.json()
+            
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Service Spring Boot indisponible: {str(e)}")
