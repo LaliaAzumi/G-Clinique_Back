@@ -21,7 +21,7 @@ public class Users {
 	@NotBlank(message = "Nom non vide")
 	private String username;
 	
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = false)
 	@NotNull(message = "email obligatoire")
 	@NotBlank(message = "email non vide")
 	private String email;
