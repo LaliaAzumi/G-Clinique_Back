@@ -1,34 +1,46 @@
 package com.erp.clinique.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import com.erp.clinique.model.Patient;
-import com.erp.clinique.service.PatientService; // Assure-toi d'avoir un service
+import com.erp.clinique.service.PatientService;
 
 @RestController
 @RequestMapping("/api/v1/patients")
-@CrossOrigin("*") // Autorise les appels
+@CrossOrigin("*") 
 public class PatientApiController {
 
     @Autowired
     private PatientService patientService;
 
+    // 1. LIRE TOUS LES PATIENTS
     @GetMapping
-    public ResponseEntity<List<Patient>> getAll(
-        @RequestParam(required = false) Integer page, 
-        @RequestParam(required = false) Integer size) {
-        
-        // Si vous n'avez pas encore de pagination en Java, 
-        // ignorez juste les paramètres pour l'instant
-        List<Patient> patients = patientService.getAllPatients(); 
-        return ResponseEntity.ok(patients);
+    public ResponseEntity<List<Patient>> getAll() {
+        return ResponseEntity.ok(patientService.getAllPatients());
+    }
+
+    // 2. CRÉER UN PATIENT (C'est ce qui manquait pour l'ajout !)
+    @PostMapping("/save")
+    public ResponseEntity<Patient> save(@RequestBody Patient patient) {
+        // Le @RequestBody est CRUCIAL pour lire le JSON envoyé par FastAPI
+        Patient savedPatient = patientService.savePatient(patient);
+        return ResponseEntity.ok(savedPatient);
+    }
+
+
+    @PutMapping("/update")
+    public ResponseEntity<Patient> update(@RequestBody Patient patient) {
+        // Spring Data JPA fera un "update" au lieu d'un "insert" car l'ID est présent
+        Patient updatedPatient = patientService.savePatient(patient);
+        return ResponseEntity.ok(updatedPatient);
+    }
+
+    // 4. SUPPRIMER UN PATIENT
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        patientService.deletePatient(id);
+        return ResponseEntity.ok().build();
     }
 }

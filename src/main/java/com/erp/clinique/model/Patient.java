@@ -2,6 +2,8 @@ package com.erp.clinique.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,7 +26,8 @@ public class Patient {
 	@NotNull(message = "Prénom obligatoire")
 	@NotBlank(message = "Prénom non vide")
 	private String prenom;
-	
+
+	@JsonFormat(pattern="yyyy-MM-dd")
 	private LocalDate dateNaissance;
 	
 	@NotNull(message = "Téléphone obligatoire")

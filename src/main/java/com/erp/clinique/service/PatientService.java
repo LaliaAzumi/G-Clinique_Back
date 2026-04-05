@@ -52,6 +52,13 @@ public class PatientService {
     public Patient getByEmail(String email) {
         return patientRepository.findByEmail(email);
     }
-	
+    public Patient savePatient(Patient patient) {
+    return patientRepository.save(patient); // Utilise save() de JPA
+}
+
+    public void deletePatient(Long id) {
+        patientRepository.deleteById(id);
+    }
+        
 
 }
