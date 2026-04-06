@@ -62,9 +62,12 @@ public class ConfigSecurity {
             }
          // 2. Initialisation des Actes Médicaux
             if (acteRepo.count() == 0) {
-                acteRepo.save(new ActeMedical( "Consultation Générale", 25000.0));
-                acteRepo.save(new ActeMedical( "Analyse de sang", 15000.0));
+            	acteRepo.save(new ActeMedical("Consultation Générale", 25000.0));
+                acteRepo.save(new ActeMedical("Analyse de sang", 15000.0));
                 acteRepo.save(new ActeMedical("Radiographie", 45000.0));
+                acteRepo.save(new ActeMedical("Échographie Abdominale", 60000.0));
+                acteRepo.save(new ActeMedical("Électrocardiogramme (ECG)", 35000.0));
+                acteRepo.save(new ActeMedical("Scanner", 120000.0));
                 System.out.println("✅ Actes médicaux de base créés");
             }
         };

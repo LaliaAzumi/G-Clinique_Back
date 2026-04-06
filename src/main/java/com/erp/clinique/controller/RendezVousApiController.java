@@ -41,6 +41,11 @@ public class RendezVousApiController {
             p.setNom((String) data.get("nom"));
             p.setPrenom((String) data.get("prenom"));
             p.setEmail((String) data.get("email"));
+            String dateStr = (String) data.get("datenaissance");
+            LocalDate localDate = LocalDate.parse(dateStr); 
+            p.setDateNaissance(localDate);
+            
+            //p.setDateNaissance((Date) data.get("datenaissance"));
             p.setTelephone((String) data.get("telephone"));
             p.setAdresse((String) data.get("adresse"));
 

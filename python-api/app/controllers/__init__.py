@@ -13,6 +13,7 @@ from .medicaments import router as medicaments_router
 from .notifications import router as notifications_router
 from .calendar import router as calendar_router
 from .chambres import router as chambres_router
+from .acteMedical import router as acteMedical_routeur
 
 __all__ = [
     "auth_controller",
@@ -27,4 +28,5 @@ __all__ = [
     "notifications_router",
     "calendar_router",
     "chambres_router",
+    "acteMedical_routeur"
 ]
