@@ -7,6 +7,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional, Dict, Any
 from fastapi.middleware.cors import CORSMiddleware
 
+
 from config import settings
 from app.controllers import (
     auth_controller,
@@ -19,10 +20,13 @@ from app.controllers import (
     medicaments_router,
     notifications_router,
     calendar_router,
-    chambres_router
+    chambres_router,
+    acteMedical_routeur
 )
 from app.services import user_service
 from fastapi.middleware.cors import CORSMiddleware
+
+
 
 # Application FastAPI
 app = FastAPI(
@@ -55,6 +59,16 @@ app.include_router(medicaments_router)
 app.include_router(notifications_router)
 app.include_router(calendar_router)
 app.include_router(chambres_router)
+app.include_router(acteMedical_routeur)
+
+#middleware cors acces a d autre truc
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # ou "http://localhost:5173"
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Sécurité Bearer JWT
 security = HTTPBearer()

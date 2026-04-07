@@ -128,11 +128,7 @@ public class RendezVousService {
         if (patientService.existsByEmail(patientInfo.getEmail())) {
             // S'il existe, on le récupère via le service
             patientFinal = patientService.getByEmail(patientInfo.getEmail());
-            
-            // Mise à jour facultative des infos (ex: téléphone)
-            patientFinal.setTelephone(patientInfo.getTelephone());
-            patientFinal.setNom(patientInfo.getNom());
-            patientFinal.setPrenom(patientInfo.getPrenom());
+           
             patientRepository.save(patientFinal);
         } else {
             // Si c'est un nouveau, on l'enregistre proprement
