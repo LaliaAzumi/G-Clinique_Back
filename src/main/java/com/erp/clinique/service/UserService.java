@@ -50,5 +50,12 @@ public class UserService {
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
+    public Users save(Users user) {
+        return userRepository.save(user); // C'est ICI que la magie JPA opère
+    }
+    
+    public Optional<Users> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
     
 }
