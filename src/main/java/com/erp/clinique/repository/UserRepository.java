@@ -12,6 +12,8 @@ import org.springframework.data.repository.query.Param;
 import com.erp.clinique.model.Users;
 
 public interface UserRepository extends JpaRepository<Users, Long> {
+	Optional<Users> findByEmail(String email);
+	
     Optional<Users> findByUsername(String username);
     
     List<Users> findByRole(String role);

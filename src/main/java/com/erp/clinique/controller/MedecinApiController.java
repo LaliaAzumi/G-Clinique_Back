@@ -1,5 +1,6 @@
 package com.erp.clinique.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import com.erp.clinique.repository.PrestationRepository;
 import com.erp.clinique.service.FastApiAuthService;
 import com.erp.clinique.service.MedecinFastApiService;
 import com.erp.clinique.service.MedecinService;
+import com.erp.clinique.service.UserService;
 
 /**
  * API REST pour la gestion des médecins via FastAPI
@@ -40,6 +43,9 @@ public class MedecinApiController {
     
     @Autowired
     private PrestationRepository prestationRepository;
+    
+    @Autowired
+    private UserService userService;
 
     /**
      * Crée un médecin avec son compte utilisateur via FastAPI
@@ -158,13 +164,24 @@ public class MedecinApiController {
 
     /**
      * Liste tous les médecins
-     */
+     
     @GetMapping
     public ResponseEntity<ApiResponse> listMedecins() {
         return ResponseEntity.ok(new ApiResponse(
             true,
             "Liste des médecins",
             Map.of("medecins", medecinService.findAll())
+        ));
+    }*/
+    @GetMapping
+    public ResponseEntity<ApiResponse> listMedecins() {
+        // On appelle la méthode enrichie au lieu du findAll() basique
+        List<Map<String, Object>> medecinsEnrichis = medecinService.findAllEnriched();
+
+        return ResponseEntity.ok(new ApiResponse(
+            true,
+            "Liste des médecins avec détails",
+            Map.of("medecins", medecinsEnrichis)
         ));
     }
 
@@ -217,6 +234,69 @@ public class MedecinApiController {
         } catch (Exception e) {
             return ResponseEntity.status(500)
                 .body(new ApiResponse(false, "Erreur lors du calcul financier : " + e.getMessage(), null));
+        }
+    }
+    
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateFullMedecin(
+            @PathVariable Long id, // On garde l'id de l'URL par convention, mais on va utiliser medecinId du body
+            @RequestBody Map<String, Object> requestData,
+            @RequestHeader("Authorization") String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(new ApiResponse(false, "Token manquant", null));
+        }
+
+        try {
+            // --- RÉCUPÉRATION DU BON ID ---
+            // Dans tes logs, selectedMedecin.id est 3, mais medecinId est 5.
+            // On récupère le 5 qui est dans le corps de la requête.
+            Object mIdObj = requestData.get("medecinId");
+            if (mIdObj == null) {
+                return ResponseEntity.status(400).body(new ApiResponse(false, "Le champ medecinId est manquant dans les données", null));
+            }
+            
+            Long realMedecinId = Long.valueOf(mIdObj.toString());
+            System.out.println("Mise à jour pour le Médecin ID réel : " + realMedecinId);
+
+            // 2. Recherche du médecin avec le BON ID (5)
+            Medecin medecin = medecinService.findById(realMedecinId)
+                .orElseThrow(() -> new RuntimeException("Médecin introuvable avec l'ID : " + realMedecinId));
+                
+            medecin.setNom((String) requestData.get("nom"));
+            medecin.setSpecialite((String) requestData.get("specialite"));
+            medecin.setTelephone((String) requestData.get("telephone"));
+            medecin.setAdresse((String) requestData.get("adresse"));
+            medecinService.save(medecin);
+
+            // 3. Mise à jour Utilisateur (FastAPI / Local)
+            // On récupère le userId (qui est 27 dans ton log)
+            Object uIdObj = requestData.get("userId");
+            if (uIdObj != null) {
+                Long userId = Long.valueOf(uIdObj.toString());
+                String newUsername = (String) requestData.get("username");
+                String newEmail = (String) requestData.get("email");
+
+                userService.findById(userId).ifPresent(u -> {
+                    // Vérification email doublon
+                    if (newEmail != null && !newEmail.equalsIgnoreCase(u.getEmail())) {
+                        if (userService.findByEmail(newEmail).isEmpty()) {
+                            u.setEmail(newEmail);
+                        }
+                    }
+                    if (newUsername != null && !newUsername.equals(u.getUsername())) {
+                        u.setUsername(newUsername);
+                    }
+                    userService.save(u);
+                });
+            }
+
+            return ResponseEntity.ok(new ApiResponse(true, "Mise à jour réussie !", medecin));
+
+        } catch (Exception e) {
+            System.out.println("ERREUR MISE A JOUR : " + e.getMessage());
+            return ResponseEntity.status(500).body(new ApiResponse(false, "Erreur : " + e.getMessage(), null));
         }
     }
 }

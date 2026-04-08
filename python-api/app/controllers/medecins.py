@@ -179,3 +179,40 @@ async def get_portefeuille_medecin(medecin_id: int, authorization: str = Header(
             
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot hors ligne : {str(e)}")
+
+#modifier all medecin
+@router.put("/{medecin_id}")
+async def update_medecin(
+    medecin_id: int,
+    data: Dict[str, Any],
+    authorization: str = Header(...)
+):
+    """Met à jour un médecin et ses accès (Admin uniquement)"""
+    # 1. Vérifie le token
+    token_data = await verify_token(authorization)
+    
+    # 2. Optionnel : Vérifier si c'est un Admin ou le médecin lui-même
+    if token_data.get("role") != "ADMIN":
+         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+
+    async with httpx.AsyncClient() as client:
+        try:
+            # On envoie les données telles quelles à Spring Boot
+            # Spring Boot s'occupera de faire les .setNom() et .setEmail()
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/medecins/{medecin_id}",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Médecin non trouvé côté Spring")
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail="Erreur lors de la mise à jour dans Spring Boot")
+            
+            return response.json()
+            
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")           
+            
+       
