@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
@@ -40,12 +41,14 @@ public class RendezVous {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
-    @JsonIgnoreProperties("rendezVous")
+//    @JsonIgnoreProperties("rendezVous")
+    @JsonIgnoreProperties({"rendezVous", "hibernateLazyInitializer", "handler"})
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medecin_id", nullable = false)
-    @JsonIgnoreProperties("rendezVous")
+//    @JsonIgnoreProperties("rendezVous")
+    @JsonIgnoreProperties({"rendezVous", "hibernateLazyInitializer", "handler"})
     private Medecin medecin;
 
     @Column(nullable = false)
@@ -55,12 +58,14 @@ public class RendezVous {
     private String statutPaiement = "EN_ATTENTE_PAIEMENT"; 
 
     @OneToOne(mappedBy = "rendezVous", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Consultation consultation;
     
     @Column(nullable = true)
     private  String googleEventId;
     
     @OneToMany(mappedBy = "rendezvous", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Prestation> prestations = new ArrayList<>();
     
     public List<Prestation> getPrestations() { return prestations; }

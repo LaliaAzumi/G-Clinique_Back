@@ -34,7 +34,7 @@ public class RendezVousApiController {
     //create rdv par le patient
     @PostMapping("/save-public")
     public ResponseEntity<?> savePublic(@RequestBody Map<String, Object> data) {
-        try {
+        try {	
             // 1. Extraction manuelle des données du Map
             // On crée l'objet Patient à la volée
             Patient p = new Patient();

@@ -142,3 +142,35 @@ async def get_calendar_stats(
             return response.json()
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+
+            
+# get events
+@router.get("/eventsN")
+async def get_calendar_eventsN(
+    authorization: str = Header(...),
+    start_date: Optional[str] = Query(None) # Ex: 2026-04-06
+):
+    # 1. Vérifie le token via ton verify_token
+    # user_info doit contenir l'ID de l'utilisateur (ex: user_info["id"])
+    user_info = await verify_token(authorization)
+    user_id = user_info.get("id") 
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="ID utilisateur manquant dans le token")
+    
+    # 2. Appelle l'API Java avec le nouveau chemin incluant l'ID
+    async with httpx.AsyncClient() as client:
+        # Note le changement d'URL ici : on ajoute /eventsN/{user_id}
+        spring_url = f"{settings.spring_boot_url}/api/v1/calendar/eventsN/{user_id}"
+        
+        response = await client.get(
+            spring_url,
+            params={"startOfWeek": start_date},
+            headers={"Authorization": authorization}
+        )
+        
+        if response.status_code != 200:
+            # Optionnel : log l'erreur pour débugger plus facilement
+            return response.json()
+            
+        return response.json()
