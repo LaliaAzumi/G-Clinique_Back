@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.erp.clinique.dto.ApiResponse;
 import com.erp.clinique.model.Medecin;
+import com.erp.clinique.model.MedecinUser;
+import com.erp.clinique.repository.MedecinRepository;
+import com.erp.clinique.repository.MedecinUserRepository;
 import com.erp.clinique.repository.PrestationRepository;
+import com.erp.clinique.repository.UserRepository;
 import com.erp.clinique.service.FastApiAuthService;
 import com.erp.clinique.service.MedecinFastApiService;
 import com.erp.clinique.service.MedecinService;
@@ -46,6 +51,12 @@ public class MedecinApiController {
     
     @Autowired
     private UserService userService;
+    @Autowired
+    private MedecinRepository medecinRepository;
+    @Autowired
+    private MedecinUserRepository medecinUserRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Crée un médecin avec son compte utilisateur via FastAPI
@@ -296,6 +307,51 @@ public class MedecinApiController {
 
         } catch (Exception e) {
             System.out.println("ERREUR MISE A JOUR : " + e.getMessage());
+            return ResponseEntity.status(500).body(new ApiResponse(false, "Erreur : " + e.getMessage(), null));
+        }
+    }
+    /**
+     * Supprime un médecin (Admin uniquement)
+     */
+    @DeleteMapping("/{id}")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<ApiResponse> deleteMedecin(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+
+        // 1. Validation du token (ton code habituel)
+        String token = authHeader.substring(7);
+        Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+        if (tokenData == null || !"ADMIN".equals(tokenData.get("role"))) {
+            return ResponseEntity.status(403).body(new ApiResponse(false, "Accès refusé", null));
+        }
+
+        try {
+            // 2. Récupérer la relation pour trouver le userId
+            java.util.Optional<MedecinUser> muOpt = medecinUserRepository.findByMedecinId(id);
+
+            if (muOpt.isPresent()) {
+                MedecinUser mu = muOpt.get();
+                Long uId = mu.getUserId();
+
+                // 3. Supprimer la ligne dans MedecinUser (la table de liaison)
+                medecinUserRepository.delete(mu);
+
+                // 4. Supprimer l'utilisateur dans la table User
+                // Utilise ton userService ou userRepository selon tes injections
+                userRepository.deleteById(uId); 
+            }
+
+            // 5. Supprimer le médecin dans la table Medecin
+            boolean deleted = medecinService.deleteById(id);
+
+            if (!deleted) {
+                return ResponseEntity.status(404).body(new ApiResponse(false, "Médecin non trouvé", null));
+            }
+
+            return ResponseEntity.ok(new ApiResponse(true, "Nettoyage complet effectué avec succès", null));
+
+        } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse(false, "Erreur : " + e.getMessage(), null));
         }
     }

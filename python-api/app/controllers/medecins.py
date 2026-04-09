@@ -47,7 +47,6 @@ async def create_medecin_with_user(
     spring_data = {
         "medecin": {
             "nom": data.get("nom"),
-            "prenom": data.get("prenom"),
             "specialite": data.get("specialite"),
             "telephone": data.get("telephone"),
             "adresse": data.get("adresse")
@@ -215,4 +214,29 @@ async def update_medecin(
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")           
             
+#delete
+@router.delete("/{medecin_id}")
+async def delete_medecin(
+    medecin_id: int,
+    authorization: str = Header(...)
+):
+    """Supprime un médecin (Admin uniquement)"""
+    token_data = await verify_token(authorization)
+    if token_data.get("role") != "ADMIN":
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.delete(
+                f"{settings.spring_boot_url}/api/v1/medecins/{medecin_id}",
+                headers={"Authorization": authorization}
+            )
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Médecin non trouvé")
+            if response.status_code != 200 and response.status_code != 204:
+                raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
+            
+            return {"message": "Médecin supprimé avec succès"}
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
        
