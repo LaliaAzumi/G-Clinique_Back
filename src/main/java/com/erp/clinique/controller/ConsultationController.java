@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.erp.clinique.model.Consultation;
@@ -236,5 +237,28 @@ public class ConsultationController {
             redirectAttributes.addFlashAttribute("error", "Erreur lors de la suppression.");
         }
         return "redirect:/consultations";
+    }
+
+    // pour envoyer la liste des consultations au front
+    @GetMapping("/api/list")
+    @ResponseBody // Important pour renvoyer du JSON
+    public Page<Consultation> getConsultationsApi(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword) {
+        
+        // On reprend ta logique de récupération du médecin connecté
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Users user = userService.findByUsername(username).orElseThrow();
+        MedecinUser medUser = medecinUserRepo.findByUserId(user.getId());
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            return consultationRepository.findByRendezVousMedecinIdAndRendezVousPatientNomContainingIgnoreCase(
+                    medUser.getMedecinId(), keyword, pageable);
+        }
+        return consultationRepository.findByRendezVousMedecinId(medUser.getMedecinId(), pageable);
     }
 }
