@@ -130,6 +130,20 @@ async def delete_rendez_vous(rendez_vous_id: int, authorization: str = Header(..
             
         return {"success": True}
 
+# rendezvous.py
+
+@router.patch("/{rdv_id}/cancel")
+async def cancel_rendez_vous(rdv_id: int, authorization: str = Header(...)):
+    await verify_token(authorization)
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/{rdv_id}/cancel",
+            headers={"Authorization": authorization}
+        )
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail="Erreur lors de l'annulation")
+        return response.json()
+
 
 @router.post("/{rendez_vous_id}/confirm")
 async def confirm_rendez_vous(rendez_vous_id: int, authorization: str = Header(...)):

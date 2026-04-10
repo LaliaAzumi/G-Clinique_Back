@@ -178,7 +178,9 @@ public class RendezVousApiController {
             // 1. On récupère le rendez-vous existant en BDD
             RendezVous rdv = rendezVousService.findById(id)
                     .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
-
+            if (data.containsKey("statut")) {
+                rdv.setStatut((String) data.get("statut"));
+            }
             // 2. Mise à jour des informations de base
             rdv.setMotif((String) data.get("motif"));
             rdv.setDate(java.time.LocalDate.parse((String) data.get("date")));
@@ -210,6 +212,25 @@ public class RendezVousApiController {
             return ResponseEntity.ok(Map.of("message", "Rendez-vous supprimé avec succès"));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // RendezVousApiController.java
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable Long id) {
+        try {
+            // 1. Récupérer le rendez-vous
+            RendezVous rdv = rendezVousService.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
+
+            // 2. Changer le statut
+            rdv.setStatut("ANNULE");
+
+            // 3. Sauvegarder
+            return ResponseEntity.ok(rendezVousService.save(rdv));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
     /**
