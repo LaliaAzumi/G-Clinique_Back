@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.erp.clinique.model.ActeMedical;
+import com.erp.clinique.model.Medecin;
 import com.erp.clinique.model.Paiement;
 import com.erp.clinique.model.Patient;
 import com.erp.clinique.model.Prestation;
@@ -44,7 +45,28 @@ public class RendezVousService {
     private PatientService patientService;
     
     
+    public RendezVous creerRendezVous(Long patientId, Long medecinId, String dateStr, String heureStr, String motif) {
+        // 1. Récupération du Patient
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient introuvable avec l'ID : " + patientId));
 
+        // 2. Récupération du Médecin
+        Medecin medecin = medecinRepository.findById(medecinId)
+                .orElseThrow(() -> new RuntimeException("Médecin introuvable avec l'ID : " + medecinId));
+
+        // 3. Création et remplissage de l'entité RendezVous
+        RendezVous rdv = new RendezVous();
+        rdv.setPatient(patient);
+        rdv.setMedecin(medecin);
+        rdv.setDate(LocalDate.parse(dateStr)); // Convertit "YYYY-MM-DD" en LocalDate
+        rdv.setHeure(LocalTime.parse(heureStr)); // Convertit "HH:mm" en LocalTime
+        rdv.setMotif(motif);
+        rdv.setStatut("PLANIFIE"); // Statut par défaut
+        rdv.setStatutPaiement("EN_ATTENTE_PAIEMENT"); // Non payé par défaut
+
+        // 4. Sauvegarde
+        return rendezVousRepository.save(rdv);
+    }
     public List<RendezVous> findAll() {
         return rendezVousRepository.findAll();
     }
@@ -61,6 +83,14 @@ public class RendezVousService {
         rendezVousRepository.deleteById(id);
     }
 
+    public void supprimerRendezVous(Long id) {
+        if (!rendezVousRepository.existsById(id)) {
+            throw new RuntimeException("Rendez-vous introuvable");
+        }
+        // Si vous avez des prestations liées, il faut soit les supprimer,
+        // soit avoir mis CascadeType.ALL dans l'entité.
+        rendezVousRepository.deleteById(id);
+    }
     public List<RendezVous> findByMedecinId(Long medecinId) {
         return rendezVousRepository.findByMedecinId(medecinId);
     }

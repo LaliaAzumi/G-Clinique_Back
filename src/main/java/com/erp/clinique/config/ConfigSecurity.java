@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -40,6 +41,7 @@ public class ConfigSecurity {
         .authorizeHttpRequests(auth -> auth
             // Routes statiques et login
             .requestMatchers("/api/v1/patients/**").permitAll()
+            .requestMatchers(HttpMethod.DELETE, "/api/v1/rendez-vous/**").permitAll() // Ou .permitAll() pour tester
             .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**").permitAll()
             .requestMatchers("/login").permitAll()
             // Routes API : On autorise explicitement

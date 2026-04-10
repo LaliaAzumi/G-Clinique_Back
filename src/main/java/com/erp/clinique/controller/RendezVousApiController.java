@@ -8,10 +8,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.erp.clinique.model.Patient;
 import com.erp.clinique.model.RendezVous;
 import com.erp.clinique.repository.PrestationRepository;
+import com.erp.clinique.repository.MedecinRepository;
+
 import com.erp.clinique.service.RendezVousService;
 
 @RestController
@@ -30,6 +34,9 @@ public class RendezVousApiController {
     private RendezVousService rendezVousService;
     @Autowired
     private PrestationRepository prestationRepository;
+
+    @Autowired
+    private MedecinRepository medecinRepository;
 
     //create rdv par le patient
     @PostMapping("/save-public")
@@ -103,37 +110,108 @@ public class RendezVousApiController {
             .orElse(ResponseEntity.notFound().build());
     }
     
-    
-    //update status paiement par secretaire
-    @PatchMapping("/{id}/valider-paiement")
-    public ResponseEntity<?> validerPaiement(@PathVariable Long id) {
+    // Dans RendezVousApiController.java
+
+    @PostMapping("/save")
+    public ResponseEntity<?> save(@RequestBody Map<String, Object> data) {
+        // AJOUTER CE LOG
+        System.out.println("DEBUG Spring Boot - Map reçue : " + data);
+
         try {
-            // 1. Chercher le rendez-vous
-            return rendezVousService.findById(id).map(rdv -> {
-                // 2. Appliquer la logique métier que tu as créée dans le modèle
-                rdv.validerPaiement(); 
-                
-                // 3. Sauvegarder les changements en base de données
-                rendezVousService.save(rdv);
-                
-                // 4. Répondre avec le nouveau statut pour confirmation
-                return ResponseEntity.ok(Map.of(
-                    "message", "Paiement validé avec succès",
-                    "id", rdv.getId(),
-                    "nouveauStatutPaiement", rdv.getStatutPaiement(),
-                    "nouveauStatutRDV", rdv.getStatut()
-                ));
-            }).orElse(ResponseEntity.notFound().build());
+            Object pId = data.get("patientId");
+            Object mId = data.get("medecinId");
             
+            System.out.println("DEBUG Spring Boot - Extraction PatientID: " + pId + " | MedecinID: " + mId);
+
+            if (pId == null || mId == null) {
+                System.out.println("ERREUR: ID manquant dans le JSON");
+                return ResponseEntity.badRequest().body("PatientId ou MedecinId manquant");
+            }
+
+            Long patientId = Long.valueOf(pId.toString());
+            Long medecinId = Long.valueOf(mId.toString());
+            String dateStr = (String) data.get("date");
+            String heureStr = (String) data.get("heure");
+            String motif = (String) data.get("motif");
+
+            RendezVous saved = rendezVousService.creerRendezVous(patientId, medecinId, dateStr, heureStr, motif);
+            return ResponseEntity.ok(saved);
+
         } catch (Exception e) {
-            // Si quelque chose plante (ex: erreur SQL), on renvoie une erreur claire
+            System.err.println("ERREUR CRITIQUE SAVE RDV : " + e.getMessage());
+            e.printStackTrace(); // Pour voir la ligne exacte de l'erreur dans la console
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }  //update status paiement par secretaire
+        @PatchMapping("/{id}/valider-paiement")
+        public ResponseEntity<?> validerPaiement(@PathVariable Long id) {
+            try {
+                // 1. Chercher le rendez-vous
+                return rendezVousService.findById(id).map(rdv -> {
+                    // 2. Appliquer la logique métier que tu as créée dans le modèle
+                    rdv.validerPaiement(); 
+                    
+                    // 3. Sauvegarder les changements en base de données
+                    rendezVousService.save(rdv);
+                    
+                    // 4. Répondre avec le nouveau statut pour confirmation
+                    return ResponseEntity.ok(Map.of(
+                        "message", "Paiement validé avec succès",
+                        "id", rdv.getId(),
+                        "nouveauStatutPaiement", rdv.getStatutPaiement(),
+                        "nouveauStatutRDV", rdv.getStatut()
+                    ));
+                }).orElse(ResponseEntity.notFound().build());
+                
+            } catch (Exception e) {
+                // Si quelque chose plante (ex: erreur SQL), on renvoie une erreur claire
+                return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+            }
+        }
+        
+        
+        // RendezVousApiController.java
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> data) {
+        try {
+            // 1. On récupère le rendez-vous existant en BDD
+            RendezVous rdv = rendezVousService.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Rendez-vous introuvable"));
+
+            // 2. Mise à jour des informations de base
+            rdv.setMotif((String) data.get("motif"));
+            rdv.setDate(java.time.LocalDate.parse((String) data.get("date")));
+            rdv.setHeure(java.time.LocalTime.parse((String) data.get("heure")));
+
+            // 3. Mise à jour du médecin si l'ID a changé
+            if (data.containsKey("medecinId")) {
+                Long medecinId = Long.valueOf(data.get("medecinId").toString());
+                // Utilise ton MedecinRepository ici
+                medecinRepository.findById(medecinId).ifPresent(rdv::setMedecin);
+            }
+
+            // 4. Sauvegarde (Hibernate fera un UPDATE car rdv possède déjà son ID)
+            RendezVous updated = rendezVousService.save(rdv);
+            return ResponseEntity.ok(updated);
+
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
-    
-    
-    
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            // Log pour vérifier que la requête arrive bien ici
+            System.out.println("Demande de suppression reçue pour l'ID : " + id);
+            
+            rendezVousService.supprimerRendezVous(id);
+            
+            return ResponseEntity.ok(Map.of("message", "Rendez-vous supprimé avec succès"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
     /**
      * Calcule le portefeuille du médecin (50% des prestations payées)
      */

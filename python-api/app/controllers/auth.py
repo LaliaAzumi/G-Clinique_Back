@@ -115,7 +115,7 @@ class AuthController:
                 detail="Token expiré",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        except jwt.JWTError:
+        except jwt.PyJWTError:  # PyJWT utilise PyJWTError et non JWTError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token invalide",

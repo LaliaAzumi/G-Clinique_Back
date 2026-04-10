@@ -34,6 +34,7 @@ async def verify_token(auth_header: str) -> dict:
 
 @router.post("/save")
 async def save_rendez_vous(data: Dict[str, Any], authorization: str = Header(...)):
+    print(f"DEBUG FastAPI - Données reçues : {data}")
     """Crée ou met à jour un rendez-vous"""
     await verify_token(authorization)
     
@@ -54,44 +55,34 @@ async def save_rendez_vous(data: Dict[str, Any], authorization: str = Header(...
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
-@router.get("")
+@router.get("/list") # <--- Changé de "" à "/list" pour correspondre au front
 async def list_rendez_vous(
     authorization: str = Header(...),
     patient_id: Optional[int] = Query(None),
     medecin_id: Optional[int] = Query(None),
-    date: Optional[str] = Query(None)
+    date: Optional[str] = Query(None) # Query(None) rend le paramètre optionnel
 ):
     """Liste les rendez-vous avec filtres"""
     await verify_token(authorization)
     
-    # Ajout de follow_redirects=True pour gérer le code 302 de Spring Boot
     async with httpx.AsyncClient(follow_redirects=True) as client:
         try:
+            # Synchronisation des noms de paramètres avec Spring Boot
             params = {}
             if patient_id: params["patientId"] = patient_id
             if medecin_id: params["medecinId"] = medecin_id
             if date: params["date"] = date
             
             response = await client.get(
-                f"{settings.spring_boot_url}/api/v1/rendez-vous",
+                f"{settings.spring_boot_url}/api/v1/rendez-vous", # URL Spring Boot
                 params=params,
                 headers={"Authorization": authorization}
             )
 
-            # Vérification du contenu avant de tenter le .json()
             if response.status_code != 200:
-                print(f"Erreur Spring Boot ({response.status_code}): {response.text}")
-                raise HTTPException(
-                    status_code=response.status_code, 
-                    detail="Le service Spring Boot n'a pas renvoyé de données valides."
-                )
+                raise HTTPException(status_code=response.status_code, detail=response.text)
 
-            # Sécurité : on vérifie si le contenu est bien du JSON
-            try:
-                return response.json()
-            except Exception:
-                print(f"Contenu non-JSON reçu : {response.text}")
-                raise HTTPException(status_code=500, detail="Réponse du serveur invalide (pas de JSON)")
+            return response.json()
 
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
@@ -116,24 +107,28 @@ async def get_rendez_vous(rendez_vous_id: int, authorization: str = Header(...))
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
 
+# Dans rendezvous.py
+
+# Dans rendezvous.py
+
 @router.delete("/{rendez_vous_id}")
 async def delete_rendez_vous(rendez_vous_id: int, authorization: str = Header(...)):
-    """Supprime un rendez-vous"""
-    await verify_token(authorization)
+    await verify_token(authorization) # Vérifie que l'utilisateur est connecté
     
     async with httpx.AsyncClient() as client:
-        try:
-            response = await client.delete(
-                f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}",
-                headers={"Authorization": authorization}
-            )
-            if response.status_code == 404:
-                raise HTTPException(status_code=404, detail="Rendez-vous non trouvé")
-            if response.status_code != 200:
-                raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
-            return response.json()
-        except httpx.RequestError as e:
-            raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+        response = await client.delete(
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}",
+            headers={"Authorization": authorization}
+        )
+        
+        # Si Spring renvoie 302, c'est un problème de sécurité/auth côté Java
+        if response.status_code == 302:
+            raise HTTPException(status_code=403, detail="Redirection détectée : vérifiez la sécurité Spring Boot")
+            
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail="Erreur lors de la suppression")
+            
+        return {"success": True}
 
 
 @router.post("/{rendez_vous_id}/confirm")
@@ -155,7 +150,24 @@ async def confirm_rendez_vous(rendez_vous_id: int, authorization: str = Header(.
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
+# rendezvous.py
 
+@router.put("/{rdv_id}")
+async def update_rendez_vous(rdv_id: int, data: Dict[str, Any], authorization: str = Header(...)):
+    await verify_token(authorization)
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous/{rdv_id}",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail=response.text)
+            return response.json()
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail="Backend inaccessible")
+        
 @router.get("/calendar/events")
 async def get_calendar_events(
     authorization: str = Header(...),

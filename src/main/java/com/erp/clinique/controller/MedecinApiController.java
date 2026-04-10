@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.erp.clinique.dto.ApiResponse;
 import com.erp.clinique.model.Medecin;
 import com.erp.clinique.model.MedecinUser;
+import com.erp.clinique.model.Patient;
 import com.erp.clinique.repository.MedecinRepository;
 import com.erp.clinique.repository.MedecinUserRepository;
 import com.erp.clinique.repository.PrestationRepository;
@@ -53,11 +54,16 @@ public class MedecinApiController {
     private UserService userService;
     @Autowired
     private MedecinRepository medecinRepository;
+
     @Autowired
     private MedecinUserRepository medecinUserRepository;
     @Autowired
     private UserRepository userRepository;
 
+    // @GetMapping
+    // public ResponseEntity<List<Medecin>> getAll() {
+    //     return ResponseEntity.ok(medecinService.getAllMedecins());
+    // }
     /**
      * Crée un médecin avec son compte utilisateur via FastAPI
      * Nécessite un token JWT admin

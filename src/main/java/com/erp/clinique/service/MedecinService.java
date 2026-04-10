@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.erp.clinique.model.Medecin;
 import com.erp.clinique.model.MedecinUser;
+import com.erp.clinique.model.Patient;
 import com.erp.clinique.repository.MedecinRepository;
 import com.erp.clinique.repository.MedecinUserRepository;
 import com.erp.clinique.repository.UserRepository;
@@ -33,7 +34,9 @@ public class MedecinService {
                 .map(MedecinUser::getUserId)
                 .orElse(null);
     }
-   
+    public List<Medecin> getAllMedecins() {
+        return medecinRepository.findAll();
+    }
     public List<Medecin> findAll() {
         return medecinRepository.findAll();
     }
@@ -68,34 +71,37 @@ public class MedecinService {
     
     //return avec les medecinUser
     public List<Map<String, Object>> findAllEnriched() {
-        // 1. On récupère toutes les relations (IDs)
-        List<MedecinUser> relations = medecinUserRepository.findAll();
+    // 1. On part de TOUS les médecins (on est sûr de ne personne oublier)
+    List<Medecin> allMedecins = medecinRepository.findAll();
 
-        return relations.stream().map(rel -> {
-            Map<String, Object> medecinData = new HashMap<>();
-            
-            // 2. On ajoute les IDs de base
-            medecinData.put("id", rel.getId());
-            medecinData.put("medecinId", rel.getMedecinId());
+    return allMedecins.stream().map(m -> {
+        Map<String, Object> medecinData = new HashMap<>();
+        
+        // 2. On ajoute les infos du médecin (toujours présentes)
+        medecinData.put("id", m.getId()); // ID pour le frontend
+        medecinData.put("medecinId", m.getId());
+        medecinData.put("nom", m.getNom());
+        medecinData.put("specialite", m.getSpecialite());
+        medecinData.put("telephone", m.getTelephone());
+        medecinData.put("adresse", m.getAdresse());
+
+        // 3. On cherche s'il y a une relation utilisateur
+        medecinUserRepository.findByMedecinId(m.getId()).ifPresent(rel -> {
             medecinData.put("userId", rel.getUserId());
-
-            // 3. On va chercher le Nom et la Spécialité (Table Medecin)
-            medecinRepository.findById(rel.getMedecinId()).ifPresent(m -> {
-                medecinData.put("nom", m.getNom());
-                medecinData.put("specialite", m.getSpecialite());
-                medecinData.put("telephone", m.getTelephone());
-                medecinData.put("adresse", m.getAdresse());
-            });
-
-            // 4. On va chercher l'Email et le Username (Table User)
+            
+            // 4. Si la relation existe, on cherche les infos dans la table User
             userRepository.findById(rel.getUserId()).ifPresent(u -> {
                 medecinData.put("username", u.getUsername());
                 medecinData.put("email", u.getEmail());
             });
+        });
 
-            return medecinData;
-        }).collect(Collectors.toList());
-    }
+        // Si pas d'utilisateur, les champs userId, username et email seront absents ou null
+        // mais le médecin apparaîtra quand même dans la liste !
+        
+        return medecinData;
+    }).collect(Collectors.toList());
+}
     
     //delete full medecin 
     
