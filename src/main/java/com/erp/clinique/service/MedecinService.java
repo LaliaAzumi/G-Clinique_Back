@@ -49,8 +49,12 @@ public class MedecinService {
     }
 
    
-    public void deleteById(Long id) {
-        medecinRepository.deleteById(id);
+    public boolean deleteById(Long id) {
+        if (medecinRepository.existsById(id)) {
+            medecinRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
    
@@ -92,4 +96,7 @@ public class MedecinService {
             return medecinData;
         }).collect(Collectors.toList());
     }
+    
+    //delete full medecin 
+    
 }
