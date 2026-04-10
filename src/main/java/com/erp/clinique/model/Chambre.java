@@ -1,5 +1,6 @@
 package com.erp.clinique.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,16 +19,22 @@ public class Chambre {
     @Column(unique = true, nullable = false)
     private String numero;
 
+    @Column(nullable = false, length = 10)
+    private String nom; // Nom court ex: A01, B01
+
     @Column(nullable = false)
+    @JsonProperty("etat")
     private boolean etat; // true = LIBRE, false = OCCUPÉE
 
     @Column(nullable = false, name = "prix_j")
     private Double prixJ;
 
-    private Integer etage;
+    @Column(nullable = false, length = 10)
+    private String etage; // "RDC", "1", "2", "3", "4"
 
     @Column(name = "is_soins_intensifs")
-    private boolean isSoinsIntensifs; // true = Soins Intensifs, false = Standard
+    @JsonProperty("soinsIntensifs")
+    private boolean soinsIntensifs; // true = Soins Intensifs, false = Standard
 
     // --- CONSTRUCTEURS ---
 
@@ -36,12 +43,14 @@ public class Chambre {
     }
 
     // Constructeur avec paramètres (Utile pour créer des objets rapidement)
-    public Chambre(String numero, boolean etat, Double prixJ, Integer etage, boolean isSoinsIntensifs) {
+        // public Chambre(String numero, boolean etat, Double prixJ, Integer etage, boolean isSoinsIntensifs) {
+    public Chambre(String numero, String nom, boolean etat, Double prixJ, String etage, boolean soinsIntensifs) {
         this.numero = numero;
+        this.nom = nom;
         this.etat = etat;
         this.prixJ = prixJ;
         this.etage = etage;
-        this.isSoinsIntensifs = isSoinsIntensifs;
+        this.soinsIntensifs = soinsIntensifs;
     }
 
     // --- GETTERS ET SETTERS ---
@@ -62,6 +71,15 @@ public class Chambre {
         this.numero = numero;
     }
 
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    @JsonProperty("etat")
     public boolean isEtat() { // Pour les booleans, la convention est 'is' au lieu de 'get'
         return etat;
     }
@@ -78,19 +96,20 @@ public class Chambre {
         this.prixJ = prixJ;
     }
 
-    public Integer getEtage() {
+    public String getEtage() {
         return etage;
     }
 
-    public void setEtage(Integer etage) {
+    public void setEtage(String etage) {
         this.etage = etage;
     }
 
+    @JsonProperty("soinsIntensifs")
     public boolean isSoinsIntensifs() {
-        return isSoinsIntensifs;
+        return soinsIntensifs;
     }
 
     public void setSoinsIntensifs(boolean soinsIntensifs) {
-        this.isSoinsIntensifs = soinsIntensifs;
+        this.soinsIntensifs = soinsIntensifs;
     }
 }

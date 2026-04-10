@@ -111,4 +111,100 @@ public class SecretaireApiController {
             users
         ));
     }
+
+    /**
+     * Modifie un secrétaire (Accès ADMIN uniquement)
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateSecretaire(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> userData,
+            @RequestHeader("Authorization") String authHeader) {
+
+        // Vérifie le token
+        ResponseEntity<ApiResponse> authError = checkAdminAuth(authHeader);
+        if (authError != null) return authError;
+
+        String username = userData.get("username");
+        String email = userData.get("email");
+
+        if (username == null || email == null) {
+            return ResponseEntity.status(400)
+                .body(new ApiResponse(false, "Username et email requis", null));
+        }
+
+        try {
+            // Met à jour l'utilisateur via FastAPI
+            Map<String, Object> result = fastApiUserService.updateUser(id, username, email, "SECRETAIRE");
+
+            if (result == null) {
+                return ResponseEntity.status(500)
+                    .body(new ApiResponse(false, "Erreur lors de la modification via FastAPI", null));
+            }
+
+            return ResponseEntity.ok(new ApiResponse(
+                true,
+                "Secrétaire modifié avec succès",
+                result
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                .body(new ApiResponse(false, "Erreur: " + e.getMessage(), null));
+        }
+    }
+
+    /**
+     * Supprime un secrétaire (Accès ADMIN uniquement)
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteSecretaire(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+
+        // Vérifie le token
+        ResponseEntity<ApiResponse> authError = checkAdminAuth(authHeader);
+        if (authError != null) return authError;
+
+        try {
+            // Supprime l'utilisateur via FastAPI
+            boolean deleted = fastApiUserService.deleteUser(id);
+
+            if (!deleted) {
+                return ResponseEntity.status(500)
+                    .body(new ApiResponse(false, "Erreur lors de la suppression via FastAPI", null));
+            }
+
+            return ResponseEntity.ok(new ApiResponse(
+                true,
+                "Secrétaire supprimé avec succès",
+                null
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                .body(new ApiResponse(false, "Erreur: " + e.getMessage(), null));
+        }
+    }
+
+    /**
+     * Méthode utilitaire pour vérifier si l'utilisateur est ADMIN
+     */
+    private ResponseEntity<ApiResponse> checkAdminAuth(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(new ApiResponse(false, "Token manquant", null));
+        }
+
+        String token = authHeader.substring(7);
+        Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+
+        if (tokenData == null) {
+            return ResponseEntity.status(401).body(new ApiResponse(false, "Token invalide", null));
+        }
+
+        String role = (String) tokenData.get("role");
+        if (!"ADMIN".equals(role)) {
+            return ResponseEntity.status(403).body(new ApiResponse(false, "Accès réservé aux administrateurs", null));
+        }
+
+        return null; // Tout est OK
+    }
 }

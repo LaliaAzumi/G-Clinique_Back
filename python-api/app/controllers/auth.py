@@ -106,6 +106,13 @@ class AuthController:
     
     async def verify_token(self, token: str) -> dict:
         """Vérifie un token JWT"""
+        # Vérifier si le token est vide ou mal formaté
+        if not token or token.strip() == "":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token manquant",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         try:
             payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
             return payload
@@ -115,7 +122,7 @@ class AuthController:
                 detail="Token expiré",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        except jwt.JWTError:
+        except (jwt.PyJWTError, jwt.DecodeError, ValueError):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token invalide",

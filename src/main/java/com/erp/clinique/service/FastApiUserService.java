@@ -96,4 +96,41 @@ public class FastApiUserService {
             return false;
         }
     }
+
+    /**
+     * Met à jour un utilisateur via FastAPI
+     * @param userId ID de l'utilisateur
+     * @param username Nouveau nom d'utilisateur
+     * @param email Nouvel email
+     * @param role Nouveau rôle
+     * @return Map contenant les informations de l'utilisateur mis à jour
+     */
+    public Map<String, Object> updateUser(Long userId, String username, String email, String role) {
+        try {
+            Map<String, String> userData = Map.of(
+                "username", username,
+                "email", email,
+                "role", role
+            );
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(userData, headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                fastApiUrl + "/api/users/" + userId,
+                HttpMethod.PUT,
+                entity,
+                Map.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return response.getBody();
+            }
+            return null;
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la mise à jour de l'utilisateur: " + e.getMessage());
+            return null;
+        }
+    }
 }

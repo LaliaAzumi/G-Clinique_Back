@@ -62,13 +62,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                // Token invalide, redirige vers login
-                response.sendRedirect("/login");
+                // Token invalide
+                if (path.startsWith("/api/")) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"success\": false, \"message\": \"Token invalide ou expiré\", \"error\": \"Unauthorized\"}");
+                } else {
+                    response.sendRedirect("/login");
+                }
                 return;
             }
         } else {
-            // Pas de token, redirige vers login
-            response.sendRedirect("/login");
+            // Pas de token
+            if (path.startsWith("/api/")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"success\": false, \"message\": \"Authentification requise\", \"error\": \"Unauthorized\"}");
+            } else {
+                response.sendRedirect("/login");
+            }
             return;
         }
 

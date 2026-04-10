@@ -74,10 +74,16 @@ public class ChambreApiController {
         if (authError != null) return authError;
 
         try {
+            // Validation du champ nom
+            if (chambre.getNom() == null || chambre.getNom().trim().isEmpty()) {
+                return ResponseEntity.status(400)
+                    .body(new ApiResponse(false, "Nom obligatoire", null));
+            }
+
             Chambre nouvelleChambre = chambreService.save(chambre);
             return ResponseEntity.ok(new ApiResponse(
-                true, 
-                "Chambre créée avec succès", 
+                true,
+                "Chambre créée avec succès",
                 Map.of("chambre", nouvelleChambre)
             ));
         } catch (Exception e) {
@@ -143,14 +149,21 @@ public class ChambreApiController {
         if (authError != null) return authError;
 
         try {
+            // Validation du champ nom
+            if (chambreDetails.getNom() == null || chambreDetails.getNom().trim().isEmpty()) {
+                return ResponseEntity.status(400)
+                    .body(new ApiResponse(false, "Nom obligatoire", null));
+            }
+
             return chambreService.findById(id).map(chambre -> {
                 // 2. Mise à jour des champs (assurez-vous que les setters existent)
                 chambre.setNumero(chambreDetails.getNumero());
+                chambre.setNom(chambreDetails.getNom());
                 chambre.setEtat(chambreDetails.isEtat());
                 chambre.setPrixJ(chambreDetails.getPrixJ());
                 chambre.setEtage(chambreDetails.getEtage());
                 chambre.setSoinsIntensifs(chambreDetails.isSoinsIntensifs());
-                
+
                 // 3. Sauvegarde
                 Chambre updated = chambreService.save(chambre);
                 return ResponseEntity.ok(new ApiResponse(true, "Chambre mise à jour avec succès", Map.of("chambre", updated)));
