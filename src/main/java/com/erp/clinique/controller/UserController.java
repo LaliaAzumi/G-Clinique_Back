@@ -221,7 +221,7 @@ public class UserController {
     public String testMicroserviceConnection() {
         java.util.Map<String, Object> result = fastApiUserService.listUsers(null);
         if (result == null) {
-            return " Microservice FastAPI non disponible - Vérifiez que Python FastAPI tourne sur le port 8000";
+            return " Microservice FastAPI non disponible - Vérifiez que Python FastAPI tourne sur le port 9090";
         }
         int count = result.containsKey("count") ? ((Number) result.get("count")).intValue() : 0;
         return " Connexion au microservice FastAPI OK - " + count + " utilisateur(s) dans la base";

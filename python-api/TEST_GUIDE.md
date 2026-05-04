@@ -4,8 +4,8 @@
 
 ### Prérequis
 ```bash
-# Vérifier que Spring Boot est démarré sur le port 8080
-curl http://localhost:8080/api/health
+# Vérifier que Spring Boot est démarré sur le port 8083
+curl http://localhost:9090/api/health
 
 # Démarrer FastAPI (si ce n'est pas déjà fait)
 cd python-api
@@ -14,8 +14,8 @@ python main.py
 
 ### URLs de base
 - **FastAPI** : http://localhost:8000
-- **Spring Boot** : http://localhost:8080
-- **Documentation FastAPI** : http://localhost:8000/docs
+- **Spring Boot** : http://localhost:9090
+- **Documentation FastAPI** : http://localhost:9090/docs
 
 ---
 
@@ -53,13 +53,13 @@ curl -X POST http://localhost:8000/api/auth/login \
 ### 1.2 Vérifier le token
 ```bash
 # Remplacer <TOKEN> par le token reçu
-curl -X POST http://localhost:8000/api/auth/verify \
+curl -X POST http://localhost:9090/api/auth/verify \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 1.3 Health Check
 ```bash
-curl http://localhost:8000/api/auth/health
+curl http://localhost:9090/api/auth/health
 ```
 
 ---
@@ -68,19 +68,19 @@ curl http://localhost:8000/api/auth/health
 
 ### 2.1 Liste des médecins
 ```bash
-curl http://localhost:8000/api/v1/medecins \
+curl http://localhost:9090/api/v1/medecins \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 2.2 Détail d'un médecin
 ```bash
-<!--curl http://localhost:8000/api/v1/medecins/1 \-->
+<!--curl http://localhost:9090/api/v1/medecins/1 \-->
 <!--  -H "Authorization: Bearer <TOKEN>"-->
 ```
 
 ### 2.3 Créer un médecin avec compte utilisateur
 ```bash
-curl -X POST http://localhost:8000/api/v1/medecins/create-with-user \
+curl -X POST http://localhost:9090/api/v1/medecins/create-with-user \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -100,13 +100,13 @@ curl -X POST http://localhost:8000/api/v1/medecins/create-with-user \
 
 ### 3.1 Liste des secrétaires
 ```bash
-curl http://localhost:8000/api/v1/secretaires \
+curl http://localhost:9090/api/v1/secretaires \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 3.2 Créer une secrétaire
 ```bash
-curl -X POST http://localhost:8000/api/v1/secretaires/create \
+curl -X POST http://localhost:9090/api/v1/secretaires/create \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -125,25 +125,25 @@ curl -X POST http://localhost:8000/api/v1/secretaires/create \
 
 ### 4.1 Liste des utilisateurs
 ```bash
-curl http://localhost:8000/api/users/list \
+curl http://localhost:9090/api/users/list \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 4.2 Liste par rôle
 ```bash
-curl "http://localhost:8000/api/users/list?role=MEDECIN" \
+curl "http://localhost:9090/api/users/list?role=MEDECIN" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 4.3 Détail d'un utilisateur
 ```bash
-curl http://localhost:8000/api/users/admin \
+curl http://localhost:9090/api/users/admin \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 4.4 Créer un utilisateur
 ```bash
-curl -X POST http://localhost:8000/api/users/create \
+curl -X POST http://localhost:9090/api/users/create \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -160,25 +160,25 @@ curl -X POST http://localhost:8000/api/users/create \
 
 ### 5.1 Liste des patients (pagination)
 ```bash
-curl "http://localhost:8000/api/v1/patients?page=0&size=10" \
+curl "http://localhost:9090/api/v1/patients?page=0&size=10" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 5.2 Recherche de patients
 ```bash
-curl "http://localhost:8000/api/v1/patients/search?keyword=dupont" \
+curl "http://localhost:9090/api/v1/patients/search?keyword=dupont" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 5.3 Détail d'un patient
 ```bash
-curl http://localhost:8000/api/v1/patients/1 \
+curl http://localhost:9090/api/v1/patients/1 \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 5.4 Créer un patient
 ```bash
-curl -X POST http://localhost:8000/api/v1/patients/save \
+curl -X POST http://localhost:9090/api/v1/patients/save \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -194,7 +194,7 @@ curl -X POST http://localhost:8000/api/v1/patients/save \
 
 ### 5.5 Modifier un patient
 ```bash
-curl -X PUT http://localhost:8000/api/v1/patients/update \
+curl -X PUT http://localhost:9090/api/v1/patients/update \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -208,7 +208,7 @@ curl -X PUT http://localhost:8000/api/v1/patients/update \
 
 ### 5.6 Supprimer un patient
 ```bash
-curl -X DELETE http://localhost:8000/api/v1/patients/1 \
+curl -X DELETE http://localhost:9090/api/v1/patients/1 \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
@@ -218,25 +218,25 @@ curl -X DELETE http://localhost:8000/api/v1/patients/1 \
 
 ### 6.1 Liste des consultations
 ```bash
-curl http://localhost:8000/api/v1/consultations \
+curl http://localhost:9090/api/v1/consultations \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 6.2 Consultations par patient
 ```bash
-curl http://localhost:8000/api/v1/consultations/patient/1 \
+curl http://localhost:9090/api/v1/consultations/patient/1 \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 6.3 Consultations par médecin
 ```bash
-curl http://localhost:8000/api/v1/consultations/medecin/1 \
+curl http://localhost:9090/api/v1/consultations/medecin/1 \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 6.4 Créer une consultation
 ```bash
-curl -X POST http://localhost:8000/api/v1/consultations/save \
+curl -X POST http://localhost:9090/api/v1/consultations/save \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -255,19 +255,19 @@ curl -X POST http://localhost:8000/api/v1/consultations/save \
 
 ### 7.1 Liste des rendez-vous
 ```bash
-curl http://localhost:8000/api/v1/rendez-vous \
+curl http://localhost:9090/api/v1/rendez-vous \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 7.2 Rendez-vous filtrés
 ```bash
-curl "http://localhost:8000/api/v1/rendez-vous?date=2024-03-28&medecin_id=1" \
+curl "http://localhost:9090/api/v1/rendez-vous?date=2024-03-28&medecin_id=1" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 7.3 Créer un rendez-vous
 ```bash
-curl -X POST http://localhost:8000/api/v1/rendez-vous/save \
+curl -X POST http://localhost:9090/api/v1/rendez-vous/save \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -282,19 +282,19 @@ curl -X POST http://localhost:8000/api/v1/rendez-vous/save \
 
 ### 7.4 Confirmer un rendez-vous
 ```bash
-curl -X POST http://localhost:8000/api/v1/rendez-vous/1/confirm \
+curl -X POST http://localhost:9090/api/v1/rendez-vous/1/confirm \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 7.5 Supprimer un rendez-vous
 ```bash
-curl -X DELETE http://localhost:8000/api/v1/rendez-vous/1 \
+curl -X DELETE http://localhost:9090/api/v1/rendez-vous/1 \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 7.6 Calendrier (events)
 ```bash
-curl "http://localhost:8000/api/v1/rendez-vous/calendar/events?start_date=2024-03-01&end_date=2024-03-31" \
+curl "http://localhost:9090/api/v1/rendez-vous/calendar/events?start_date=2024-03-01&end_date=2024-03-31" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
@@ -304,19 +304,19 @@ curl "http://localhost:8000/api/v1/rendez-vous/calendar/events?start_date=2024-0
 
 ### 8.1 Liste des ordonnances
 ```bash
-curl http://localhost:8000/api/v1/ordonnances \
+curl http://localhost:9090/api/v1/ordonnances \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 8.2 Ordonnances par patient
 ```bash
-curl http://localhost:8000/api/v1/ordonnances/patient/1 \
+curl http://localhost:9090/api/v1/ordonnances/patient/1 \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 8.3 Créer une ordonnance
 ```bash
-curl -X POST http://localhost:8000/api/v1/ordonnances/save \
+curl -X POST http://localhost:9090/api/v1/ordonnances/save \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -337,13 +337,13 @@ curl -X POST http://localhost:8000/api/v1/ordonnances/save \
 
 ### 8.4 Générer PDF
 ```bash
-curl http://localhost:8000/api/v1/ordonnances/1/pdf \
+curl http://localhost:9090/api/v1/ordonnances/1/pdf \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 8.5 Envoyer par email
 ```bash
-curl -X POST http://localhost:8000/api/v1/ordonnances/1/send-email \
+curl -X POST http://localhost:9090/api/v1/ordonnances/1/send-email \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
@@ -353,19 +353,19 @@ curl -X POST http://localhost:8000/api/v1/ordonnances/1/send-email \
 
 ### 9.1 Liste des médicaments
 ```bash
-curl "http://localhost:8000/api/v1/medicaments?page=0&size=10" \
+curl "http://localhost:9090/api/v1/medicaments?page=0&size=10" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 9.2 Recherche de médicaments
 ```bash
-curl "http://localhost:8000/api/v1/medicaments/search?keyword=doliprane" \
+curl "http://localhost:9090/api/v1/medicaments/search?keyword=doliprane" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 9.3 Créer un médicament
 ```bash
-curl -X POST http://localhost:8000/api/v1/medicaments/save \
+curl -X POST http://localhost:9090/api/v1/medicaments/save \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -383,25 +383,25 @@ curl -X POST http://localhost:8000/api/v1/medicaments/save \
 
 ### 10.1 Liste des notifications
 ```bash
-curl http://localhost:8000/api/v1/notifications \
+curl http://localhost:9090/api/v1/notifications \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 10.2 Notifications non lues
 ```bash
-curl http://localhost:8000/api/v1/notifications/unread \
+curl http://localhost:9090/api/v1/notifications/unread \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 10.3 Compte des non lues
 ```bash
-curl http://localhost:8000/api/v1/notifications/count \
+curl http://localhost:9090/api/v1/notifications/count \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 10.4 Marquer comme lue
 ```bash
-curl -X POST http://localhost:8000/api/v1/notifications/1/mark-read \
+curl -X POST http://localhost:9090/api/v1/notifications/1/mark-read \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
@@ -411,19 +411,19 @@ curl -X POST http://localhost:8000/api/v1/notifications/1/mark-read \
 
 ### 11.1 Events du calendrier
 ```bash
-curl "http://localhost:8000/api/v1/calendar/events?start_date=2024-03-01&end_date=2024-03-31" \
+curl "http://localhost:9090/api/v1/calendar/events?start_date=2024-03-01&end_date=2024-03-31" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 11.2 Disponibilités d'un médecin
 ```bash
-curl "http://localhost:8000/api/v1/calendar/disponibilites/1?date=2024-03-28" \
+curl "http://localhost:9090/api/v1/calendar/disponibilites/1?date=2024-03-28" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 11.3 Statistiques
 ```bash
-curl "http://localhost:8000/api/v1/calendar/stats?start_date=2024-03-01&end_date=2024-03-31" \
+curl "http://localhost:9090/api/v1/calendar/stats?start_date=2024-03-01&end_date=2024-03-31" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
@@ -434,7 +434,7 @@ curl "http://localhost:8000/api/v1/calendar/stats?start_date=2024-03-01&end_date
 ### Scénario 1 : Création d'un nouveau patient avec RDV
 ```bash
 # 1. Login
-TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:9090/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}' | \
   python -c "import sys,json; print(json.load(sys.stdin)['token']['access_token'])")
@@ -442,7 +442,7 @@ TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/login \
 echo "Token: $TOKEN"
 
 # 2. Créer un patient
-PATIENT_ID=$(curl -s -X POST http://localhost:8000/api/v1/patients/save \
+PATIENT_ID=$(curl -s -X POST http://localhost:9090/api/v1/patients/save \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"nom":"Test","prenom":"Patient","email":"test@email.com","telephone":"0102030405"}' | \
@@ -451,7 +451,7 @@ PATIENT_ID=$(curl -s -X POST http://localhost:8000/api/v1/patients/save \
 echo "Patient ID: $PATIENT_ID"
 
 # 3. Créer un RDV pour ce patient
-curl -X POST http://localhost:8000/api/v1/rendez-vous/save \
+curl -X POST http://localhost:9090/api/v1/rendez-vous/save \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"date\":\"2024-03-28\",\"heure\":\"10:00\",\"patientId\":$PATIENT_ID,\"medecinId\":1,\"motif\":\"Premiere consultation\"}"
@@ -460,20 +460,20 @@ curl -X POST http://localhost:8000/api/v1/rendez-vous/save \
 ### Scénario 2 : Ordonnance complète
 ```bash
 # 1. Créer une consultation
-CONSULT_ID=$(curl -s -X POST http://localhost:8000/api/v1/consultations/save \
+CONSULT_ID=$(curl -s -X POST http://localhost:9090/api/v1/consultations/save \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"date":"2024-03-28","patientId":1,"medecinId":1,"motif":"Consultation","diagnostic":"OK"}' | \
   python -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('id',0))")
 
 # 2. Créer une ordonnance liée
-curl -X POST http://localhost:8000/api/v1/ordonnances/save \
+curl -X POST http://localhost:9090/api/v1/ordonnances/save \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"patientId\":1,\"medecinId\":1,\"date\":\"2024-03-28\",\"medicaments\":[{\"medicamentId\":1,\"dosage\":\"500mg\",\"frequence\":\"3x/jour\",\"duree\":\"7j\"}],\"instructions\":\"Apres repas\"}"
 
 # 3. Générer le PDF
-curl http://localhost:8000/api/v1/ordonnances/1/pdf \
+curl http://localhost:9090/api/v1/ordonnances/1/pdf \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -486,7 +486,7 @@ curl http://localhost:8000/api/v1/ordonnances/1/pdf \
 - Reconnectez-vous pour obtenir un nouveau token
 
 ### Erreur 503 - Spring Boot indisponible
-- Vérifiez que Spring Boot est démarré sur le port 8080
+- Vérifiez que Spring Boot est démarré sur le port 8083
 - Vérifiez la configuration `spring_boot_url` dans `.env`
 
 ### Erreur 404 - Ressource non trouvée
@@ -497,16 +497,16 @@ curl http://localhost:8000/api/v1/ordonnances/1/pdf \
 
 ## 📚 Documentation
 
-- **Swagger UI** : http://localhost:8000/docs
-- **ReDoc** : http://localhost:8000/redoc
-- **OpenAPI JSON** : http://localhost:8000/openapi.json
+- **Swagger UI** : http://localhost:9090/docs
+- **ReDoc** : http://localhost:9090/redoc
+- **OpenAPI JSON** : http://localhost:9090/openapi.json
 
 ---
 
 ## 🔧 Variables d'environnement (.env)
 
 ```env
-SPRING_BOOT_URL=http://localhost:8080
+SPRING_BOOT_URL=http://localhost:9090
 SECRET_KEY=votre-cle-secrete-pour-jwt
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30

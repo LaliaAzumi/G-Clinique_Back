@@ -79,7 +79,7 @@ async def list_items(authorization: str = Header(...)):
 
 Créer un fichier `.env` :
 ```
-SPRING_BOOT_URL=http://localhost:8080
+SPRING_BOOT_URL=http://localhost:9090
 SECRET_KEY=your-secret-key
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```

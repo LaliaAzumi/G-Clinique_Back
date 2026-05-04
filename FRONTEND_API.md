@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://localhost:8080/api/v1
+http://localhost:9090/api/v1
 ```
 
 ## Authentification
@@ -246,7 +246,7 @@ Liste tous les secrétaires.
 
 ```jsx
 // api.js
-const API_URL = 'http://localhost:8080/api/v1';
+const API_URL = 'http://localhost:9090/api/v1';
 
 export const login = async (username, password) => {
   const response = await fetch(`${API_URL}/auth/login`, {
@@ -310,7 +310,7 @@ function LoginComponent() {
 export async function POST(request: Request) {
   const body = await request.json();
   
-  const res = await fetch('http://localhost:8080/api/v1/auth/login', {
+  const res = await fetch('http://localhost:9090/api/v1/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
@@ -346,7 +346,7 @@ L'API accepte les requêtes de toutes les origines (`*`). En production, configu
 ```
 ┌─────────────┐     ┌─────────────────┐     ┌─────────────┐     ┌─────────┐
 │   React/    │────▶│  Spring Boot    │────▶│   FastAPI   │────▶│  MySQL  │
-│  Next.js    │◀────│   (Port 8080)   │◀────│  (Port 8000)│     │         │
+│  Next.js    │◀────│   (Port 8083)   │◀────│  (Port 9090)│     │         │
 │   (Port     │ JSON│                 │ JSON│             │     │         │
 │    3000)    │     │ ┌─────────────┐ │     │ Auth + Users│     │         │
 └─────────────┘     │ │ FrontendApi │ │     │ Controller  │     │         │

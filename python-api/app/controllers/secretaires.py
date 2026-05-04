@@ -72,3 +72,69 @@ async def list_secretaires(authorization: str = Header(...)):
             return response.json()
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+
+
+# modifier
+# modifier
+@router.put("/{id}")
+async def update_secretaire(
+    id: int,
+    data: Dict[str, Any],
+    authorization: str = Header(...)
+):
+    """Modifier un secrétaire"""
+
+    token_data = await verify_token(authorization)
+
+    print("TOKEN DATA =", token_data)
+
+    if token_data.get("role") != "ADMIN":
+        print("ROLE REÇU =", token_data.get("role"))
+        raise HTTPException(status_code=403, detail="Accès refusé")
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/secretaires/{id}",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+
+            print("SPRING STATUS =", response.status_code)
+            print("SPRING RESPONSE =", response.text)
+
+            return response.json()
+
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Spring Boot indisponible: {str(e)}"
+            )
+
+
+@router.delete("/{id}")
+async def delete_secretaire(
+    id: int,
+    authorization: str = Header(...)
+):
+    """Supprimer un secrétaire"""
+
+    token_data = await verify_token(authorization)
+
+    if token_data.get("role") != "ADMIN":
+        raise HTTPException(status_code=403, detail="Accès refusé")
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.delete(
+                f"{settings.spring_boot_url}/api/v1/secretaires/{id}",
+                headers={"Authorization": authorization}
+            )
+
+            return response.json()
+
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Spring Boot indisponible: {str(e)}"
+            )

@@ -119,6 +119,31 @@ async def get_user(username: str):
     return user
 
 
+@app.put("/api/users/{user_id}")
+async def update_user(user_id: int, user_data: Dict[str, Any]):
+    """Modifie un utilisateur"""
+
+    try:
+        updated_user = await user_service.update_user(user_id, user_data)
+
+        if not updated_user:
+            raise HTTPException(
+                status_code=404,
+                detail="Utilisateur non trouvé"
+            )
+
+        return {
+            "success": True,
+            "message": "Utilisateur modifié avec succès",
+            "data": updated_user
+        }
+
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
 @app.delete("/api/users/{user_id}")
 async def delete_user(user_id: int):
     """Supprime un utilisateur par ID"""

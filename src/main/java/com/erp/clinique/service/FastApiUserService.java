@@ -96,4 +96,46 @@ public class FastApiUserService {
             return false;
         }
     }
+
+     /**
+     * Modifie un utilisateur via FastAPI
+     * @param userId ID utilisateur
+     * @param data Données à modifier
+     * @return utilisateur modifié
+     */
+    public Map<String, Object> updateUser(Long userId, Map<String, String> data) {
+        try {
+            String url = fastApiUrl + "/api/users/" + userId;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, String>> entity =
+                    new HttpEntity<>(data, headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    entity,
+                    Map.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK &&
+                response.getBody() != null) {
+
+                return response.getBody();
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            System.err.println(
+                "Erreur lors de la modification de l'utilisateur: "
+                + e.getMessage()
+            );
+            return null;
+        }
+    }
+
+
 }

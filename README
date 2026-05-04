@@ -3,4 +3,4 @@
 		.\mvnw clean package -DskipTests
 -- puis lancer relancer le build :
 		docker compose up --build
---aller vers localhoost:8080 et voila
+--aller vers localhoost:9090 et voila

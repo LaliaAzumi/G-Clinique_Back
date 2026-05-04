@@ -88,6 +88,49 @@ class UserService:
         except httpx.RequestError as e:
             raise RuntimeError(f"Erreur: {e}")
     
+    async def update_user(
+        self,
+        user_id: int,
+        user_data: Dict[str, Any]
+    ) -> Optional[dict]:
+        """Modifie un utilisateur"""
+
+        try:
+
+            user_payload = {
+                "username": user_data.get("username"),
+                "email": user_data.get("email"),
+                "role": user_data.get("role")
+            }
+
+            response = await self.client.put(
+                f"{self.spring_boot_url}/api/internal/users/{user_id}",
+                json=user_payload
+            )
+
+            if response.status_code == 404:
+                return None
+
+            if response.status_code != 200:
+                raise RuntimeError(
+                    f"Erreur Spring Boot: {response.status_code}"
+                )
+
+            result = response.json()
+
+            return {
+                "id": result.get("id"),
+                "username": result.get("username"),
+                "email": result.get("email"),
+                "role": result.get("role"),
+                "message": "Utilisateur modifié avec succès"
+            }
+
+        except httpx.RequestError as e:
+            raise RuntimeError(
+                f"Erreur de connexion à Spring Boot: {e}"
+            )
+
     async def delete_user(self, user_id: int) -> bool:
         """Supprime un utilisateur"""
         try:

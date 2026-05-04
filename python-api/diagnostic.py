@@ -4,7 +4,7 @@ Script de diagnostic pour tester la connexion FastAPI <-> Spring Boot
 import httpx
 import asyncio
 
-SPRING_BOOT_URL = "http://localhost:8080"
+SPRING_BOOT_URL = "http://localhost:9090"
 FASTAPI_URL = "http://localhost:8000"
 
 # Token de test (à remplacer par un vrai token)

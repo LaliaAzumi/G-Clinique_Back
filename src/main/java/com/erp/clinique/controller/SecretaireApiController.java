@@ -111,4 +111,54 @@ public class SecretaireApiController {
             users
         ));
     }
+
+    // update
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateSecretaire(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> userData,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+
+        if (tokenData == null || !"ADMIN".equals(tokenData.get("role"))) {
+            return ResponseEntity.status(403)
+                .body(new ApiResponse(false, "Accès refusé", null));
+        }
+
+        Map<String, Object> result = fastApiUserService.updateUser(id, userData);
+
+        return ResponseEntity.ok(
+            new ApiResponse(true, "Secrétaire modifié", result)
+        );
+    }
+
+    //delete
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteSecretaire(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+
+        if (tokenData == null || !"ADMIN".equals(tokenData.get("role"))) {
+            return ResponseEntity.status(403)
+                .body(new ApiResponse(false, "Accès refusé", null));
+        }
+
+        boolean deleted = fastApiUserService.deleteUser(id);
+
+        if (!deleted) {
+            return ResponseEntity.status(404)
+                .body(new ApiResponse(false, "Utilisateur introuvable", null));
+        }
+
+        return ResponseEntity.ok(
+            new ApiResponse(true, "Secrétaire supprimé", null)
+        );
+    }
 }

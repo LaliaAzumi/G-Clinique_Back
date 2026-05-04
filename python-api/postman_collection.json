@@ -145,7 +145,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/patients?page=0&size=10"
+            "url": "http://localhost:9090/api/v1/patients?page=0&size=10"
           }
         },
         {
@@ -153,7 +153,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/patients/search?keyword=dupont"
+            "url": "http://localhost:9090/api/v1/patients/search?keyword=dupont"
           }
         },
         {
@@ -161,7 +161,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/patients/1"
+            "url": "http://localhost:9090/api/v1/patients/1"
           }
         },
         {
@@ -172,7 +172,7 @@
               {"key": "Authorization", "value": "Bearer {{token}}"},
               {"key": "Content-Type", "value": "application/json"}
             ],
-            "url": "http://localhost:8000/api/v1/patients/save",
+            "url": "http://localhost:9090/api/v1/patients/save",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nom\": \"Durand\",\n  \"prenom\": \"Sophie\",\n  \"email\": \"sophie.durand@email.com\",\n  \"telephone\": \"0145678901\",\n  \"dateNaissance\": \"1990-05-15\",\n  \"adresse\": \"15 Rue de Paris\",\n  \"genre\": \"FEMININ\"\n}"
@@ -187,7 +187,7 @@
               {"key": "Authorization", "value": "Bearer {{token}}"},
               {"key": "Content-Type", "value": "application/json"}
             ],
-            "url": "http://localhost:8000/api/v1/patients/update",
+            "url": "http://localhost:9090/api/v1/patients/update",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id\": 1,\n  \"nom\": \"Durand\",\n  \"prenom\": \"Sophie Marie\",\n  \"email\": \"sophie.durand@email.com\",\n  \"telephone\": \"0145678901\"\n}"
@@ -199,7 +199,7 @@
           "request": {
             "method": "DELETE",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/patients/1"
+            "url": "http://localhost:9090/api/v1/patients/1"
           }
         }
       ]
@@ -212,7 +212,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/consultations"
+            "url": "http://localhost:9090/api/v1/consultations"
           }
         },
         {
@@ -220,7 +220,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/consultations/patient/1"
+            "url": "http://localhost:9090/api/v1/consultations/patient/1"
           }
         },
         {
@@ -231,7 +231,7 @@
               {"key": "Authorization", "value": "Bearer {{token}}"},
               {"key": "Content-Type", "value": "application/json"}
             ],
-            "url": "http://localhost:8000/api/v1/consultations/save",
+            "url": "http://localhost:9090/api/v1/consultations/save",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"date\": \"2024-03-28\",\n  \"patientId\": 1,\n  \"medecinId\": 1,\n  \"motif\": \"Consultation generale\",\n  \"diagnostic\": \"Patient en bonne sante\",\n  \"traitement\": \"Aucun\"\n}"
@@ -248,7 +248,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/rendez-vous"
+            "url": "http://localhost:9090/api/v1/rendez-vous"
           }
         },
         {
@@ -256,7 +256,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/rendez-vous?date=2024-03-28"
+            "url": "http://localhost:9090/api/v1/rendez-vous?date=2024-03-28"
           }
         },
         {
@@ -267,7 +267,7 @@
               {"key": "Authorization", "value": "Bearer {{token}}"},
               {"key": "Content-Type", "value": "application/json"}
             ],
-            "url": "http://localhost:8000/api/v1/rendez-vous/save",
+            "url": "http://localhost:9090/api/v1/rendez-vous/save",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"date\": \"2024-03-28\",\n  \"heure\": \"14:00\",\n  \"patientId\": 1,\n  \"medecinId\": 1,\n  \"motif\": \"Consultation de suivi\",\n  \"statut\": \"EN_ATTENTE\"\n}"
@@ -279,7 +279,7 @@
           "request": {
             "method": "POST",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/rendez-vous/1/confirm"
+            "url": "http://localhost:9090/api/v1/rendez-vous/1/confirm"
           }
         },
         {
@@ -287,7 +287,7 @@
           "request": {
             "method": "DELETE",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/rendez-vous/1"
+            "url": "http://localhost:9090/api/v1/rendez-vous/1"
           }
         },
         {
@@ -295,7 +295,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/rendez-vous/calendar/events?start_date=2024-03-01&end_date=2024-03-31"
+            "url": "http://localhost:9090/api/v1/rendez-vous/calendar/events?start_date=2024-03-01&end_date=2024-03-31"
           }
         }
       ]
@@ -308,7 +308,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/ordonnances"
+            "url": "http://localhost:9090/api/v1/ordonnances"
           }
         },
         {
@@ -316,7 +316,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/ordonnances/patient/1"
+            "url": "http://localhost:9090/api/v1/ordonnances/patient/1"
           }
         },
         {
@@ -327,7 +327,7 @@
               {"key": "Authorization", "value": "Bearer {{token}}"},
               {"key": "Content-Type", "value": "application/json"}
             ],
-            "url": "http://localhost:8000/api/v1/ordonnances/save",
+            "url": "http://localhost:9090/api/v1/ordonnances/save",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"patientId\": 1,\n  \"medecinId\": 1,\n  \"date\": \"2024-03-28\",\n  \"medicaments\": [\n    {\n      \"medicamentId\": 1,\n      \"dosage\": \"500mg\",\n      \"frequence\": \"3 fois par jour\",\n      \"duree\": \"7 jours\"\n    }\n  ],\n  \"instructions\": \"Prendre apres les repas\"\n}"
@@ -339,7 +339,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/ordonnances/1/pdf"
+            "url": "http://localhost:9090/api/v1/ordonnances/1/pdf"
           }
         },
         {
@@ -347,7 +347,7 @@
           "request": {
             "method": "POST",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/ordonnances/1/send-email"
+            "url": "http://localhost:9090/api/v1/ordonnances/1/send-email"
           }
         }
       ]
@@ -360,7 +360,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/medicaments?page=0&size=10"
+            "url": "http://localhost:9090/api/v1/medicaments?page=0&size=10"
           }
         },
         {
@@ -368,7 +368,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/medicaments/search?keyword=doliprane"
+            "url": "http://localhost:9090/api/v1/medicaments/search?keyword=doliprane"
           }
         },
         {
@@ -379,7 +379,7 @@
               {"key": "Authorization", "value": "Bearer {{token}}"},
               {"key": "Content-Type", "value": "application/json"}
             ],
-            "url": "http://localhost:8000/api/v1/medicaments/save",
+            "url": "http://localhost:9090/api/v1/medicaments/save",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nom\": \"Efferalgan\",\n  \"description\": \"Paracetamol 500mg effervescent\",\n  \"type\": \"Comprime effervescent\",\n  \"stock\": 100,\n  \"prix\": 6.20\n}"
@@ -396,7 +396,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/notifications"
+            "url": "http://localhost:9090/api/v1/notifications"
           }
         },
         {
@@ -404,7 +404,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/notifications/unread"
+            "url": "http://localhost:9090/api/v1/notifications/unread"
           }
         },
         {
@@ -412,7 +412,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/notifications/count"
+            "url": "http://localhost:9090/api/v1/notifications/count"
           }
         },
         {
@@ -420,7 +420,7 @@
           "request": {
             "method": "POST",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/notifications/1/mark-read"
+            "url": "http://localhost:9090/api/v1/notifications/1/mark-read"
           }
         }
       ]
@@ -433,7 +433,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/calendar/events?start_date=2024-03-01&end_date=2024-03-31"
+            "url": "http://localhost:9090/api/v1/calendar/events?start_date=2024-03-01&end_date=2024-03-31"
           }
         },
         {
@@ -441,7 +441,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/calendar/disponibilites/1?date=2024-03-28"
+            "url": "http://localhost:9090/api/v1/calendar/disponibilites/1?date=2024-03-28"
           }
         },
         {
@@ -449,7 +449,7 @@
           "request": {
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-            "url": "http://localhost:8000/api/v1/calendar/stats?start_date=2024-03-01&end_date=2024-03-31"
+            "url": "http://localhost:9090/api/v1/calendar/stats?start_date=2024-03-01&end_date=2024-03-31"
           }
         }
       ]
@@ -462,7 +462,7 @@
         "type": "text/javascript",
         "exec": [
           "// Configuration initiale",
-          "pm.globals.set('base_url', 'http://localhost:8000');"
+          "pm.globals.set('base_url', 'http://localhost:9090');"
         ]
       }
     }

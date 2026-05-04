@@ -145,32 +145,68 @@ async def get_calendar_stats(
 
             
 # get events
-@router.get("/eventsN")
-async def get_calendar_eventsN(
-    authorization: str = Header(...),
-    start_date: Optional[str] = Query(None) # Ex: 2026-04-06
-):
-    # 1. Vérifie le token via ton verify_token
-    # user_info doit contenir l'ID de l'utilisateur (ex: user_info["id"])
-    user_info = await verify_token(authorization)
-    user_id = user_info.get("id") 
+# @router.get("/eventsN")
+# @router.get("/eventsN/{user_id}")
+# async def get_calendar_eventsN(
+#     authorization: str = Header(...),
+#     start_date: Optional[str] = Query(None) # Ex: 2026-04-06
+# ):
+#     # 1. Vérifie le token via ton verify_token
+#     # user_info doit contenir l'ID de l'utilisateur (ex: user_info["id"])
+#     user_info = await verify_token(authorization)
+#     user_id = user_info.get("id") 
 
-    if not user_id:
-        raise HTTPException(status_code=401, detail="ID utilisateur manquant dans le token")
+#     if not user_id:
+#         raise HTTPException(status_code=401, detail="ID utilisateur manquant dans le token")
     
-    # 2. Appelle l'API Java avec le nouveau chemin incluant l'ID
+#     # 2. Appelle l'API Java avec le nouveau chemin incluant l'ID
+#     async with httpx.AsyncClient() as client:
+#         # Note le changement d'URL ici : on ajoute /eventsN/{user_id}
+#         spring_url = f"{settings.spring_boot_url}/api/v1/calendar/eventsN/{user_id}"
+        
+#         response = await client.get(
+#             spring_url,
+#             params={"startOfWeek": start_date},
+#             headers={"Authorization": authorization}
+#         )
+        
+#         if response.status_code != 200:
+#             # Optionnel : log l'erreur pour débugger plus facilement
+#             return response.json()
+            
+#         return response.json()
+
+@router.get("/eventsN/{user_id}")
+async def get_calendar_eventsN(
+    user_id: int,  # On récupère l'ID directement depuis l'URL envoyée par le Front
+    authorization: str = Header(...),
+    start_date: Optional[str] = Query(None, alias="startOfWeek") # On s'aligne sur le nom attendu par Java
+):
+    # 1. On vérifie juste si le token est valide
+    # Si verify_token échoue, il lèvera lui-même une 401
+    user_info = await verify_token(authorization)
+    
+    # DEBUG : Pour être sûr de ce qu'on reçoit de l'auth
+    print(f"DEBUG: User Info from Token: {user_info}")
+
+    # 2. On appelle l'API Java
     async with httpx.AsyncClient() as client:
-        # Note le changement d'URL ici : on ajoute /eventsN/{user_id}
+        # On utilise le user_id qui vient de l'URL (le 27 que ton front a envoyé)
         spring_url = f"{settings.spring_boot_url}/api/v1/calendar/eventsN/{user_id}"
         
-        response = await client.get(
-            spring_url,
-            params={"startOfWeek": start_date},
-            headers={"Authorization": authorization}
-        )
-        
-        if response.status_code != 200:
-            # Optionnel : log l'erreur pour débugger plus facilement
-            return response.json()
+        try:
+            response = await client.get(
+                spring_url,
+                params={"startOfWeek": start_date},
+                headers={"Authorization": authorization} # On transmet le token à Java
+            )
             
-        return response.json()
+            # Si Java renvoie une erreur (401, 403, 500), on la transmet au Front pour voir le message
+            if response.status_code != 200:
+                print(f"Erreur Spring Boot ({response.status_code}): {response.text}")
+                raise HTTPException(status_code=response.status_code, detail=f"Erreur Backend Java: {response.text}")
+                
+            return response.json()
+
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=503, detail=f"Impossible de joindre le service Java: {str(exc)}")
