@@ -267,3 +267,23 @@ async def valider_paiement_rdv(rendez_vous_id: int, authorization: str = Header(
             
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Service Spring Boot indisponible: {str(e)}")
+        
+#partie secretaire annuler rdv non payer
+@router.put("/{medicament_id}/annuler")
+async def annuler_medicament(medicament_id: int, authorization: str = Header(...)):
+
+    token_data = await verify_token(authorization)
+
+    if token_data.get("role") != "SECRETAIRE":
+        raise HTTPException(403, "Accès réservé au secrétaire")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.put(
+            f"{settings.spring_boot_url}/api/v1/medicaments/{medicament_id}/annuler",
+            headers={"Authorization": authorization}
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(500, response.text)
+
+        return response.json()

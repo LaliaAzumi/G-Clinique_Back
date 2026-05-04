@@ -133,6 +133,19 @@ public class RendezVousApiController {
         }
     }
     
+
+    //annule rdv non payer par secretaire
+    @PutMapping("/{id}/annuler")
+    public ResponseEntity<Medicament> annuler(@PathVariable Long id) {
+        Medicament m = medicamentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Not found"));
+
+        m.setStatus("ANNULE");
+
+        medicamentRepository.save(m);
+
+        return ResponseEntity.ok(m);
+    }
     
     
 
