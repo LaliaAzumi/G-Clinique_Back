@@ -124,27 +124,76 @@ async def get_patient(patient_id: int, authorization: str = Header(...)):
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
 
+# @router.delete("/{patient_id}")
+# async def delete_patient(patient_id: int, authorization: str = Header(...)):
+#     """Supprime un patient"""
+#     await verify_token(authorization)
+    
+#     async with httpx.AsyncClient() as client:
+#         try:
+#             response = await client.delete(
+#                 f"{settings.spring_boot_url}/api/v1/patients/{patient_id}",
+#                 headers={"Authorization": authorization}
+#             )
+#             if response.status_code == 404:
+#                 raise HTTPException(status_code=404, detail="Patient non trouvé")
+#             if response.status_code == 409:
+#                 raise HTTPException(status_code=409, detail="Impossible de supprimer: a des rendez-vous associés")
+#             if response.status_code != 200:
+#                 raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
+#             return response.json()
+#         except httpx.RequestError as e:
+#             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+
 @router.delete("/{patient_id}")
 async def delete_patient(patient_id: int, authorization: str = Header(...)):
     """Supprime un patient"""
-    await verify_token(authorization)
     
+    await verify_token(authorization)
+
     async with httpx.AsyncClient() as client:
         try:
             response = await client.delete(
                 f"{settings.spring_boot_url}/api/v1/patients/{patient_id}",
                 headers={"Authorization": authorization}
             )
+
+            # ❌ erreurs métier Spring
             if response.status_code == 404:
                 raise HTTPException(status_code=404, detail="Patient non trouvé")
-            if response.status_code == 409:
-                raise HTTPException(status_code=409, detail="Impossible de supprimer: a des rendez-vous associés")
-            if response.status_code != 200:
-                raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
-            return response.json()
-        except httpx.RequestError as e:
-            raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
+            if response.status_code == 409:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Impossible de supprimer: a des rendez-vous associés"
+                )
+
+            # ❌ autres erreurs
+            if response.status_code not in [200, 204]:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Erreur lors de la suppression: {response.text}"
+                )
+
+            # ✅ CAS IMPORTANT : réponse vide (204 No Content)
+            if not response.content:
+                return {"success": True, "message": "Patient supprimé avec succès"}
+
+            # ✅ si Spring renvoie du texte ou JSON
+            try:
+                return response.json()
+            except Exception:
+                return {
+                    "success": True,
+                    "message": response.text or "Patient supprimé avec succès"
+                }
+
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Spring Boot indisponible: {str(e)}"
+            )
+        
 
 @router.get("/search")
 async def search_patients(
