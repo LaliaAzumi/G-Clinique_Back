@@ -9,6 +9,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -165,4 +167,50 @@ public class RendezVousApiController {
             ));
         }
     }
+
+
+    //create rdv par le secretaire
+    @PostMapping("/save")
+    public ResponseEntity<?> save(@RequestBody Map<String, Object> data) {
+        try {
+            RendezVous rdv = rendezVousService.createSimple(
+                Long.valueOf(data.get("patientId").toString()),
+                Long.valueOf(data.get("medecinId").toString()),
+                LocalDate.parse(data.get("date").toString()),
+                LocalTime.parse(data.get("heure").toString()),
+                (String) data.get("motif")
+            );
+
+            return ResponseEntity.ok(rdv);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    //update rdv par le secretaire
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> data) {
+        try {
+            return ResponseEntity.ok(rendezVousService.updateSimple(id, data));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    //delete rdv par le secretaire
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            return rendezVousService.findById(id).map(rdv -> {
+                rendezVousService.deleteById(id);
+                return ResponseEntity.ok(Map.of("message", "Rendez-vous supprimé"));
+            }).orElse(ResponseEntity.notFound().build());
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 }

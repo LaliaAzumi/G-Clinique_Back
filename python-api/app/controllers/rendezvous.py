@@ -54,6 +54,33 @@ async def save_rendez_vous(data: Dict[str, Any], authorization: str = Header(...
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
+@router.put("/{rendez_vous_id}")
+async def update_rendez_vous(rendez_vous_id: int, data: Dict[str, Any], authorization: str = Header(...)):
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+
+            print("STATUS:", response.status_code)
+            print("BODY:", response.text)
+
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail=response.text)
+
+            # 🔥 sécurisation ici
+            try:
+                return response.json()
+            except:
+                return {"message": "updated"}
+
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
 @router.get("")
 async def list_rendez_vous(
     authorization: str = Header(...),

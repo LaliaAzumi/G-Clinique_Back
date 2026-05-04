@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.erp.clinique.model.ActeMedical;
+import com.erp.clinique.model.Medecin;
 import com.erp.clinique.model.Paiement;
 import com.erp.clinique.model.Patient;
 import com.erp.clinique.model.Prestation;
@@ -23,6 +24,7 @@ import com.erp.clinique.repository.PaiementRepository;
 import com.erp.clinique.repository.PatientRepository;
 import com.erp.clinique.repository.PrestationRepository;
 import com.erp.clinique.repository.RendezVousRepository;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -174,5 +176,78 @@ public class RendezVousService {
         }
 
         return rdvSauvegarde;
+    }
+
+
+    //partie secrétaire : create rdv
+    public RendezVous createSimple(
+        Long patientId,
+        Long medecinId,
+        LocalDate date,
+        LocalTime heure,
+        String motif
+    ) {
+        // 1. Vérif patient
+        Patient patient = patientRepository.findById(patientId)
+            .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+
+        // 2. Vérif médecin
+        var medecin = medecinRepository.findById(medecinId)
+            .orElseThrow(() -> new RuntimeException("Médecin introuvable"));
+
+        // 3. Vérif disponibilité (tu l’as déjà 🔥)
+        List<LocalTime> heuresDisponibles = getHeuresDisponibles(medecinId, date);
+        if (!heuresDisponibles.contains(heure)) {
+            throw new RuntimeException("Créneau indisponible");
+        }
+
+        // 4. Création
+        RendezVous rdv = new RendezVous();
+        rdv.setPatient(patient);
+        rdv.setMedecin(medecin);
+        rdv.setDate(date);
+        rdv.setHeure(heure);
+        rdv.setMotif(motif);
+        rdv.setStatut("EN_ATTENTE");
+
+        return rendezVousRepository.save(rdv);
+    }
+
+    // Partie secrétaire : update rdv
+    public RendezVous updateSimple(Long id, Map<String, Object> data) {
+        RendezVous rdv = rendezVousRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("RDV introuvable"));
+
+        if (data.get("patientId") != null) {
+            Long patientId = Long.valueOf(data.get("patientId").toString());
+            Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+            rdv.setPatient(patient);
+        }
+
+        if (data.get("medecinId") != null) {
+            Long medecinId = Long.valueOf(data.get("medecinId").toString());
+            Medecin medecin = medecinRepository.findById(medecinId)
+                .orElseThrow(() -> new RuntimeException("Médecin introuvable"));
+            rdv.setMedecin(medecin);
+        }
+
+        if (data.get("date") != null) {
+            rdv.setDate(LocalDate.parse(data.get("date").toString()));
+        }
+
+        if (data.get("heure") != null) {
+            rdv.setHeure(LocalTime.parse(data.get("heure").toString()));
+        }
+
+        if (data.get("motif") != null) {
+            rdv.setMotif((String) data.get("motif"));
+        }
+
+        if (data.get("statut") != null) {
+            rdv.setStatut(data.get("statut").toString());
+        }
+
+        return rendezVousRepository.save(rdv);
     }
 }
