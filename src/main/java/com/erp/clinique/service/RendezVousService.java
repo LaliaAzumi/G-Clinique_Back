@@ -250,4 +250,9 @@ public class RendezVousService {
 
         return rendezVousRepository.save(rdv);
     }
+
+    //partie secrétaire : lister rdv avec paiement
+    public List<RendezVous> findAllWithPaiement() {
+        return rendezVousRepository.findAllWithPaiement();
+    }
 }

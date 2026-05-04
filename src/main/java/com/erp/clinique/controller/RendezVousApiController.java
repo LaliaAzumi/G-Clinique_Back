@@ -136,15 +136,22 @@ public class RendezVousApiController {
 
     //annule rdv non payer par secretaire
     @PutMapping("/{id}/annuler")
-    public ResponseEntity<Medicament> annuler(@PathVariable Long id) {
-        Medicament m = medicamentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Not found"));
+    public ResponseEntity<RendezVous> annuler(@PathVariable Long id) {
+        RendezVous rdv = rendezVousService.findById(id)
+            .orElseThrow(() -> new RuntimeException("Rendez-vous non trouvé"));
 
-        m.setStatus("ANNULE");
+        rdv.setStatut("ANNULE");
+        // sécurité null + comparaison safe
+        if ("EN_ATTENTE_PAIEMENT".equals(rdv.getStatutPaiement())) {
 
-        medicamentRepository.save(m);
+            rdv.setStatutPaiement("REFUSE");
 
-        return ResponseEntity.ok(m);
+            if (rdv.getPaiement() != null) {
+                rdv.getPaiement().setStatut("REFUSE");
+            }
+        }
+
+        return ResponseEntity.ok(rdv);
     }
     
     
@@ -224,6 +231,14 @@ public class RendezVousApiController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    //lister les rdv avec paiement
+    @GetMapping("/paiements")
+    public ResponseEntity<List<RendezVous>> getRdvWithPaiement() {
+        return ResponseEntity.ok(
+            rendezVousService.findAllWithPaiement()
+        );
     }
 
 }

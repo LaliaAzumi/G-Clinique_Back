@@ -122,7 +122,24 @@ async def list_rendez_vous(
 
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
-            
+
+#partie secretaire : lister rdv avec paiement 
+@router.get("/rdv-paiements")
+async def getRdvPaiements(Authorization: str = Header(...)):
+    print("HEADER:", Authorization)
+    await verify_token(Authorization)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/paiements",
+            headers={"Authorization": Authorization}
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(500, "Erreur chargement RDV paiements")
+
+        return response.json()
+
 @router.get("/{rendez_vous_id}")
 async def get_rendez_vous(rendez_vous_id: int, authorization: str = Header(...)):
     """Récupère un rendez-vous par ID"""
@@ -269,8 +286,8 @@ async def valider_paiement_rdv(rendez_vous_id: int, authorization: str = Header(
             raise HTTPException(status_code=503, detail=f"Service Spring Boot indisponible: {str(e)}")
         
 #partie secretaire annuler rdv non payer
-@router.put("/{medicament_id}/annuler")
-async def annuler_medicament(medicament_id: int, authorization: str = Header(...)):
+@router.put("/{rendez_vous_id}/annuler")
+async def annuler_rdv(rendez_vous_id: int, authorization: str = Header(...)):
 
     token_data = await verify_token(authorization)
 
@@ -279,7 +296,7 @@ async def annuler_medicament(medicament_id: int, authorization: str = Header(...
 
     async with httpx.AsyncClient() as client:
         response = await client.put(
-            f"{settings.spring_boot_url}/api/v1/medicaments/{medicament_id}/annuler",
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}/annuler",
             headers={"Authorization": authorization}
         )
 
@@ -287,3 +304,4 @@ async def annuler_medicament(medicament_id: int, authorization: str = Header(...
             raise HTTPException(500, response.text)
 
         return response.json()
+

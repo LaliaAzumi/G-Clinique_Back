@@ -49,5 +49,11 @@ public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
     	List<RendezVous> searchRendezVous(@Param("keyword") String keyword, 
     	                                  @Param("date") LocalDate date, 
     	                                  @Param("statut") String statut);
+
+	@Query("""
+		SELECT r FROM RendezVous r
+		LEFT JOIN r.paiement
+	""")
+	List<RendezVous> findAllWithPaiement();
     
 }

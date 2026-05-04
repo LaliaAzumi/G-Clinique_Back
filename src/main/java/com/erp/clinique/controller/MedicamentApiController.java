@@ -11,6 +11,8 @@ import java.util.List;
 
 import com.erp.clinique.model.Medicament;
 import com.erp.clinique.repository.MedicamentRepository;
+import org.springframework.http.ResponseEntity;
+import com.erp.clinique.model.Medicament;
 
 @RestController
 @RequestMapping("/api/v1/medicaments")
@@ -52,7 +54,7 @@ public class MedicamentApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Medicament> delete(@PathVariable Long id) {
         medicamentRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
