@@ -305,3 +305,19 @@ async def annuler_rdv(rendez_vous_id: int, authorization: str = Header(...)):
 
         return response.json()
 
+# parte medecin reporter rdv sen notif secretaire
+@router.put("/rdv/{rdv_id}/reporter")
+async def reporter_rdv(rdv_id: int, authorization: str = Header(...)):
+    
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.put(
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/{rdv_id}/reporter",
+            headers={"Authorization": authorization}
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()

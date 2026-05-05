@@ -156,8 +156,8 @@ public class RendezVousApiController {
         
         return ResponseEntity.ok(rdv);
     }
-    
-    
+
+  
 
     /**
      * Calcule le portefeuille du médecin (50% des prestations payées)
@@ -244,4 +244,9 @@ public class RendezVousApiController {
         );
     }
 
+    //MEDECIN REPORTER RDV
+    @PutMapping("/{id}/reporter")
+    public ResponseEntity<?> reporterRdv(@PathVariable Long id) {
+        return ResponseEntity.ok(rendezVousService.reporterRdv(id));
+    }
 }

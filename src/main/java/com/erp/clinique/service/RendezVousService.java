@@ -255,4 +255,14 @@ public class RendezVousService {
     public List<RendezVous> findAllWithPaiement() {
         return rendezVousRepository.findAllWithPaiement();
     }
+
+    //MEDECIN REPORTER RDV
+    public RendezVous reporterRdv(Long id) {
+        RendezVous rdv = rendezVousRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("RDV introuvable"));
+
+        rdv.setStatut("EN_ATTENTE_REPORTER");
+
+        return rendezVousRepository.save(rdv);
+    }   
 }
