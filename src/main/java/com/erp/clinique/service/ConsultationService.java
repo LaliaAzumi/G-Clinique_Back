@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDate;
 
 import com.erp.clinique.model.Consultation;
 import com.erp.clinique.repository.ConsultationRepository;
@@ -43,4 +46,7 @@ public class ConsultationService {
 	public List<Object[]> countConsultationsByMonth() {
 		return consultationRepository.countConsultationsByMonth();
 	}
+    public Page<Consultation> findByMedecinId(Long medecinId, Pageable pageable) {
+        return consultationRepository.findByRendezVousMedecinId(medecinId, pageable);
+    }
 }
