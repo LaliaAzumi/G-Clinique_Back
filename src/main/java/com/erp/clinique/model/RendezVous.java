@@ -189,5 +189,12 @@ public class RendezVous {
                 this.paiement.setStatut("CONFIRME");
             }
         }
+        if("EN_ATTENTE".equals(this.statut) && "EN_ATTENTE_PAIEMENT".equals(this.statutPaiement)){
+            this.statutPaiement = "PAYE";
+            if (this.paiement != null) {
+                this.paiement.setStatut("CONFIRME");
+            }
+
+        }
     }
 }

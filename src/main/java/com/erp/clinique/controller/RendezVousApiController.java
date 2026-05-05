@@ -151,6 +151,9 @@ public class RendezVousApiController {
             }
         }
 
+        // 🔥 SAUVEGARDER LES CHANGEMENTS
+        rendezVousService.save(rdv);
+        
         return ResponseEntity.ok(rdv);
     }
     
