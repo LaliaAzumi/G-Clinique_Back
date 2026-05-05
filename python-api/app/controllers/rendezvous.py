@@ -81,6 +81,29 @@ async def update_rendez_vous(rendez_vous_id: int, data: Dict[str, Any], authoriz
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=str(e))
 
+@router.put("/{rendez_vous_id}/prestations")
+async def update_rendez_vous_prestations(rendez_vous_id: int, data: Dict[str, Any], authorization: str = Header(...)):
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}/prestations",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail=response.text)
+
+            try:
+                return response.json()
+            except Exception:
+                return {"message": "Prestations mises à jour"}
+
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
 @router.get("")
 async def list_rendez_vous(
     authorization: str = Header(...),

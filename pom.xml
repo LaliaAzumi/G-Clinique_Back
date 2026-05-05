@@ -106,6 +106,7 @@
 		    <artifactId>stomp-websocket</artifactId>
 		    <version>2.3.4</version>
 		</dependency>
+		
 	</dependencies>
 
 	<build>

@@ -21,8 +21,30 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.erp.clinique.model.Patient;
 import com.erp.clinique.model.RendezVous;
+import com.erp.clinique.repository.ActeMedicalRepository;
 import com.erp.clinique.repository.PrestationRepository;
+import com.erp.clinique.repository.RendezVousRepository;
+import com.erp.clinique.repository.ConsultationRepository;
+import com.erp.clinique.repository.MedicamentRepository;
+import com.erp.clinique.repository.OrdonnanceRepository;
 import com.erp.clinique.service.RendezVousService;
+import com.erp.clinique.service.OrdonnanceService;
+import com.erp.clinique.service.EmailService;
+import com.erp.clinique.model.Prestation;
+import com.erp.clinique.model.ActeMedical;
+
+
+// Pour l'annotation @Transactional
+import org.springframework.transaction.annotation.Transactional;
+
+// Pour les Entités (Vérifiez bien que le package est com.erp.clinique.model)
+import com.erp.clinique.model.Consultation;
+import com.erp.clinique.model.Ordonnance;
+import com.erp.clinique.model.Prescription;
+import com.erp.clinique.model.Medicament;
+
+// Pour manipuler les fichiers (Ordonnance PDF)
+import java.io.File;
 
 @RestController
 @RequestMapping("/api/v1/rendez-vous")
@@ -32,6 +54,26 @@ public class RendezVousApiController {
     private RendezVousService rendezVousService;
     @Autowired
     private PrestationRepository prestationRepository;
+    @Autowired
+    private ActeMedicalRepository acteMedicalRepository;
+
+    @Autowired
+    private RendezVousRepository rendezVousRepository;
+
+    @Autowired
+    private ConsultationRepository consultationRepository;
+
+    @Autowired
+    private MedicamentRepository medicamentRepository;
+
+    @Autowired
+    private OrdonnanceRepository ordonnanceRepository;
+
+    @Autowired
+    private OrdonnanceService ordonnanceService;
+
+    @Autowired
+    private EmailService emailService;
 
     //create rdv par le patient
     @PostMapping("/save-public")
@@ -221,6 +263,169 @@ public class RendezVousApiController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    // @PutMapping("/{id}/prestations")
+    // public ResponseEntity<?> updatePrestations(@PathVariable Long id, @RequestBody Map<String, Object> data) {
+    //     try {
+    //         if (!rendezVousService.findById(id).isPresent()) {
+    //             return ResponseEntity.notFound().build();
+    //         }
+
+    //         Object prestationsObject = data.get("prestations");
+    //         if (prestationsObject instanceof java.util.List) {
+    //             @SuppressWarnings("unchecked")
+    //             java.util.List<Map<String, Object>> prestations = (java.util.List<Map<String, Object>>) prestationsObject;
+    //             for (Map<String, Object> prestationData : prestations) {
+    //                 if (prestationData.get("id") == null) continue;
+    //                 Long prestationId = Long.valueOf(prestationData.get("id").toString());
+    //                 String resultat = prestationData.get("resultat") != null ? prestationData.get("resultat").toString() : null;
+    //                 prestationRepository.findById(prestationId).ifPresent(prestation -> {
+    //                     prestation.setResultat(resultat);
+    //                     prestationRepository.save(prestation);
+    //                 });
+    //             }
+    //         }
+
+    //         Object newActeIdsObject = data.get("newActeIds");
+    //         if (newActeIdsObject instanceof java.util.List) {
+    //             @SuppressWarnings("unchecked")
+    //             java.util.List<Object> rawIds = (java.util.List<Object>) newActeIdsObject;
+    //             for (Object rawId : rawIds) {
+    //                 if (rawId == null) continue;
+    //                 Long acteId = Long.valueOf(rawId.toString());
+    //                 rendezVousService.findById(id).ifPresent(rdv -> {
+    //                     acteMedicalRepository.findById(acteId).ifPresent(acte -> {
+    //                         Prestation prestation = new Prestation(rdv, acte, acte.getPrix());
+    //                         prestationRepository.save(prestation);
+    //                     });
+    //                 });
+    //             }
+    //         }
+
+    //         return ResponseEntity.ok(Map.of("message", "Prestations mises à jour"));
+    //     } catch (Exception e) {
+    //         return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+    //     }
+    // }
+
+@PutMapping("/{id}/prestations")
+@Transactional
+public ResponseEntity<?> updatePrestations(@PathVariable Long id, @RequestBody Map<String, Object> requestBody) {
+    return rendezVousRepository.findById(id).map(rdv -> {
+        try {
+            // --- 1. MISE À JOUR DES PRESTATIONS EXISTANTES ---
+            if (requestBody.containsKey("prestations")) {
+                List<Map<String, Object>> prestationsData = (List<Map<String, Object>>) requestBody.get("prestations");
+                for (Map<String, Object> pData : prestationsData) {
+                    Long pId = Long.valueOf(pData.get("id").toString());
+                    String res = (String) pData.get("resultat");
+                    rdv.getPrestations().stream()
+                        .filter(p -> p.getId().equals(pId))
+                        .findFirst()
+                        .ifPresent(p -> p.setResultat(res));
+                }
+            }
+
+            // --- 2. AJOUT DES NOUVEAUX ACTES ---
+            if (requestBody.containsKey("newActeIds")) {
+                List<Integer> acteIds = (List<Integer>) requestBody.get("newActeIds");
+
+                for (Integer acteId : acteIds) {
+                    // if (acteId == null) continue;
+                    if (acteId == null || acteId == 1) {
+                            continue; // On passe à l'itération suivante sans rien insérer
+                    }
+                    ActeMedical acte = acteMedicalRepository.findById(Long.valueOf(acteId))
+                        .orElseThrow(() -> new RuntimeException("Acte introuvable"));
+
+                    Prestation prestation = new Prestation();
+                    prestation.setActe(acte);
+                    prestation.setPrixApplique(acte.getPrix()); // 💥 IMPORTANT
+                    prestation.setRendezvous(rdv);
+
+                    rdv.getPrestations().add(prestation);
+                }
+            }
+
+            // --- 2. CRÉATION DE LA CONSULTATION (EXAMEN) ---
+            Consultation consultation = new Consultation();
+            if (requestBody.containsKey("vitals")) {
+                Map<String, Object> vitals = (Map<String, Object>) requestBody.get("vitals");
+                String maladie = String.valueOf(vitals.getOrDefault("maladie", ""));
+                
+                // Concaténation avec les "/"
+                String diagComplet = String.format("%s / Temp: %s / Tension: %s / Pouls: %s / Sat: %s / Poids: %s / Obs: %s",
+                        maladie, vitals.get("temperature"), vitals.get("tension"), 
+                        vitals.get("pouls"), vitals.get("saturation"), vitals.get("poids"), vitals.get("observations"));
+
+                consultation.setRendezVous(rdv);
+                consultation.setDate(LocalDate.now());
+                consultation.setMaladie(maladie);
+                consultation.setDiagnostique(diagComplet);
+                consultation = consultationRepository.save(consultation);
+            }
+
+            // --- 3. CRÉATION DE L'ORDONNANCE (Si des prescriptions existent) ---
+            // On suppose que ton frontend envoie aussi une liste "prescriptions"
+            if (requestBody.containsKey("prescriptions")) {
+                List<Map<String, Object>> prescriptionsData = (List<Map<String, Object>>) requestBody.get("prescriptions");
+                
+                if (!prescriptionsData.isEmpty()) {
+                    Ordonnance ordonnance = new Ordonnance();
+                    ordonnance.setConsultation(consultation);
+
+                    for (Map<String, Object> pMap : prescriptionsData) {
+                        Long medId = Long.valueOf(pMap.get("medicamentId").toString());
+                        Medicament medicament = medicamentRepository.findById(medId).orElseThrow();
+                        
+                        int qte = Integer.parseInt(pMap.get("quantite").toString());
+                        medicament.setQStock(medicament.getQStock() - qte); // Mise à jour stock
+
+                        Prescription p = new Prescription();
+                        p.setMedicament(medicament);
+                        p.setPosologie((String) pMap.get("posologie"));
+                        p.setDuree((String) pMap.get("duree"));
+                        p.setQuantite(qte);
+                        p.setOrdonnance(ordonnance);
+                        ordonnance.getPrescriptions().add(p);
+                    }
+
+                    ordonnanceRepository.save(ordonnance);
+
+                    // --- 4. GÉNÉRATION PDF ET ENVOI EMAIL ---
+                    try {
+                        String folder = "/src/main/resources/static/pdf_ordonnances/"; // Ou ton chemin local
+                        File dir = new File(folder);
+                        if (!dir.exists()) dir.mkdirs();
+
+                        File pdfFile = new File(dir, "ordonnance_" + ordonnance.getId() + ".pdf");
+                        ordonnanceService.generateOrdonnancePdf(ordonnance, pdfFile);
+                        
+                        ordonnance.setPdfPath(pdfFile.getAbsolutePath());
+                        ordonnanceRepository.save(ordonnance);
+
+                        // Envoi Mail
+                        String subject = "Votre ordonnance - Clinique";
+                        String body = "Bonjour, voici votre ordonnance en pièce jointe.";
+                        emailService.sendPdfEmail(rdv.getPatient().getEmail(), subject, body, pdfFile);
+                        
+                    } catch (Exception e) {
+                        System.err.println("Erreur PDF/Email: " + e.getMessage());
+                        // On ne bloque pas la transaction pour l'email
+                    }
+                }
+            }
+
+            rdv.setStatut("TERMINE");
+            rendezVousRepository.save(rdv);
+
+            return ResponseEntity.ok(Map.of("message", "Tout a été enregistré et l'email a été envoyé"));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erreur: " + e.getMessage());
+        }
+    }).orElse(ResponseEntity.notFound().build());
+}
 
     //delete rdv par le secretaire
     @DeleteMapping("/{id}")

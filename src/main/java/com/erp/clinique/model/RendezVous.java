@@ -71,8 +71,7 @@ public class RendezVous {
     @JsonManagedReference
     private Paiement paiement;
     
-    @OneToMany(mappedBy = "rendezvous", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "rendezvous", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Prestation> prestations = new ArrayList<>();
     
     public List<Prestation> getPrestations() { return prestations; }
