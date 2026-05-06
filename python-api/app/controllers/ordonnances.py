@@ -84,6 +84,53 @@ async def save_ordonnance(data: Dict[str, Any], authorization: str = Header(...)
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
+# # Dans ton router FastAPI
+# @router.get("/search")
+# async def search_ordonnances(name: str, authorization: str = Header(...)):
+#     await verify_token(authorization)
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get(
+#             f"{settings.spring_boot_url}/api/v1/ordonnances/search",
+#             params={"name": name},
+#             headers={"Authorization": authorization}
+#         )
+#         return response.json()
+@router.get("/search")
+async def search_ordonnances(name: str, authorization: str = Header(...)):
+    await verify_token(authorization)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{settings.spring_boot_url}/api/v1/ordonnances/search",
+            params={"name": name},
+            headers={"Authorization": authorization}
+        )
+        
+        # AJOUTE CE PRINT POUR DEBUGGER
+        if response.status_code != 200:
+            print(f"ERREUR SPRING BOOT: {response.text}")
+            raise HTTPException(status_code=response.status_code, detail="Erreur Backend")
+            
+        return response.json()
+
+
+@router.put("/{ordonnance_id}/pay")
+async def mark_ordonnance_as_paid(ordonnance_id: int, authorization: str = Header(...)):
+    """Marque une ordonnance comme payée"""
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/ordonnances/{ordonnance_id}/pay",
+                headers={"Authorization": authorization}
+            )
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Ordonnance non trouvée")
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail="Erreur paiement")
+            return response.json()
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
 @router.get("/{ordonnance_id}")
 async def get_ordonnance(ordonnance_id: int, authorization: str = Header(...)):
@@ -181,3 +228,5 @@ async def get_ordonnances_by_patient(patient_id: int, authorization: str = Heade
             return response.json()
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
+
+

@@ -29,13 +29,18 @@ public class ConfigSecurity {
 	
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        
+
         http
             .csrf(csrf -> csrf.disable())
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**").permitAll()
                 .requestMatchers("/login", "/api/**", "/api/setup/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN") 
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/ordonnances/**").authenticated()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex

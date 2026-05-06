@@ -28,52 +28,113 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private FastApiAuthService fastApiAuthService;
 
+    // @Override
+    // protected void doFilterInternal(HttpServletRequest request,
+    //                                 HttpServletResponse response,
+    //                                 FilterChain filterChain) throws ServletException, IOException {
+
+    //     // Ne pas filtrer les requêtes vers /login et /api/**
+
+    //     String path = request.getRequestURI();
+
+    //     if (path.equals("/login")
+    //             || path.startsWith("/api/")
+    //             || path.startsWith("/css/")
+    //             || path.startsWith("/js/")
+    //             || path.startsWith("/images/")
+    //             || path.startsWith("/pdf_ordonnances/")) {
+
+    //         filterChain.doFilter(request, response);
+    //         return;
+    //     }
+
+       
+    //     if (path.equals("/login") || path.startsWith("/api/") || path.startsWith("/css/") || 
+    //         path.startsWith("/js/") || path.startsWith("/images/")) {
+    //         filterChain.doFilter(request, response);
+    //         return;
+    //     }
+
+    //     // Extrait le token du cookie ou du header
+    //     String token = extractToken(request);
+
+    //     if (token != null) {
+    //         // Valide le token via FastAPI
+    //         Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+
+    //         if (tokenData != null) {
+    //             // Crée l'authentification Spring Security
+    //             String username = (String) tokenData.get("username");
+    //             String role = (String) tokenData.get("role");
+
+    //             List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+    //                 new SimpleGrantedAuthority("ROLE_" + role)
+    //             );
+
+    //             UsernamePasswordAuthenticationToken authentication =
+    //                 new UsernamePasswordAuthenticationToken(username, null, authorities);
+
+    //             SecurityContextHolder.getContext().setAuthentication(authentication);
+    //         } else {
+    //             // Token invalide, redirige vers login
+    //             response.sendRedirect("/login");
+    //             return;
+    //         }
+    //     } else {
+    //         // Pas de token, redirige vers login
+    //         response.sendRedirect("/login");
+    //         return;
+    //     }
+
+    //     filterChain.doFilter(request, response);
+    // }
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+protected void doFilterInternal(HttpServletRequest request,
+                                HttpServletResponse response,
+                                FilterChain filterChain) throws ServletException, IOException {
 
-        // Ne pas filtrer les requêtes vers /login et /api/**
-        String path = request.getRequestURI();
-        if (path.equals("/login") || path.startsWith("/api/") || path.startsWith("/css/") || 
-            path.startsWith("/js/") || path.startsWith("/images/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+    String path = request.getRequestURI();
 
-        // Extrait le token du cookie ou du header
-        String token = extractToken(request);
+    // 🔥 PUBLIC ROUTES
+    if (path.startsWith("/login")
+            || path.startsWith("/api/")
+            || path.startsWith("/css/")
+            || path.startsWith("/js/")
+            || path.startsWith("/images/")
+            || path.startsWith("/pdf_ordonnances/")) {
 
-        if (token != null) {
-            // Valide le token via FastAPI
-            Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+        filterChain.doFilter(request, response);
+        return;
+    }
 
-            if (tokenData != null) {
-                // Crée l'authentification Spring Security
-                String username = (String) tokenData.get("username");
-                String role = (String) tokenData.get("role");
+    // 🔐 JWT CHECK
+    String token = extractToken(request);
 
-                List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                    new SimpleGrantedAuthority("ROLE_" + role)
-                );
+    if (token != null) {
+        Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
 
-                UsernamePasswordAuthenticationToken authentication =
+        if (tokenData != null) {
+            String username = (String) tokenData.get("username");
+            String role = (String) tokenData.get("role");
+
+            List<SimpleGrantedAuthority> authorities =
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+
+            UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(username, null, authorities);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                // Token invalide, redirige vers login
-                response.sendRedirect("/login");
-                return;
-            }
+            SecurityContextHolder.getContext().setAuthentication(auth);
         } else {
-            // Pas de token, redirige vers login
             response.sendRedirect("/login");
             return;
         }
-
-        filterChain.doFilter(request, response);
+    } else {
+        response.sendRedirect("/login");
+        return;
     }
+
+    filterChain.doFilter(request, response);
+}
 
     /**
      * Extrait le token JWT du cookie "jwt_token" ou du header Authorization
