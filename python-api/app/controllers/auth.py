@@ -95,7 +95,8 @@ class AuthController:
                 "id": user_info.get("id"),
                 "username": user_info.get("username"),
                 "email": user_info.get("email"),
-                "role": user_info.get("role")
+                "role": user_info.get("role"),
+                "firstlogin": user_info.get("firstLogin", False)
             },
             "token": {
                 "access_token": access_token,

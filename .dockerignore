@@ -1,0 +1,7 @@
+target
+.git
+.env
+*.log
+python-api/__pycache__
+python-api/app/**/__pycache__
+python-api/.venv

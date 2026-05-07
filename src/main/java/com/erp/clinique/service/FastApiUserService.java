@@ -14,7 +14,7 @@ import java.util.Map;
 @Service
 public class FastApiUserService {
 
-    @Value("${fastapi.url:http://localhost:8000}")
+    @Value("${fastapi.url:http://fastapi:8000}")
     private String fastApiUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();

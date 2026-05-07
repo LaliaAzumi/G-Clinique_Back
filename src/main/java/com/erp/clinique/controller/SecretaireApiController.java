@@ -9,6 +9,7 @@ import com.erp.clinique.utils.MdpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.erp.clinique.service.EmailService;
 
 import java.util.Map;
 
@@ -25,6 +26,9 @@ public class SecretaireApiController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private FastApiAuthService fastApiAuthService;
@@ -85,6 +89,9 @@ public class SecretaireApiController {
 
         // Ajoute le mot de passe à la réponse (pour l'admin)
         result.put("generatedPassword", randomPassword);
+
+        //send email
+        emailService.sendPasswordEmail(email, username, randomPassword);
 
         return ResponseEntity.ok(new ApiResponse(
             true,

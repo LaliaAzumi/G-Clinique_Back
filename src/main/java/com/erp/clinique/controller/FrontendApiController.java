@@ -375,8 +375,8 @@ public class FrontendApiController {
             ),
             "roles", List.of("ADMIN", "DOCTOR", "SECRETAIRE", "PATIENT"),
             "microservices", Map.of(
-                "spring_boot", "http://localhost:9090 - API Gateway",
-                "fastapi", "http://localhost:8000 - Auth & Users Microservice"
+                "spring_boot", "http://spring:9090 - API Gateway",
+                "fastapi", "http://fastapi:8000 - Auth & Users Microservice"
             )
         ));
     }

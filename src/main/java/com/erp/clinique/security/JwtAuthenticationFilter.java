@@ -101,7 +101,8 @@ protected void doFilterInternal(HttpServletRequest request,
             || path.startsWith("/css/")
             || path.startsWith("/js/")
             || path.startsWith("/images/")
-            || path.startsWith("/pdf_ordonnances/")) {
+            || path.startsWith("/pdf_ordonnances/")
+            || path.startsWith("/ws-notif")) {
 
         filterChain.doFilter(request, response);
         return;

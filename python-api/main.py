@@ -20,7 +20,8 @@ from app.controllers import (
     notifications_router,
     calendar_router,
     chambres_router,
-    acteMedical_routeur
+    acteMedical_routeur,
+    dashboard_router
 )
 from app.services import user_service
 from fastapi.middleware.cors import CORSMiddleware
@@ -46,6 +47,7 @@ app.include_router(notifications_router)
 app.include_router(calendar_router)
 app.include_router(chambres_router)
 app.include_router(acteMedical_routeur)
+app.include_router(dashboard_router)
 
 #middleware cors acces a d autre truc
 app.add_middleware(

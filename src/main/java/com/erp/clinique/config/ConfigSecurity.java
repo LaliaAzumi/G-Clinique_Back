@@ -36,7 +36,7 @@ public class ConfigSecurity {
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/pdf_ordonnances/**", "/ws-notif", "/ws-notif/**").permitAll()
                 .requestMatchers("/login", "/api/**", "/api/setup/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN") 
                 .requestMatchers("/api/v1/auth/**").permitAll()

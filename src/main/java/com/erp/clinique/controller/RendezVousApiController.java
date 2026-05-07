@@ -26,12 +26,17 @@ import com.erp.clinique.repository.PrestationRepository;
 import com.erp.clinique.repository.RendezVousRepository;
 import com.erp.clinique.repository.ConsultationRepository;
 import com.erp.clinique.repository.MedicamentRepository;
+import com.erp.clinique.repository.MedecinUserRepository;
 import com.erp.clinique.repository.OrdonnanceRepository;
+import com.erp.clinique.repository.UserRepository;
 import com.erp.clinique.service.RendezVousService;
 import com.erp.clinique.service.OrdonnanceService;
 import com.erp.clinique.service.EmailService;
+import com.erp.clinique.service.NotificationService;
 import com.erp.clinique.model.Prestation;
 import com.erp.clinique.model.ActeMedical;
+import com.erp.clinique.model.MedecinUser;
+import com.erp.clinique.model.Users;
 
 
 // Pour l'annotation @Transactional
@@ -75,6 +80,46 @@ public class RendezVousApiController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private MedecinUserRepository medecinUserRepository;
+
+    private String rdvLabel(RendezVous rdv) {
+        return String.format(
+            "%s %s le %s a %s",
+            rdv.getPatient().getNom(),
+            rdv.getPatient().getPrenom(),
+            rdv.getDate(),
+            rdv.getHeure()
+        );
+    }
+
+    private void notifySecretaires(String message) {
+        notificationService.sendNotificationToSecretaires(message);
+        for (Users secretaire : userRepository.findByRole("SECRETAIRE")) {
+            notificationService.sendNotificationToUser(secretaire.getId(), message);
+        }
+    }
+
+    private void notifyMedecin(RendezVous rdv, String message) {
+        medecinUserRepository.findByMedecinId(rdv.getMedecin().getId())
+            .map(MedecinUser::getUserId)
+            .ifPresent(userId -> notificationService.sendNotificationToUser(userId, message));
+    }
+
+    private void sendPatientEmail(RendezVous rdv, String subject, String body) {
+        try {
+            emailService.sendRendezVousEmail(rdv.getPatient().getEmail(), subject, body);
+        } catch (Exception e) {
+            System.err.println("Erreur email patient: " + e.getMessage());
+        }
+    }
+
     //create rdv par le patient
     @PostMapping("/save-public")
     public ResponseEntity<?> savePublic(@RequestBody Map<String, Object> data) {
@@ -116,6 +161,16 @@ public class RendezVousApiController {
             RendezVous rdv = rendezVousService.enregistrerRendezVousComplet(
                 p, medecinId, date, heure, acteIds, 
                 nomExpediteur, codeTransaction, montantEnvoye
+            );
+            String message = "Nouveau rendez-vous public a valider: " + rdvLabel(rdv);
+            notifySecretaires(message);
+            sendPatientEmail(
+                rdv,
+                "Votre demande de rendez-vous - G-Clinique",
+                "Bonjour " + rdv.getPatient().getPrenom() + ",\n\n"
+                    + "Votre demande de rendez-vous du " + rdv.getDate() + " a " + rdv.getHeure()
+                    + " a ete enregistree. Une secretaire validera votre paiement.\n\n"
+                    + "Cordialement,\nG-Clinique"
             );
 
             return ResponseEntity.ok(Map.of("status", "success", "id", rdv.getId()));
@@ -159,6 +214,17 @@ public class RendezVousApiController {
                 
                 // 3. Sauvegarder les changements en base de données
                 rendezVousService.save(rdv);
+                String notification = "Paiement valide, rendez-vous confirme: " + rdvLabel(rdv);
+                notifyMedecin(rdv, notification);
+                notifySecretaires(notification);
+                sendPatientEmail(
+                    rdv,
+                    "Rendez-vous confirme - G-Clinique",
+                    "Bonjour " + rdv.getPatient().getPrenom() + ",\n\n"
+                        + "Votre paiement a ete valide. Votre rendez-vous est confirme pour le "
+                        + rdv.getDate() + " a " + rdv.getHeure() + ".\n\n"
+                        + "Cordialement,\nG-Clinique"
+                );
                 
                 // 4. Répondre avec le nouveau statut pour confirmation
                 return ResponseEntity.ok(Map.of(
@@ -195,6 +261,16 @@ public class RendezVousApiController {
 
         // 🔥 SAUVEGARDER LES CHANGEMENTS
         rendezVousService.save(rdv);
+        String message = "Rendez-vous annule: " + rdvLabel(rdv);
+        notifyMedecin(rdv, message);
+        notifySecretaires(message);
+        sendPatientEmail(
+            rdv,
+            "Rendez-vous annule - G-Clinique",
+            "Bonjour " + rdv.getPatient().getPrenom() + ",\n\n"
+                + "Votre rendez-vous du " + rdv.getDate() + " a " + rdv.getHeure()
+                + " a ete annule.\n\nCordialement,\nG-Clinique"
+        );
         
         return ResponseEntity.ok(rdv);
     }
@@ -245,6 +321,15 @@ public class RendezVousApiController {
                 LocalTime.parse(data.get("heure").toString()),
                 (String) data.get("motif")
             );
+            String message = "Nouveau rendez-vous planifie: " + rdvLabel(rdv);
+            notifyMedecin(rdv, message);
+            sendPatientEmail(
+                rdv,
+                "Rendez-vous planifie - G-Clinique",
+                "Bonjour " + rdv.getPatient().getPrenom() + ",\n\n"
+                    + "Votre rendez-vous est planifie pour le " + rdv.getDate()
+                    + " a " + rdv.getHeure() + ".\n\nCordialement,\nG-Clinique"
+            );
 
             return ResponseEntity.ok(rdv);
 
@@ -258,7 +343,19 @@ public class RendezVousApiController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> data) {
         try {
-            return ResponseEntity.ok(rendezVousService.updateSimple(id, data));
+            RendezVous rdv = rendezVousService.updateSimple(id, data);
+            String message = "Rendez-vous modifie: " + rdvLabel(rdv) + " - statut " + rdv.getStatut();
+            notifyMedecin(rdv, message);
+            notifySecretaires(message);
+            sendPatientEmail(
+                rdv,
+                "Modification de votre rendez-vous - G-Clinique",
+                "Bonjour " + rdv.getPatient().getPrenom() + ",\n\n"
+                    + "Votre rendez-vous est maintenant prevu le " + rdv.getDate()
+                    + " a " + rdv.getHeure() + ". Statut: " + rdv.getStatut()
+                    + ".\n\nCordialement,\nG-Clinique"
+            );
+            return ResponseEntity.ok(rdv);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -418,6 +515,16 @@ public ResponseEntity<?> updatePrestations(@PathVariable Long id, @RequestBody M
 
             rdv.setStatut("TERMINE");
             rendezVousRepository.save(rdv);
+            String message = "Consultation terminee: " + rdvLabel(rdv);
+            notifyMedecin(rdv, message);
+            notifySecretaires(message);
+            sendPatientEmail(
+                rdv,
+                "Consultation terminee - G-Clinique",
+                "Bonjour " + rdv.getPatient().getPrenom() + ",\n\n"
+                    + "Votre consultation du " + rdv.getDate() + " a ete marquee comme terminee."
+                    + "\n\nCordialement,\nG-Clinique"
+            );
 
             return ResponseEntity.ok(Map.of("message", "Tout a été enregistré et l'email a été envoyé"));
 
@@ -452,6 +559,17 @@ public ResponseEntity<?> updatePrestations(@PathVariable Long id, @RequestBody M
     //MEDECIN REPORTER RDV
     @PutMapping("/{id}/reporter")
     public ResponseEntity<?> reporterRdv(@PathVariable Long id) {
-        return ResponseEntity.ok(rendezVousService.reporterRdv(id));
+        RendezVous rdv = rendezVousService.reporterRdv(id);
+        String message = "Rendez-vous a reprogrammer par le secretaire: " + rdvLabel(rdv);
+        notifySecretaires(message);
+        sendPatientEmail(
+            rdv,
+            "Rendez-vous en attente de report - G-Clinique",
+            "Bonjour " + rdv.getPatient().getPrenom() + ",\n\n"
+                + "Votre rendez-vous du " + rdv.getDate() + " a " + rdv.getHeure()
+                + " doit etre reprogramme. Une secretaire vous recontactera.\n\n"
+                + "Cordialement,\nG-Clinique"
+        );
+        return ResponseEntity.ok(rdv);
     }
 }

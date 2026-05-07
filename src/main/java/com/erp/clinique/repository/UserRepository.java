@@ -33,4 +33,10 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     	        @Param("keyword") String keyword,
     	        Pageable pageable
     	);
+
+	@Query("SELECT COUNT(u) FROM Users u WHERE u.role = 'MEDECIN'")
+    long countMedecins();
+
+    @Query("SELECT COUNT(p) FROM Patient p")
+    long countPatients();
 }
