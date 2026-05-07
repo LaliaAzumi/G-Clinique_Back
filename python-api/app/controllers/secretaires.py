@@ -138,3 +138,48 @@ async def delete_secretaire(
                 status_code=503,
                 detail=f"Spring Boot indisponible: {str(e)}"
             )
+        
+# change password
+@router.post("/change-password")
+async def change_password(
+    data: Dict[str, Any],
+    authorization: str = Header(...)
+):
+    """
+    Change password utilisateur
+    data = {
+        "userId": int,
+        "oldPassword": str,
+        "newPassword": str
+    }
+    """
+
+    # 🔐 vérifier token (sans rôle)
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                f"{settings.spring_boot_url}/api/v1/users/change-password",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+
+            # 🔴 erreurs propres
+            if response.status_code == 400:
+                raise HTTPException(status_code=400, detail=response.text)
+
+            if response.status_code == 401:
+                raise HTTPException(status_code=401, detail="Mot de passe incorrect")
+
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail="Erreur serveur Spring")
+
+            # return response.json()
+            return {"message": response.text}
+
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Spring Boot indisponible: {str(e)}"
+            )

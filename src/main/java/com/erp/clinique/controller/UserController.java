@@ -25,11 +25,14 @@ import com.erp.clinique.service.EmailService;
 import com.erp.clinique.service.FastApiUserService;
 import com.erp.clinique.service.UserService;
 import com.erp.clinique.utils.MdpUtils;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.erp.clinique.dto.ChangePasswordRequest;
 
 import jakarta.validation.Valid;
 
 @Controller
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     @Autowired
@@ -181,13 +184,35 @@ public class UserController {
     }
 
    
-    @PostMapping("/change-password")
-    public String changePassword(@ModelAttribute("user") Users user) {
-        Users dbUser = userService.findById(user.getId()).orElseThrow();
-        dbUser.setMdp(user.getMdp());
-        dbUser.setFirstLogin(false);
-        userService.saveUser(dbUser);
-        return "redirect:/home";
+    // @PostMapping("/change-password")
+    // public String changePassword(@ModelAttribute("user") Users user) {
+    //     Users dbUser = userService.findById(user.getId()).orElseThrow();
+    //     dbUser.setMdp(user.getMdp());
+    //     dbUser.setFirstLogin(false);
+    //     userService.saveUser(dbUser);
+    //     return "redirect:/home";
+    // }
+
+   @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest req) {
+
+        Users user = userService.findById(req.getUserId())
+                .orElseThrow();
+
+        // if (!user.getMdp().equals(req.getOldPassword())) {
+        //     return ResponseEntity.status(401).body("Ancien mot de passe incorrect");
+        // }
+        if (!passwordEncoder.matches(req.getOldPassword(), user.getMdp())) {
+            return ResponseEntity.status(401).body("Ancien mot de passe incorrect");
+        }
+
+        user.setMdp(req.getNewPassword());
+        // user.setMdp(passwordEncoder.encode(req.getNewPassword()));
+        user.setFirstLogin(false);
+
+        userService.saveUser(user);
+
+        return ResponseEntity.ok("OK");
     }
 
     
