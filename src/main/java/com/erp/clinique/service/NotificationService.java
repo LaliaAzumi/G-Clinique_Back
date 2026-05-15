@@ -15,4 +15,12 @@ public class NotificationService {
     public void sendNotificationToUser(Long userId, String message) {
         messagingTemplate.convertAndSend("/topic/notifications-" + userId, message);
     }
+
+    public void sendNotificationToSecretaires(String message) {
+        messagingTemplate.convertAndSend("/topic/notifications-secretaires", message);
+    }
+
+    public void sendNotificationToAll(String message) {
+        messagingTemplate.convertAndSend("/topic/notifications", message);
+    }
 }

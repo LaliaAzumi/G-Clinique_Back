@@ -54,6 +54,56 @@ async def save_rendez_vous(data: Dict[str, Any], authorization: str = Header(...
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
 
+@router.put("/{rendez_vous_id}")
+async def update_rendez_vous(rendez_vous_id: int, data: Dict[str, Any], authorization: str = Header(...)):
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+
+            print("STATUS:", response.status_code)
+            print("BODY:", response.text)
+
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail=response.text)
+
+            # 🔥 sécurisation ici
+            try:
+                return response.json()
+            except:
+                return {"message": "updated"}
+
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
+@router.put("/{rendez_vous_id}/prestations")
+async def update_rendez_vous_prestations(rendez_vous_id: int, data: Dict[str, Any], authorization: str = Header(...)):
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}/prestations",
+                json=data,
+                headers={"Authorization": authorization}
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail=response.text)
+
+            try:
+                return response.json()
+            except Exception:
+                return {"message": "Prestations mises à jour"}
+
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
 @router.get("")
 async def list_rendez_vous(
     authorization: str = Header(...),
@@ -95,7 +145,24 @@ async def list_rendez_vous(
 
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Spring Boot indisponible: {str(e)}")
-            
+
+#partie secretaire : lister rdv avec paiement 
+@router.get("/rdv-paiements")
+async def getRdvPaiements(Authorization: str = Header(...)):
+    print("HEADER:", Authorization)
+    await verify_token(Authorization)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/paiements",
+            headers={"Authorization": Authorization}
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(500, "Erreur chargement RDV paiements")
+
+        return response.json()
+
 @router.get("/{rendez_vous_id}")
 async def get_rendez_vous(rendez_vous_id: int, authorization: str = Header(...)):
     """Récupère un rendez-vous par ID"""
@@ -240,3 +307,40 @@ async def valider_paiement_rdv(rendez_vous_id: int, authorization: str = Header(
             
         except httpx.RequestError as e:
             raise HTTPException(status_code=503, detail=f"Service Spring Boot indisponible: {str(e)}")
+        
+#partie secretaire annuler rdv non payer
+@router.put("/{rendez_vous_id}/annuler")
+async def annuler_rdv(rendez_vous_id: int, authorization: str = Header(...)):
+
+    token_data = await verify_token(authorization)
+
+    if token_data.get("role") != "SECRETAIRE":
+        raise HTTPException(403, "Accès réservé au secrétaire")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.put(
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/{rendez_vous_id}/annuler",
+            headers={"Authorization": authorization}
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(500, response.text)
+
+        return response.json()
+
+# parte medecin reporter rdv sen notif secretaire
+@router.put("/rdv/{rdv_id}/reporter")
+async def reporter_rdv(rdv_id: int, authorization: str = Header(...)):
+    
+    await verify_token(authorization)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.put(
+            f"{settings.spring_boot_url}/api/v1/rendez-vous/{rdv_id}/reporter",
+            headers={"Authorization": authorization}
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()

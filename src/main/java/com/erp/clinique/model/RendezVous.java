@@ -22,6 +22,9 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+// import jakarta.persistence.OneToOne;
+
 @Entity
 @Table(name = "rendez_vous")
 public class RendezVous {
@@ -63,9 +66,12 @@ public class RendezVous {
     
     @Column(nullable = true)
     private  String googleEventId;
+
+    @OneToOne(mappedBy = "rendezvous", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Paiement paiement;
     
-    @OneToMany(mappedBy = "rendezvous", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "rendezvous", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Prestation> prestations = new ArrayList<>();
     
     public List<Prestation> getPrestations() { return prestations; }
@@ -163,13 +169,31 @@ public class RendezVous {
     public void setGoogleEventId(String googleEventId) {
         this.googleEventId = googleEventId;
     }
+    public Paiement getPaiement() {
+        return paiement;
+    }
+
+    public void setPaiement(Paiement paiement) {
+        this.paiement = paiement;
+    }
     
- // SECRETAIRE CHANGE STATUT APRES AVOIR PAYÉ
+    // SECRETAIRE CHANGE STATUT APRES AVOIR PAYÉ
     public void validerPaiement() {
         // Utilise .equals() pour comparer les Strings en Java !
-        if ("EN_ATTENTE_PAIEMENT".equals(this.statutPaiement)) {
+        if ("EN_ATTENTE_VALIDATION".equals(this.statut)) {
             this.statutPaiement = "PAYE";
             this.statut = "EN_ATTENTE";
+
+            if (this.paiement != null) {
+                this.paiement.setStatut("CONFIRME");
+            }
+        }
+        if("EN_ATTENTE".equals(this.statut) && "EN_ATTENTE_PAIEMENT".equals(this.statutPaiement)){
+            this.statutPaiement = "PAYE";
+            if (this.paiement != null) {
+                this.paiement.setStatut("CONFIRME");
+            }
+
         }
     }
 }

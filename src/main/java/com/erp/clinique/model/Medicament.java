@@ -54,10 +54,14 @@ public class Medicament {
 	public void setPu(double pu) {
 		this.pu = pu;
 	}
-	public Integer getqStock() {
+	public Integer getQStock() {
+		if(qStock <= 0) {
+			setQStock(0);
+			return qStock; // ou une autre valeur par défaut
+		}
 		return qStock;
 	}
-	public void setqStock(Integer qStock) {
+	public void setQStock(Integer qStock) {
 		this.qStock = qStock;
 	}
 }

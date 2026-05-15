@@ -18,4 +18,7 @@ public interface PrestationRepository extends JpaRepository<Prestation, Long> {
     	       "WHERE p.rendezvous.medecin.id = :medecinId " +
     	       "AND p.rendezvous.statutPaiement = 'PAYE'")
     	Double calculerTotalBrut(@Param("medecinId") Long medecinId);
+
+    @Query("SELECT SUM(p.prixApplique) FROM Prestation p")
+    Double totalPrestations();
 }

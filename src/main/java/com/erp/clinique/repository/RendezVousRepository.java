@@ -49,5 +49,28 @@ public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
     	List<RendezVous> searchRendezVous(@Param("keyword") String keyword, 
     	                                  @Param("date") LocalDate date, 
     	                                  @Param("statut") String statut);
+
+	@Query("""
+		SELECT r FROM RendezVous r
+		LEFT JOIN r.paiement
+	""")
+	List<RendezVous> findAllWithPaiement();
     
+
+	@Query("SELECT COUNT(r) FROM RendezVous r")
+    long countAll();
+
+    @Query("SELECT COUNT(r) FROM RendezVous r WHERE r.statut = 'EN_ATTENTE'")
+    long countEnAttente();
+
+    @Query("SELECT COUNT(r) FROM RendezVous r WHERE r.statut = 'TERMINE'")
+    long countTermine();
+
+    @Query("""
+        SELECT DATE(r.date), COUNT(r)
+        FROM RendezVous r
+        GROUP BY DATE(r.date)
+        ORDER BY DATE(r.date)
+    """)
+    List<Object[]> getRdvParJour();
 }

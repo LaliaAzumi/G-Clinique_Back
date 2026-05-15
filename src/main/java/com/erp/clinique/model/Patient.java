@@ -42,6 +42,9 @@ public class Patient {
 	@NotNull(message = "email obligatoire")
 	@NotBlank(message = "email non vide")
 	private String email;
+
+	@Column(nullable = true)
+	private String sexe;
 	
 	public Long getId() {
 		return id;
@@ -49,15 +52,13 @@ public class Patient {
 	public void setId(Long id) {
 		this.id= id;
 	}
-	public void setNom(Long id) {
-		this.id = id;
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 	public String getNom() {
 		return nom;
 	}
-	public void setNom(String nom) {
-		this.nom = nom;
-	}
+
 	public String getPrenom() {
 		return prenom;
 	}
@@ -88,20 +89,27 @@ public class Patient {
 	public void setAdresse(String adresse) {
 		this.adresse = adresse;
 	}
-	
+	public String getSexe() {
+		return sexe;
+	}
+	public void setSexe(String sexe) {
+		this.sexe = sexe;
+	}
+
 	public Patient() {}
 
-    public Patient(String nom, String prenom, LocalDate dateNaissance, String telephone, String email, String adresse) {
+    public Patient(String nom, String prenom, LocalDate dateNaissance, String telephone, String email, String adresse, String sexe) {
         this.nom = nom;
         this.prenom = prenom; 
         this.dateNaissance = dateNaissance; 
         this.telephone = telephone;
         this.adresse = adresse;
         this.email = email;
+		this.sexe = sexe;
     }
 	
     @Override
     public String toString() {
-        return "Patient . " + nom + " " + prenom + " "+ dateNaissance + "" +telephone +" "+ adresse;
+        return "Patient . " + nom + " " + prenom + " "+ dateNaissance + "" +telephone +" "+ adresse +" "+ sexe;
     }
 }

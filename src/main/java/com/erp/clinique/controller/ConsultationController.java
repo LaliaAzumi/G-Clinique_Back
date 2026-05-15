@@ -159,7 +159,7 @@ public class ConsultationController {
                     .findById(medicamentId.get(i))
                     .orElseThrow();
          
-            medicament.setqStock(medicament.getqStock() - quantite.get(i));
+            medicament.setQStock(medicament.getQStock() - quantite.get(i));
             Prescription p = new Prescription();
             p.setMedicament(medicament);
             p.setPosologie(posologie.get(i));

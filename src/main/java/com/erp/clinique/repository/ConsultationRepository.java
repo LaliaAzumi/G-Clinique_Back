@@ -45,4 +45,6 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     Page<Consultation> findByRendezVousMedecinIdAndRendezVousPatientNomContainingIgnoreCaseAndDate(
         Long medecinId, String keyword, LocalDate date, Pageable pageable);
 
+        // List<Consultation> findByMedecinId(Long medecinId);
+        //List<Consultation> findByRendezVous_Medecin_Id(Long medecinId);
 }

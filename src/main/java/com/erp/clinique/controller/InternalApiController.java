@@ -137,6 +137,44 @@ public class InternalApiController {
         ));
     }
 
+    // update user (appele par FastAPI)
+    @PutMapping("/users/{userId}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long userId,
+            @RequestBody Map<String, Object> userData) {
+
+        try {
+            Users user = userService.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            if (userData.containsKey("username")) {
+                user.setUsername((String) userData.get("username"));
+            }
+
+            if (userData.containsKey("email")) {
+                user.setEmail((String) userData.get("email"));
+            }
+
+            if (userData.containsKey("role")) {
+                user.setRole((String) userData.get("role"));
+            }
+
+            Users updated = userService.saveUserInternal(user);
+
+            return ResponseEntity.ok(Map.of(
+                    "id", updated.getId(),
+                    "username", updated.getUsername(),
+                    "email", updated.getEmail(),
+                    "role", updated.getRole(),
+                    "message", "User updated successfully"
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
     /**
      * Supprime un utilisateur (appele par FastAPI)
      */

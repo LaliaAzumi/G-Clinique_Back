@@ -41,7 +41,28 @@ public class PatientService {
             throw new RuntimeException("Patient introuvable avec l'id : " + patient.getId());
         }
     }
-	
+	public Patient update(Patient patient) {
+        Patient existing = patientRepository.findById(patient.getId())
+            .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+
+        existing.setNom(patient.getNom());
+        existing.setPrenom(patient.getPrenom());
+        existing.setEmail(patient.getEmail());
+        existing.setTelephone(patient.getTelephone());
+        existing.setAdresse(patient.getAdresse());
+        existing.setDateNaissance(patient.getDateNaissance());
+        existing.setSexe(patient.getSexe());
+
+        return patientRepository.save(existing);
+    }
+
+    public void delete(Long id) {
+        Patient p = patientRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+
+        patientRepository.delete(p);
+    }
+
     public void deletePatientById(Long id) {
         patientRepository.deleteById(id);
     }

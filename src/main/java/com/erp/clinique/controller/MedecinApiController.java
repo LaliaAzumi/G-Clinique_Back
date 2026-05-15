@@ -32,6 +32,7 @@ import com.erp.clinique.service.UserService;
  * API REST pour la gestion des médecins via FastAPI
  * Endpoints pour créer des médecins avec leur compte utilisateur
  */
+
 @RestController
 @RequestMapping("/api/v1/medecins")
 @CrossOrigin(origins = "*", allowedHeaders = "*")

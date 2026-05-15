@@ -1,18 +1,20 @@
 package com.erp.clinique.controller;
 
 import com.erp.clinique.dto.ApiResponse;
+import com.erp.clinique.model.Users;
 import com.erp.clinique.service.FastApiAuthService;
 import com.erp.clinique.service.FastApiUserService;
-import com.erp.clinique.service.EmailService;
+import com.erp.clinique.service.UserService;
 import com.erp.clinique.utils.MdpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.erp.clinique.service.EmailService;
 
 import java.util.Map;
 
 /**
- * API REST pour la gestion des secrétaires via le frontend React
+ * API REST pour la gestion des secrétaires via FastAPI
  */
 @RestController
 @RequestMapping("/api/v1/secretaires")
@@ -23,21 +25,24 @@ public class SecretaireApiController {
     private FastApiUserService fastApiUserService;
 
     @Autowired
-    private FastApiAuthService fastApiAuthService;
+    private UserService userService;
 
     @Autowired
-    private EmailService emailService; // Injecté pour l'envoi du mot de passe par mail
+    private EmailService emailService;
+
+    @Autowired
+    private FastApiAuthService fastApiAuthService;
 
     /**
-     * Crée un compte secrétaire
-     * Seuls le username et l'email sont requis dans le corps de la requête
+     * Crée un compte secrétaire via FastAPI
+     * Nécessite un token JWT admin
      */
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createSecretaire(
             @RequestBody Map<String, String> userData,
             @RequestHeader("Authorization") String authHeader) {
 
-        // 1. Vérification de la présence du Token
+        // Vérifie le token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401)
                 .body(new ApiResponse(false, "Token manquant", null));
@@ -51,26 +56,25 @@ public class SecretaireApiController {
                 .body(new ApiResponse(false, "Token invalide", null));
         }
 
-        // 2. Vérification du rôle ADMIN (Sécurité)
+        // Vérifie le rôle admin
         String role = (String) tokenData.get("role");
         if (!"ADMIN".equals(role)) {
             return ResponseEntity.status(403)
                 .body(new ApiResponse(false, "Accès réservé aux administrateurs", null));
         }
 
-        // 3. Récupération des données simplifiées (Nom et Email uniquement)
         String username = userData.get("username");
         String email = userData.get("email");
 
-        if (username == null || email == null || username.isEmpty() || email.isEmpty()) {
+        if (username == null || email == null) {
             return ResponseEntity.status(400)
-                .body(new ApiResponse(false, "Le nom d'utilisateur et l'email sont obligatoires", null));
+                .body(new ApiResponse(false, "Username et email requis", null));
         }
 
-        // 4. Génération automatique du mot de passe par défaut
+        // Génère un mot de passe aléatoire
         String randomPassword = MdpUtils.generateRandomMdp();
 
-        // 5. Création de l'utilisateur dans le microservice FastAPI avec le rôle SECRETAIRE
+        // Crée l'utilisateur via FastAPI
         Map<String, Object> result = fastApiUserService.createUser(
             username,
             email,
@@ -80,26 +84,24 @@ public class SecretaireApiController {
 
         if (result == null) {
             return ResponseEntity.status(500)
-                .body(new ApiResponse(false, "Erreur lors de la création via le microservice FastAPI", null));
+                .body(new ApiResponse(false, "Erreur lors de la création via FastAPI", null));
         }
 
-        // 6. Envoi de l'email avec les identifiants au secrétaire
-        try {
-            emailService.sendPasswordEmail(email, username, randomPassword);
-        } catch (Exception e) {
-            // On log l'erreur mais on ne bloque pas la réponse car l'utilisateur est déjà créé
-            System.err.println("Erreur d'envoi d'email : " + e.getMessage());
-        }
+        // Ajoute le mot de passe à la réponse (pour l'admin)
+        result.put("generatedPassword", randomPassword);
+
+        //send email
+        emailService.sendPasswordEmail(email, username, randomPassword);
 
         return ResponseEntity.ok(new ApiResponse(
             true,
-            "Secrétaire créé avec succès. Un email contenant le mot de passe a été envoyé à " + email,
+            "Secrétaire créé avec succès",
             result
         ));
     }
 
     /**
-     * Liste tous les utilisateurs ayant le rôle SECRETAIRE
+     * Liste tous les secrétaires
      */
     @GetMapping
     public ResponseEntity<ApiResponse> listSecretaires() {
@@ -107,13 +109,63 @@ public class SecretaireApiController {
 
         if (users == null) {
             return ResponseEntity.status(503)
-                .body(new ApiResponse(false, "Le service de gestion des utilisateurs est indisponible", null));
+                .body(new ApiResponse(false, "Service FastAPI indisponible", null));
         }
 
         return ResponseEntity.ok(new ApiResponse(
             true,
-            "Liste des secrétaires récupérée avec succès",
+            "Liste des secrétaires",
             users
         ));
+    }
+
+    // update
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateSecretaire(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> userData,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+
+        if (tokenData == null || !"ADMIN".equals(tokenData.get("role"))) {
+            return ResponseEntity.status(403)
+                .body(new ApiResponse(false, "Accès refusé", null));
+        }
+
+        Map<String, Object> result = fastApiUserService.updateUser(id, userData);
+
+        return ResponseEntity.ok(
+            new ApiResponse(true, "Secrétaire modifié", result)
+        );
+    }
+
+    //delete
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteSecretaire(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+
+        if (tokenData == null || !"ADMIN".equals(tokenData.get("role"))) {
+            return ResponseEntity.status(403)
+                .body(new ApiResponse(false, "Accès refusé", null));
+        }
+
+        boolean deleted = fastApiUserService.deleteUser(id);
+
+        if (!deleted) {
+            return ResponseEntity.status(404)
+                .body(new ApiResponse(false, "Utilisateur introuvable", null));
+        }
+
+        return ResponseEntity.ok(
+            new ApiResponse(true, "Secrétaire supprimé", null)
+        );
     }
 }

@@ -28,21 +28,87 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private FastApiAuthService fastApiAuthService;
 
-    @Override
+    // @Override
+    // protected void doFilterInternal(HttpServletRequest request,
+    //                                 HttpServletResponse response,
+    //                                 FilterChain filterChain) throws ServletException, IOException {
 
-    protected void doFilterInternal(HttpServletRequest request,
+    //     // Ne pas filtrer les requêtes vers /login et /api/**
+
+    //     String path = request.getRequestURI();
+
+    //     if (path.equals("/login")
+    //             || path.startsWith("/api/")
+    //             || path.startsWith("/css/")
+    //             || path.startsWith("/js/")
+    //             || path.startsWith("/images/")
+    //             || path.startsWith("/pdf_ordonnances/")) {
+
+    //         filterChain.doFilter(request, response);
+    //         return;
+    //     }
+
+       
+    //     if (path.equals("/login") || path.startsWith("/api/") || path.startsWith("/css/") || 
+    //         path.startsWith("/js/") || path.startsWith("/images/")) {
+    //         filterChain.doFilter(request, response);
+    //         return;
+    //     }
+
+    //     // Extrait le token du cookie ou du header
+    //     String token = extractToken(request);
+
+    //     if (token != null) {
+    //         // Valide le token via FastAPI
+    //         Map<String, Object> tokenData = fastApiAuthService.validateToken(token);
+
+    //         if (tokenData != null) {
+    //             // Crée l'authentification Spring Security
+    //             String username = (String) tokenData.get("username");
+    //             String role = (String) tokenData.get("role");
+
+    //             List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+    //                 new SimpleGrantedAuthority("ROLE_" + role)
+    //             );
+
+    //             UsernamePasswordAuthenticationToken authentication =
+    //                 new UsernamePasswordAuthenticationToken(username, null, authorities);
+
+    //             SecurityContextHolder.getContext().setAuthentication(authentication);
+    //         } else {
+    //             // Token invalide, redirige vers login
+    //             response.sendRedirect("/login");
+    //             return;
+    //         }
+    //     } else {
+    //         // Pas de token, redirige vers login
+    //         response.sendRedirect("/login");
+    //         return;
+    //     }
+
+    //     filterChain.doFilter(request, response);
+    // }
+    @Override
+protected void doFilterInternal(HttpServletRequest request,
                                 HttpServletResponse response,
                                 FilterChain filterChain) throws ServletException, IOException {
 
     String path = request.getRequestURI();
 
-    // 1. Laisser passer les routes publiques sans vérifier le token
-    if (path.equals("/login") || path.startsWith("/api/") || path.startsWith("/css/") || 
-        path.startsWith("/js/") || path.startsWith("/images/")) {
+    // 🔥 PUBLIC ROUTES
+    if (path.startsWith("/login")
+            || path.startsWith("/api/")
+            || path.startsWith("/css/")
+            || path.startsWith("/js/")
+            || path.startsWith("/images/")
+            || path.startsWith("/pdf_ordonnances/")
+            || path.startsWith("/ws-notif")) {
+
         filterChain.doFilter(request, response);
         return;
     }
 
+    // 🔐 JWT CHECK
     String token = extractToken(request);
 
     if (token != null) {
@@ -52,37 +118,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = (String) tokenData.get("username");
             String role = (String) tokenData.get("role");
 
-            List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + role)
-            );
+            List<SimpleGrantedAuthority> authorities =
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
 
-            UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(username, null, authorities);
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(username, null, authorities);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            filterChain.doFilter(request, response); // Continuer normalement
+            SecurityContextHolder.getContext().setAuthentication(auth);
         } else {
-            handleUnauthenticated(request, response);
+            response.sendRedirect("/login");
+            return;
         }
     } else {
-        handleUnauthenticated(request, response);
-    }
-}
-
-/**
- * Gère l'échec d'authentification sans casser les appels API
- */
-private void handleUnauthenticated(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String path = request.getRequestURI();
-    
-    // Si c'est une API, on renvoie juste 401 Unauthorized
-    if (path.startsWith("/api/")) {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("{\"error\": \"Unauthorized - Token invalid or missing\"}");
-    } else {
-        // Si c'est une page HTML, on redirige vers le login
         response.sendRedirect("/login");
+        return;
     }
+
+    filterChain.doFilter(request, response);
 }
 
     /**

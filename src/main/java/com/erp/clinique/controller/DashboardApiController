@@ -1,0 +1,22 @@
+package com.erp.clinique.controller;
+
+import com.erp.clinique.dto.DashboardDTO;
+import com.erp.clinique.service.DashboardService;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1")
+@CrossOrigin(origins = "*")
+public class DashboardController {
+
+    private final DashboardService dashboardService;
+
+    public DashboardController(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
+    }
+
+    @GetMapping("/dashboard")
+    public DashboardDTO getDashboard() {
+        return dashboardService.getDashboard();
+    }
+}
